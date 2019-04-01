@@ -1,10 +1,13 @@
 begin
  
-  
+  outname = "./TPmask_C20190301.nc"
+  system("rm -f "+outname)
+
   f1 = addfile("./USGS-gtopo30_1.9x2.5_remap_c050602C_junbin.nc", "r") 
-  f2 = addfile("./TPmask.nc", "c")  
+  f2 = addfile(outname, "c")  
   
   M1 = f1->PHIS(:,:) 
+  M1 = 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;再对原来青藏高原的区域，位势高度统一赋值为10000，地形变率统一赋值为0
 

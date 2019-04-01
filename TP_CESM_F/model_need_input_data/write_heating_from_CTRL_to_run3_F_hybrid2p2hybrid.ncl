@@ -79,7 +79,7 @@ z0@long_name = "monthly sum of heating "
 printVarSummary(z0)
 
 datapath = "./"
-dataname = "heating_H2P2H_C190224.nc"
+dataname = "heating_F_H2P2H_C190224.nc"
 
 ;====!!!==when write data, the _FillValue should be -999========
 system("rm -f "+datapath+dataname)

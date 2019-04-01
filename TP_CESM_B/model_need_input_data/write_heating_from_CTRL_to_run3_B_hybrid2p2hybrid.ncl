@@ -83,10 +83,12 @@ printVarSummary(zp)
 ;===========================================================
 z1 = clmMonTLLL(z)
 z1@long_name = "monthly sum of heating "
-z1 = where(z1.eq.z1@_FillValue, -999., z1)
+z1@_FillValue = -999.
+z1 = where(abs(z1).gt.0.002, z1@_FillValue, z1)
+z1@_FillValue = -999.
 printVarSummary(z1)
 
-dataname = "heating_H2P2H_C20190224.nc"
+dataname = "heating_B_H2P2H_C20190304.nc"
 datapath = "./"
 system("rm -f "+datapath+dataname)
 output = addfile(datapath+dataname, "c")
@@ -114,8 +116,8 @@ p(2,:) = p(0,:) - p(1,:)
 printVarSummary(p)
 
 pp = xp(0:2,:,{35},{90})
-pp(0,:) = dim_avg_n_Wrap(xp(50,:,{25:40},{75:110}),(/1,2/))
-pp(1,:) = dim_avg_n_Wrap(zp(50,:,{25:40},{75:110}),(/1,2/))
+pp(0,:) = dim_avg_n_Wrap(xp(50,:,{25:40},{75:105}),(/1,2/))
+pp(1,:) = dim_avg_n_Wrap(zp(50,:,{25:40},{75:105}),(/1,2/))
 pp(2,:) = pp(0,:) - pp(1,:)
 printVarSummary(pp)
 delete(xc)
