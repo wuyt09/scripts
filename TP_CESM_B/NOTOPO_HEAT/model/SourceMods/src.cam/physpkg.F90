@@ -697,13 +697,13 @@ subroutine phys_init( phys_state, phys_tend, pbuf2d, cam_out )
 
 
     !*** MOD START: infld TP mask and heating file
-    bnd_tpmask_loc = "/users/yangsong3/wuyt/B/TP_HEAT/data/TPmask_C20190304.nc"
+    bnd_tpmask_loc = "/WORK/sysu_hjkx_ys/wuyt/cesm/B/TP_HEAT/data/TPmask_C20190304.nc"
     write(iulog,*) 'tpmask will be in!!!'
     call cam_pio_openfile(fh_tpmask, bnd_tpmask_loc, 0)
     call infld('tp', fh_tpmask, 'lon', 'lat', 1, pcols, begchunk, endchunk, &
             tpmask, found, grid_map='PHYS')
     
-    heat_loc="/users/yangsong3/wuyt/B/TP_HEAT/data/heating_B_H2P2H_C20190301.nc"
+    heat_loc="/WORK/sysu_hjkx_ys/wuyt/cesm/B/TP_HEAT/data/heating_B_H2P2H_C20190304.nc"
     write(iulog,*) 'heatforcing will be in!!!'
     call cam_pio_openfile(fh_heat, heat_loc, 0)
     do nm = 1,12
