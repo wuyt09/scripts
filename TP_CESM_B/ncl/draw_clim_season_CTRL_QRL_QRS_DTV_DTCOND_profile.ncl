@@ -1,10 +1,14 @@
 
 begin
 
-lonstr = 75
-lonend = 105
-latstr = 25
-latend = 40
+lonstr = 65
+lonend = 110
+latstr = 20
+latend = 45
+;lonstr = 80
+;lonend = 100
+;latstr = 27.5
+;latend = 37.5
 
 
 diri  = "/home/yangsong3/data-model/wuyt/TP_CTRL_B2000_F19G16_CAM4/pro/"
@@ -18,10 +22,10 @@ f2 = addfile(diri+fili2, "r")
 f3 = addfile(diri+fili3, "r")
 f4 = addfile(diri+fili4, "r")
 
-x1 = f1->QRL
-x2 = f2->QRS
-x3 = f3->DTCOND
-x4 = f4->DTV
+x1 = f1->QRL(:,:,{latstr:latend},{lonstr:lonend})
+x2 = f2->QRS(:,:,{latstr:latend},{lonstr:lonend})
+x3 = f3->DTCOND(:,:,{latstr:latend},{lonstr:lonend})
+x4 = f4->DTV(:,:,{latstr:latend},{lonstr:lonend})
 printVarSummary(x1)
 lev = x1&lev
 lev!0 = "level"
@@ -48,41 +52,42 @@ JJA(2,:,:,:,:) = x33_JJA
 JJA(3,:,:,:,:) = x44_JJA
 printVarSummary(JJA)
 
-JJA2 = new((/3,dimsizes(Season),dimsizes((x1&lev)),dimsizes(x1&lat),dimsizes(x1&lon)/), float)
-JJA2(1:2,:,:,:,:) = JJA(2:3,:,:,:,:)
-JJA2(0,:,:,:,:) = JJA(0,:,:,:,:)+JJA(1,:,:,:,:) ;radiation cooling
+JJA2 = new((/4,dimsizes(Season),dimsizes((x1&lev)),dimsizes(x1&lat),dimsizes(x1&lon)/), float)
+JJA2(2:3,:,:,:,:) = JJA(2:3,:,:,:,:)
+JJA2(1,:,:,:,:) = JJA(0,:,:,:,:)+JJA(1,:,:,:,:) ;radiation cooling
+JJA2(0,:,:,:,:) = JJA2(1,:,:,:,:) + JJA2(2,:,:,:,:) + JJA2(3,:,:,:,:)
+
+;jja = wgt_areaave_Wrap(JJA(:,:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 1)
+;jja2 = wgt_areaave_Wrap(JJA2(:,:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 1)
 
 ;=======================================================
 maskpath = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_B/model_need_input_data/"
 maskname = "TPmask_C20190304.nc"
 fmask = addfile(maskpath+maskname, "r")
-tp = fmask->tp
+tp = fmask->tp({latstr:latend},{lonstr:lonend})
 tp0 = conform_dims(dimsizes(JJA2), tp, (/3,4/))
 printVarSummary(tp0)
 JJA2 = mask(JJA2, tp0.ge.0.9, True)
-print(JJA2(0,0,4,{35},{90}))
-print(JJA2(0,0,4,{20},{90}))
+;print(JJA2(0,0,4,{35},{90}))
+;print(JJA2(0,0,4,{20},{90}))
 
-;jja = wgt_areaave_Wrap(JJA(:,:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 1)
-;jja2 = wgt_areaave_Wrap(JJA2(:,:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 1)
-jja = wgt_areaave_Wrap(JJA(:,:,:,{20:45},{65:110}), 1, 1, 1)
-jja2 = wgt_areaave_Wrap(JJA2(:,:,:,{20:45},{65:110}), 1, 1, 1)
+jja = wgt_areaave_Wrap(JJA(:,:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 1)
+jja2 = wgt_areaave_Wrap(JJA2(:,:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 1)
 printVarSummary(jja)
-
 
 ;==============================================================
  figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_B/ncl/"
  figname = "draw_clim_season_CTRL_QRL_QRS_DTV_DTCOND_profile"
  wks = gsn_open_wks("pdf", figpath+figname)
  plot = new(4, graphic)
- dum1 = new(3, graphic)
+ dum1 = new(4, graphic)
  dum2 = dum1
  
  ;Colors = (/"green","red","green4","gold"/)
  ;Texts = (/"QRL","QRS","DTCOND","DTV"/)
 
- Colors = (/"goldenrod","red","green4"/)
- Texts = (/"QRL+QRS","DTCOND","DTV"/)
+ Colors = (/"black","goldenrod","red","green4"/)
+ Texts = (/"total","QRL+QRS","DTCOND","DTV"/)
 
  res = True
  res@gsnDraw  = False
@@ -128,8 +133,8 @@ printVarSummary(jja)
  xx = (/-5.5,-4.5/)
  text_pos = -4.3
 
- do i = 0,2
-    yy = (/300+i*100,300+i*100/)
+ do i = 0,3
+    yy = (/200+i*100,200+i*100/)
     res_lines@gsLineColor = Colors(i)
     dum1(i) = gsn_add_polyline(wks, plot(0), xx, yy, res_lines)
     dum2(i) = gsn_add_text(wks, plot(0), Texts(i), text_pos, yy(0), res_text)

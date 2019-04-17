@@ -27,6 +27,26 @@ p1sea = dim_avg_n_Wrap(p1Sea, 1)
 p2sea = dim_avg_n_Wrap(p2Sea, 1)
 printVarSummary(p1sea)
 
+topopath = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_B/model_need_input_data/"
+toponame = "TPmask_C20190304.nc"
+ftopo = addfile(topopath+toponame, "r")
+tpmask = ftopo->tp
+printVarSummary(tpmask)
+
+ res_topo            = True
+ res_topo@cnFillOn   = False
+ res_topo@cnLinesOn  = True
+ res_topo@gsnFrame   = False
+ res_topo@gsnDraw    = False
+ res_topo@cnLineLabelsOn         = False
+ res_topo@cnLineThicknessF       = 3
+ res_topo@cnLineColor            = "gray30"
+ res_topo@cnInfoLabelOn          = False
+ res_topo@cnLevelSelectionMode   ="ExplicitLevels"
+ res_topo@cnLevels               = (/0.9/)
+ res_topo@gsnLeftString = ""
+ res_topo@gsnRightString = ""
+;=====================================================================================
 ;=====================================================================================
 
 lonstr = 60
@@ -40,7 +60,7 @@ figname = "draw_clim_season_CTRL_NOSH_PRECL"
 wks = gsn_open_wks("pdf", figpath+figname)
 nplot = 4
 plot = new(nplot, graphic)
-plot_topo = 4
+plot_topo = plot
 
 res = True
 res@gsnDraw  = False
@@ -71,9 +91,13 @@ res@cnLevelSpacingF = 1
 res@cnMaxLevelValF = 11.
 res@cnMinLevelValF = 1.
 
+res@gsnRightString = "mm/day"
+
 do i = 0, dimsizes(season)-1
     res@gsnLeftString = season(i)
     plot(i) = gsn_csm_contour_map(wks, p1sea(i,:,:), res)
+    plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
+    overlay(plot(i), plot_topo(i))
 end do
 
 pres = True
@@ -85,6 +109,8 @@ gsn_panel(wks, plot, (/2,2/), pres)
 do i = 0, dimsizes(season)-1
     res@gsnLeftString = season(i)
     plot(i) = gsn_csm_contour_map(wks, p2sea(i,:,:), res)
+    plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
+    overlay(plot(i), plot_topo(i))
 end do
 pres@gsnPanelMainString = "NOSH"
 gsn_panel(wks, plot, (/2,2/), pres)

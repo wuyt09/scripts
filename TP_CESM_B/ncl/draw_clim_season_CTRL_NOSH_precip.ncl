@@ -9,18 +9,29 @@ diri2 = "/home/yangsong3/data-model/wuyt/TP_NOSH_B2000_F19G16_CAM4/pro/"
 fili1 = "B2000_f19g16_CP_CTRL.cam.h0.PRECC.260-304.nc"
 fili2 = "TP_NOSH.PRECC.mon.26001-30712.nc"
 
+fili3 = "B2000_f19g16_CP_CTRL.cam.h0.PRECL.260-304.nc"
+fili4 = "TP_NOSH.PRECL.mon.26001-30712.nc"
+
 f1 = addfile(diri1+fili1, "r")
 f2 = addfile(diri2+fili2, "r")
+f3 = addfile(diri1+fili3, "r")
+f4 = addfile(diri2+fili4, "r")
 
 p1 = f1->PRECC
 p2 = f2->PRECC
+p3 = f3->PRECL
+p4 = f4->PRECL
 printVarSummary(p1)
 
-p1 = p1*1000*86400
-p2 = p2*1000*86400 ; m/s to mm/day
+P1 = p1
+P2 = p2
+P1 = p1+p3
+P2 = p2+p4
+P1 = P1*1000*86400
+P2 = P2*1000*86400 ; m/s to mm/day
 
-p1Sea = month_to_seasonN(p1, season)
-p2Sea = month_to_seasonN(p2, season)
+p1Sea = month_to_seasonN(P1, season)
+p2Sea = month_to_seasonN(P2, season)
 printVarSummary(p1Sea)
 
 p1sea = dim_avg_n_Wrap(p1Sea, 1)
@@ -47,7 +58,6 @@ printVarSummary(tpmask)
  res_topo@gsnLeftString = ""
  res_topo@gsnRightString = ""
 ;=====================================================================================
-;=====================================================================================
 
 lonstr = 60
 lonend = 120
@@ -55,7 +65,7 @@ latstr = 20
 latend = 45
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_B/ncl/"
-figname = "draw_clim_season_CTRL_NOSH_PRECC"
+figname = "draw_clim_season_CTRL_NOSH_precip"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 nplot = 4
@@ -88,7 +98,7 @@ res@lbLabelBarOn = False
 res@cnFillPalette = "CBR_wet"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 1
-res@cnMaxLevelValF = 11.
+res@cnMaxLevelValF = 20.
 res@cnMinLevelValF = 1.
 
 res@gsnRightString = "mm/day"
