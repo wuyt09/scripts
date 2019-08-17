@@ -1,24 +1,17 @@
 
 begin
 
-yrStat = 260
-yrLast = 304 
+diri1 = "/home/yangsong3/data-model/wuyt/TP_CTRL_F2000_F19G16_CAM4/pro/"
+diri2 = "/home/yangsong3/data-model/wuyt/TP_NOTP_F2000_F19G16_CAM4/pro/"
+diri3 = "/home/yangsong3/data-model/wuyt/TP_NOQ1_F2000_F19G16_CAM4/pro/"
 
-diri1 = "/home/yangsong3/data-model/wuyt/TP_CTRL_B2000_F19G16_CAM4/pro/"
-diri2 = "/home/yangsong3/data-model/wuyt/TP_NoTOPO_B2000_F19G16_CAM4/pro/"
-diri3 = "/home/yangsong3/data-model/wuyt/TP_NOSH_B2000_F19G16_CAM4/pro/"
+filiu1 = "F2000_CTRL.plevel.U.mon.0601-3012.nc"
+filiu2 = "F2000_NOTP.plevel.U.mon.0601-3012.nc"
+filiu3 = "F2000_NOQ1.plevel.U.mon.0601-3012.nc"
 
-filiu1 = "B2000_f19g16_CP_CTRL.plevel.V.mon.260-304.nc"
-filiu2 = "TP_NOTOPO.plevel.V.mon.260-304.nc"
-filiu3 = "TP_NOSH.plevel.V.mon.260-304.nc"
-
-filiv1 = "B2000_f19g16_CP_CTRL.plevel.OMEGA.mon.260-304.nc"
-filiv2 = "TP_NOTOPO.plevel.OMEGA.mon.260-304.nc"
-filiv3 = "TP_NOSH.plevel.OMEGA.mon.260-304.nc"
-
-filic1 = "B2000_f19g16_CP_CTRL.plevel.T.mon.260-304.nc"
-filic2 = "TP_NOTOPO.plevel.T.mon.260-304.nc"
-filic3 = "TP_NOSH.plevel.T.mon.260-304.nc"
+filiv1 = "F2000_CTRL.plevel.OMEGA.mon.0601-3012.nc"
+filiv2 = "F2000_NOTP.plevel.OMEGA.mon.0601-3012.nc"
+filiv3 = "F2000_NOQ1.plevel.OMEGA.mon.0601-3012.nc"
 
 
 fu1 = addfile(diri1+filiu1, "r")
@@ -29,9 +22,9 @@ fv1 = addfile(diri1+filiv1, "r")
 fv2 = addfile(diri2+filiv2, "r")
 fv3 = addfile(diri3+filiv3, "r")
 
-u1 = fu1->V
-u2 = fu2->V
-u3 = fu3->V
+u1 = fu1->U
+u2 = fu2->U
+u3 = fu3->U
 v1 = fv1->OMEGA
 v2 = fv2->OMEGA
 v3 = fv3->OMEGA
@@ -45,20 +38,19 @@ p1 = v1*(-1.)
 p2 = v2*(-1.)
 p3 = v3*(-1.) ; upward is positive value
 
-v1 = v1*(-100.)
-v2 = v2*(-100.)
-v3 = v3*(-100.)
+v1 = v1*(-50.)
+v2 = v2*(-50.)
+v3 = v3*(-50.)
 ;==================================================================
-
-u1x = dim_avg_n_Wrap(u1(:,:,:,{75:110}), 3)
-u2x = dim_avg_n_Wrap(u2(:,:,:,{75:110}), 3)
-u3x = dim_avg_n_Wrap(u3(:,:,:,{75:110}), 3)
-v1x = dim_avg_n_Wrap(v1(:,:,:,{75:110}), 3)
-v2x = dim_avg_n_Wrap(v2(:,:,:,{75:110}), 3)
-v3x = dim_avg_n_Wrap(v3(:,:,:,{75:110}), 3)
-p1x = dim_avg_n_Wrap(p1(:,:,:,{75:110}), 3)
-p2x = dim_avg_n_Wrap(p2(:,:,:,{75:110}), 3)
-p3x = dim_avg_n_Wrap(p3(:,:,:,{75:110}), 3)
+u1x = dim_avg_n_Wrap(u1(:,:,{25:40},:), 2)
+u2x = dim_avg_n_Wrap(u2(:,:,{25:40},:), 2)
+u3x = dim_avg_n_Wrap(u3(:,:,{25:40},:), 2)
+v1x = dim_avg_n_Wrap(v1(:,:,{25:40},:), 2)
+v2x = dim_avg_n_Wrap(v2(:,:,{25:40},:), 2)
+v3x = dim_avg_n_Wrap(v3(:,:,{25:40},:), 2)
+p1x = dim_avg_n_Wrap(p1(:,:,{25:40},:), 2)
+p2x = dim_avg_n_Wrap(p2(:,:,{25:40},:), 2)
+p3x = dim_avg_n_Wrap(p3(:,:,{25:40},:), 2)
 
 Season = (/"DJF","MAM","JJA","SON"/)
 p11 = month_to_seasonN(p1x, Season)
@@ -105,9 +97,34 @@ copy_VarCoords(vv1, v_m)
 copy_VarCoords(vv1, v_t)
 copy_VarCoords(vv1, v_h)
 
+pathmask = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
+tpmask = "USGS-gtopo30_1.9x2.5_remap_c050602.nc"
+notpmask = "USGS-gtopo30_1.9x2.5_remap_C20190410_TP1000m_wuyt.nc"
+fh1 = addfile(pathmask+tpmask, "r")
+fh2 = addfile(pathmask+notpmask, "r")
+
+HGT1 = fh1->PHIS
+HGT2 = fh2->PHIS
+hgt1 = HGT1
+hgt2 = HGT2
+hgt1 = HGT1/9.8
+hgt2 = HGT2/9.8
+printVarSummary(hgt1)
+
+hgt1x = dim_avg_n_Wrap(hgt1({25:40},:), 0)
+hgt2x = dim_avg_n_Wrap(hgt2({25:40},:), 0)
+printVarSummary(hgt1x)
+
+tp1x = hgt1x
+tp1x = 1013.25*(1-hgt1x*0.0065/288.15)^5.25145
+tp2x = hgt2x
+tp2x = 1013.25*(1-hgt2x*0.0065/288.15)^5.25145
+printVarSummary(tp1x)
+
+
 ;=========================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_B/ncl/"
-figname = "draw_clim_season_VW"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/"
+figname = "draw_clim_season_UW"
 
 lonstr = 40
 lonend = 180
@@ -118,6 +135,19 @@ wks = gsn_open_wks("pdf", figpath+figname)
 nplot = 12
 plot = new(nplot, graphic)
 plotv = plot
+plot_topo = plot
+
+ xyres  = True
+ xyres@gsnDraw  = False
+ xyres@gsnFrame = False
+ xyres@gsnYRefLine = 1000.0
+ xyres@gsnBelowYRefLineColor = "black"
+ ;xyres@xyLineColors = "gray"
+ ;xyres@xyLineThicknesses = 1.
+ xyres@trYMinF = 100.
+ xyres@trYMaxF = 1000.
+ ;xyres@trYReverse = True
+
 
 res = True
 res@gsnDraw  = False
@@ -159,14 +189,12 @@ res@tmYLLabelFontHeightF = 0.025
   res@vcRefAnnoString2On = False
   res@vcRefAnnoFontHeightF = 0.02
 
-  res@gsnPresHgtHeightLabelOn = False
-
 ;------------------------------------------
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.005
-res@cnMaxLevelValF = 0.05
-res@cnMinLevelValF = -0.05
+res@cnLevelSpacingF = 0.01
+res@cnMaxLevelValF = 0.1
+res@cnMinLevelValF = -0.1
 res@cnFillPalette = "BlueWhiteOrangeRed"
 res@vcRefMagnitudeF         = 2.             ; define vector ref mag
 res@lbLabelBarOn = False
@@ -175,19 +203,25 @@ do i = 0, dimsizes(Season)-1
 
 res@gsnRightString = Season(i)
 res@gsnLeftString = "CTRL - NOTP"
-plot(i) = gsn_csm_pres_hgt_vector(wks, p_t(i,:,{latstr:latend}), u_t(i,:,{latstr:latend}), v_t(i,:,{latstr:latend}), res)
+plot(i) = gsn_csm_pres_hgt_vector(wks, p_t(i,:,{lonstr:lonend}), u_t(i,:,{lonstr:lonend}), v_t(i,:,{lonstr:lonend}), res)
+plot_topo(i) = gsn_csm_xy(wks, tp1x&lon, tp1x, xyres)
+overlay(plot(i), plot_topo(i))
 
-res@gsnLeftString = "CTRL - NOSH"
-plot(i+4) = gsn_csm_pres_hgt_vector(wks, p_m(i,:,{latstr:latend}), u_m(i,:,{latstr:latend}), v_m(i,:,{latstr:latend}), res)
+res@gsnLeftString = "CTRL - NOQ1"
+plot(i+4) = gsn_csm_pres_hgt_vector(wks, p_m(i,:,{lonstr:lonend}), u_m(i,:,{lonstr:lonend}), v_m(i,:,{lonstr:lonend}), res)
+plot_topo(i+4) = gsn_csm_xy(wks, tp1x&lon, tp1x, xyres)
+overlay(plot(i+4), plot_topo(i+4))
 
-res@gsnLeftString = "NOSH - NOTP"
-plot(i+8) = gsn_csm_pres_hgt_vector(wks, p_h(i,:,{latstr:latend}), u_h(i,:,{latstr:latend}), v_h(i,:,{latstr:latend}), res)
+res@gsnLeftString = "NOQ1 - NOTP"
+plot(i+8) = gsn_csm_pres_hgt_vector(wks, p_h(i,:,{lonstr:lonend}), u_h(i,:,{lonstr:lonend}), v_h(i,:,{lonstr:lonend}), res)
+plot_topo(i+8) = gsn_csm_xy(wks, tp1x&lon, tp1x, xyres)
+overlay(plot(i+8), plot_topo(i+8))
 
 end do
 
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = "VW (75-110E)"
+pres@gsnPanelMainString = "UW (25-40N)"
 pres@gsnPanelLabelBar  = True
 pres@pmLabelBarOrthogonalPosF = -0.01
 
@@ -197,8 +231,8 @@ gsn_panel(wks, plot, (/3,4/), pres)
 res@lbLabelBarOn = False
 
 ;res@cnLevelSelectionMode = "ExplicitLevels"
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.02
+;res@cnLevelSelectionMode = "ManualLevels"
+res@cnLevelSpacingF = 0.01
 res@cnMaxLevelValF = 0.2
 res@cnMinLevelValF = -0.2
 res@cnFillPalette = "BlueWhiteOrangeRed"
@@ -208,18 +242,27 @@ res@vcRefMagnitudeF         = 10.0             ; define vector ref mag
 do i = 0, dimsizes(Season)-1
 res@gsnRightString = Season(i)
 res@gsnLeftString = "CTRL"
-plot(i) = gsn_csm_pres_hgt_vector(wks, pp1(i,:,{latstr:latend}), uu1(i,:,{latstr:latend}), vv1(i,:,{latstr:latend}), res)
+plot(i) = gsn_csm_pres_hgt_vector(wks, pp1(i,:,{lonstr:lonend}), uu1(i,:,{lonstr:lonend}), vv1(i,:,{lonstr:lonend}), res)
+plot_topo(i) = gsn_csm_xy(wks, tp1x&lon, tp1x, xyres)
+overlay(plot(i), plot_topo(i))
+
 
 res@gsnLeftString = "NOTP"
-plot(i+4) = gsn_csm_pres_hgt_vector(wks, pp2(i,:,{latstr:latend}), uu2(i,:,{latstr:latend}), vv2(i,:,{latstr:latend}), res)
+plot(i+4) = gsn_csm_pres_hgt_vector(wks, pp2(i,:,{lonstr:lonend}), uu2(i,:,{lonstr:lonend}), vv2(i,:,{lonstr:lonend}), res)
+plot_topo(i+4) = gsn_csm_xy(wks, tp2x&lon, tp2x, xyres)
+overlay(plot(i+4), plot_topo(i+4))
 
-res@gsnLeftString = "NOSH"
-plot(i+8) = gsn_csm_pres_hgt_vector(wks, pp3(i,:,{latstr:latend}), uu3(i,:,{latstr:latend}), vv3(i,:,{latstr:latend}), res)
+
+res@gsnLeftString = "NOQ1"
+plot(i+8) = gsn_csm_pres_hgt_vector(wks, pp3(i,:,{lonstr:lonend}), uu3(i,:,{lonstr:lonend}), vv3(i,:,{lonstr:lonend}), res)
+plot_topo(i+8) = gsn_csm_xy(wks, tp1x&lon, tp1x, xyres)
+overlay(plot(i+8), plot_topo(i+8))
 
 end do
+
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = "VW (75-110E)"
+pres@gsnPanelMainString = "UW (25-40N)"
 pres@gsnPanelLabelBar = True
 pres@pmLabelBarOrthogonalPosF = -0.01
 
