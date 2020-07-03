@@ -4,7 +4,7 @@ begin
 diri = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
 ;fili = "USGS-gtopo30_1.9x2.5_remap_C20190525_TP1000m_wuyt.nc"
 fili = "USGS-gtopo30_1.9x2.5_remap_c050602.nc"
-filitp = "TPmask_1000m_C20190525.nc"
+filitp = "TPmask_1000m_C20190924.nc"
 
 f = addfile(diri+fili, "r")
 ftp = addfile(diri+filitp, "r")
@@ -158,7 +158,7 @@ overlay(plot(0), plot_topo(0))
 
 delete(plot(1))
 delete(res@cnLevels)
-res@cnLevels               = (/(1000*9.8)/)
+res@cnLevels               = (/(1500*9.8)/)
 res@gsnLeftString = "hgt"
 plot(1) = gsn_csm_contour_map(wks, hgt, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)

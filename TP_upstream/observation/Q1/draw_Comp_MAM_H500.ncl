@@ -67,13 +67,13 @@ printVarSummary(prob)
 printVarSummary(diff)
 
 ;========================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_upstream/climatology/"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_upstream/observation/Q1/"
 figname = "draw_Comp_MAM_H500"
 
 latstr = 0
 latend = 70
 lonstr = -30
-lonend = 150
+lonend = 240
 
 wks = gsn_open_wks("pdf", figpath+figname)
 nplot = 3

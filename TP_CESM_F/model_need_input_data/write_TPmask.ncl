@@ -18,12 +18,13 @@ hgt = phis
 lat = phis&lat
 lon = phis&lon
 printVarSummary(lat)
+print(lon)
 
 do j = 0,dimsizes(lat)-1
-    do i = 0, 36  ; 90E
-        case1 = lon(i).ge.70 .and. lon(i).le.105
-        case2 = lat(j).ge.23 .and. lat(j).le.40
-        case3 = phis(j,i).ge.(1000*9.8)
+    do i = 0, 34  ; 85E
+        case1 = lon(i).ge.50 .and. lon(i).le.110
+        case2 = lat(j).ge.20 .and. lat(j).le.50
+        case3 = phis(j,i).ge.(1500*9.8)
         if case1 .and. case2 .and. case3
             tpmask(j,i) = 1
         else 
@@ -32,11 +33,11 @@ do j = 0,dimsizes(lat)-1
     end do
 end do
 
-do j = 0, dimsizes(lat)-1
-    do i = 37,dimsizes(lon)-1
-        case1 = lon(i).ge.70 .and. lon(i).le.105
-        case2 = lat(j).ge.23 .and. lat(j).le.40
-        case3 = phis(j,i).ge.(1000*9.8)
+do j = 0,dimsizes(lat)-1
+    do i = 35, dimsizes(lon)-1
+        case1 = lon(i).ge.50 .and. lon(i).le.110
+        case2 = lat(j).ge.20 .and. lat(j).le.40
+        case3 = phis(j,i).ge.(1500*9.8)
         if case1 .and. case2 .and. case3
             tpmask(j,i) = 1
         else 
@@ -44,14 +45,26 @@ do j = 0, dimsizes(lat)-1
         end if
     end do
 end do
+;do j = 0, dimsizes(lat)-1
+;    do i = 37,dimsizes(lon)-1
+;        case1 = lon(i).ge.70 .and. lon(i).le.105
+;        case2 = lat(j).ge.23 .and. lat(j).le.40
+;        case3 = phis(j,i).ge.(1000*9.8)
+;        if case1 .and. case2 .and. case3
+;            tpmask(j,i) = 1
+;        else 
+;            tpmask(j,i) = 0
+;        end if
+;    end do
+;end do
 
-tpmask@long_name = "TP mask, TP area(1000m)=1, others=0"
+tpmask@long_name = "TP mask, TP area(1500m)=1, others=0"
 printVarSummary(tpmask)
 printVarSummary(hgt)
 
 ;===============================================================
 outpath = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
-maskname = "TPmask_1000m_C20190525.nc"
+maskname = "TPmask_1500m_C20190924.nc"
 ;hgtname = "USGS-gtopo30_1.9x2.5_remap_C20190304_wuyt.nc"
 
 system("rm -f "+outpath+maskname)
@@ -144,7 +157,7 @@ plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
 delete(res@cnLevels)
-res@cnLevels               = (/(1000*9.8)/)
+res@cnLevels               = (/(1500*9.8)/)
 res@gsnLeftString = "hgt"
 plot(1) = gsn_csm_contour_map(wks, hgt, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)

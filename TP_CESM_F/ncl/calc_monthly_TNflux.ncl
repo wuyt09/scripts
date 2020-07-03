@@ -43,6 +43,7 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 begin
 
 casename = (/"CTRL","NOQ1","NOTP_NOQ1" /)
+nyear = 25
 
 do i = 0, dimsizes(casename)-1
 ;  direcotry name
@@ -68,15 +69,34 @@ nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 nlevel = dimsizes(level)
 
-cuvar = fu->U
-cvvar = fv->V
+uvar = fu->U
+vvar = fv->V
 zvar = fz->Z3
-ctvar = ft->T
+tvar = ft->T
 
 ;height anomaly
 zvar_clm = clmMonTLLL(zvar)
 zavar = calcMonAnomTLLL(zvar, zvar_clm)
 delete([/diri,filiu,filiv,filit,filiz,fu,fv,fz,ft/])
+
+bzvar = zvar_clm
+btvar = clmMonTLLL(tvar)
+buvar = clmMonTLLL(uvar)
+bvvar = clmMonTLLL(vvar)
+
+czvar = new(dimsizes(zvar),float,zvar@_FillValue)
+ctvar = new(dimsizes(zvar),float,zvar@_FillValue)
+cuvar = new(dimsizes(zvar),float,zvar@_FillValue)
+cvvar = new(dimsizes(zvar),float,zvar@_FillValue)
+
+do j = 0, nyear-1
+    do k = 0, 11
+        czvar(j*12+k,:,:,:) = bzvar(k,:,:,:)
+        ctvar(j*12+k,:,:,:) = btvar(k,:,:,:)
+        cuvar(j*12+k,:,:,:) = buvar(k,:,:,:)
+        cvvar(j*12+k,:,:,:) = bvvar(k,:,:,:)
+    end do
+end do
 
 ;  Gas constant
 gc=290
@@ -244,5 +264,6 @@ ncFz->Fz = Fz
 ncpsidev->psidev = psidev
 
 ncNN->NN = NN
+print("end of "+casename(i))
 end do
 end

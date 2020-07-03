@@ -7,9 +7,12 @@ latstr = 10
 latend = 60
 
 diri = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
-fili1 = "USGS-gtopo30_1.9x2.5_remap_C20190525_TP1000m_wuyt.nc"
+; fili1 = "USGS-gtopo30_1.9x2.5_remap_C20190525_TP1000m_wuyt.nc"
+; fili2 = "USGS-gtopo30_1.9x2.5_remap_c050602.nc"
+; fili3 = "TPmask_1000m_C20190525.nc"
+fili1 = "USGS-gtopo30_1.9x2.5_remap_C20190410_TP1000m_wuyt.nc"
 fili2 = "USGS-gtopo30_1.9x2.5_remap_c050602.nc"
-fili3 = "TPmask_1000m_C20190525.nc"
+fili3 = "TPmask_1000m_C20190410.nc"
 
 f1 = addfile(diri+fili1, "r")
 f2 = addfile(diri+fili2, "r")
@@ -91,7 +94,7 @@ res@mpMaxLonF    = lonend
 ;res@mpCenterLonF = 180
 res@mpGeophysicalLineThicknessF = 1
 
-res@cnFillOn     = True
+res@cnFillOn     = False ;True
 res@cnLinesOn    = True
 res@cnLineLabelsOn         = True
 res@cnInfoLabelOn          = False

@@ -1,7 +1,8 @@
 begin
 
 indexname = (/"WY","WNP","SA","SA-II","EA","AUS"/)
-casename = (/"CTRL","NOTP","NOQ1","NOTP_NOQ1"/)
+;casename = (/"CTRL","NOTP","NOQ1","NOTP_NOQ1"/)
+casename = (/"CTRL","NOQ1","NOTP_NOQ1"/)
 
 diri = "./"
 fili1 = "calc_monsoon_index_JJA_CTRL.txt"
@@ -15,11 +16,15 @@ noq1 = asciiread(diri+fili3, (/25,6/), "float")
 noei = asciiread(diri+fili4, (/25,6/), "float")
 printVarSummary(ctrl)
 
-index = new((/4,25,6/), float)
+; index = new((/4,25,6/), float)
+; index(0,:,:) = ctrl
+; index(1,:,:) = notp
+; index(2,:,:) = noq1
+; index(3,:,:) = noei
+index = new((/3,25,6/), float)
 index(0,:,:) = ctrl
-index(1,:,:) = notp
-index(2,:,:) = noq1
-index(3,:,:) = noei
+index(1,:,:) = noq1
+index(2,:,:) = noei
 
 ;==================================================================
 ;=========================================================
@@ -47,6 +52,7 @@ res@trXMaxF = 30
 ;res@tmYLPrecision = 3 ; the number of significant digits is 0
 res@xyDashPattern = 0
 res@xyLineColors = (/"black","blue","red","green4"/)
+res@xyLineThicknessF = 5
 
 do i = 0, dimsizes(indexname)-1
     ;res@trYMinF = -5

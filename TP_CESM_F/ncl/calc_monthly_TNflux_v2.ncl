@@ -44,6 +44,7 @@ begin
 
 yrStrt = 1981
 yrLast = 2010
+nyear = yrLast - yrStrt + 1
 
 ;  direcotry name
 diri = "/home/yangsong3/data-observation/ERA-interim/monthly/"
@@ -72,15 +73,35 @@ nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 nlevel = dimsizes(level)
 
-cuvar = short2flt(fu->u(iYYYY,:,:,:))
-cvvar = short2flt(fv->v(iYYYY,:,:,:))
+uvar = short2flt(fu->u(iYYYY,:,:,:))
+vvar = short2flt(fv->v(iYYYY,:,:,:))
 zvar = short2flt(fz->z(iYYYY,:,:,:))
-ctvar = short2flt(ft->t(iYYYY,:,:,:))
+tvar = short2flt(ft->t(iYYYY,:,:,:))
 
 ;height anomaly
 zvar_clm = clmMonTLLL(zvar)
 zavar = calcMonAnomTLLL(zvar, zvar_clm)
 delete([/diri,filiu,filiv,filit,filiz,fu,fv,fz,ft/])
+
+bzvar = zvar_clm
+btvar = clmMonTLLL(tvar)
+buvar = clmMonTLLL(uvar)
+bvvar = clmMonTLLL(vvar)
+
+czvar = new(dimsizes(zvar),float,zvar@_FillValue)
+ctvar = new(dimsizes(zvar),float,zvar@_FillValue)
+cuvar = new(dimsizes(zvar),float,zvar@_FillValue)
+cvvar = new(dimsizes(zvar),float,zvar@_FillValue)
+
+do j = 0, nyear-1
+    do k = 0, 11
+        czvar(j*12+k,:,:,:) = bzvar(k,:,:,:)
+        ctvar(j*12+k,:,:,:) = btvar(k,:,:,:)
+        cuvar(j*12+k,:,:,:) = buvar(k,:,:,:)
+        cvvar(j*12+k,:,:,:) = bvvar(k,:,:,:)
+    end do
+end do
+
 
 ;  Gas constant
 gc=290
