@@ -6,7 +6,7 @@ year = ispan(yrStrt, yrLast, 1)
 
 ;======================================================================
 dirictrl = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/data/"
-filictrl = "sst_HadOIBl_bc_1.9x2.5_1850_2013_c140701.nc"
+filictrl = "sst_HadOIBl_bc_1.9x2.5_1850_2012_c130411.nc"
 fctrl = addfile(dirictrl+filictrl, "r")
 TIMEc = fctrl->time
 YYYYc = cd_calendar(TIMEc, -1)/100
@@ -46,7 +46,7 @@ lonend = 360
 latstr = -30
 latend = 30
 
-wks = gsn_open_wks("pdf", figpath+figname)
+wks = gsn_open_wks("x11", figpath+figname)
 plot = new(12, graphic)
 
 res = True
