@@ -62,7 +62,7 @@ copy_VarCoords(T(:,0,:,:), TTT)
 printVarSummary(TTT)
 printMinMax(TTT, True)
 
-
+; TTT = dtrend_msg_n(TTT&time, TTT, False, False, 0)
 ; t = clmMonTLL(TTT)
 t = reshape(TTT, (/nyear,nmonth,nlat,nlon/))
 copy_VarCoords(T(0,0,:,:), t(0,0,:,:))
@@ -71,6 +71,11 @@ t&year = year
 t!1 = "month"
 t&month = Month
 printVarSummary(t)
+
+;t = dtrend_msg_n(year, t, True, False, 0)
+
+t_clm = dim_avg_n_Wrap(t, 0)
+t = t - conform_dims(dimsizes(t), t_clm, (/1,2,3/))
 
 neval = 1
 optEOF = True
