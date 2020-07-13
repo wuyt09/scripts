@@ -12,7 +12,9 @@ diri = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
 ; fili3 = "TPmask_1000m_C20190525.nc"
 fili1 = "USGS-gtopo30_1.9x2.5_remap_C20190410_TP1000m_wuyt.nc"
 fili2 = "USGS-gtopo30_1.9x2.5_remap_c050602.nc"
-fili3 = "TPmask_1000m_C20190410.nc"
+; fili3 = "TPmask_1000m_C20190410.nc"
+; fili3 = "TPmask_1500m_C20190924.nc"
+fili3 = "TPmask_1500m_C20200713.nc"
 
 f1 = addfile(diri+fili1, "r")
 f2 = addfile(diri+fili2, "r")
@@ -115,7 +117,7 @@ res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
 res@cnLevelSelectionMode = "ExplicitLevels"
-res@cnLevels = (/500,1000,1500,2000/)
+res@cnLevels = 1500 ;(/500,1000,1500,2000/)
 
 res@gsnLeftString = "CTRL"
 plot(0) = gsn_csm_contour_map(wks, hgt2, res)
@@ -125,7 +127,7 @@ plot(1) = gsn_csm_contour_map(wks, zx, res)
 
 delete(res@cnLevels)
 res@cnLevelSelectionMode   ="ExplicitLevels"
-res@cnLevels               = (/0.9/)
+res@cnLevels               = (/0.5/)
 res@gsnLeftString = "Mask data"
 plot(2) = gsn_csm_contour_map(wks, tpmask, res)
 

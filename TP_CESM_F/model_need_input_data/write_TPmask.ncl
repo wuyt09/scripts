@@ -45,18 +45,20 @@ do j = 0,dimsizes(lat)-1
         end if
     end do
 end do
-;do j = 0, dimsizes(lat)-1
-;    do i = 37,dimsizes(lon)-1
-;        case1 = lon(i).ge.70 .and. lon(i).le.105
-;        case2 = lat(j).ge.23 .and. lat(j).le.40
-;        case3 = phis(j,i).ge.(1000*9.8)
+; do j = 0, dimsizes(lat)-1
+;    do i = 0,dimsizes(lon)-1
+;        case1 = lon(i).ge.62 .and. lon(i).le.105
+;        case2 = lat(j).ge.23 .and. lat(j).le.45
+;        case3 = phis(j,i).ge.(1500*9.8)
 ;        if case1 .and. case2 .and. case3
 ;            tpmask(j,i) = 1
 ;        else 
 ;            tpmask(j,i) = 0
 ;        end if
 ;    end do
-;end do
+; end do
+x = tpmask
+tpmask = smth9_Wrap(x, 0.5, 0.25, True)
 
 tpmask@long_name = "TP mask, TP area(1500m)=1, others=0"
 printVarSummary(tpmask)
@@ -64,7 +66,7 @@ printVarSummary(hgt)
 
 ;===============================================================
 outpath = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
-maskname = "TPmask_1500m_C20190924.nc"
+maskname = "TPmask_1500m_C20200713.nc"
 ;hgtname = "USGS-gtopo30_1.9x2.5_remap_C20190304_wuyt.nc"
 
 system("rm -f "+outpath+maskname)
@@ -81,7 +83,10 @@ figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/model_need_input_data/"
 figname = "write_TPmask"
 
 wks = gsn_open_wks("ps", figpath+figname)
-
+lonstr = 60
+lonend = 110
+latstr = 20
+latend = 50
 ;==================================================================
 ; spatial distribution at specfic levels
 ;==================================================================
@@ -129,10 +134,10 @@ res@gsnAddCyclic    = True
 res@mpOutlineOn  = True
 res@mpFillOn     = True
 ;res@mpCenterLonF = 0.
-;res@mpMinLatF    = latstr
-;res@mpMaxLatF    = latend
-;res@mpMinLonF    = lonstr
-;res@mpMaxLonF    = lonend
+res@mpMinLatF    = latstr
+res@mpMaxLatF    = latend
+res@mpMinLonF    = lonstr
+res@mpMaxLonF    = lonend
 ;res@mpCenterLonF = 180
 res@mpGeophysicalLineThicknessF = 2
 
@@ -147,7 +152,7 @@ res@cnLineThicknessF       = 5
 res@cnLineColor            = "black"
 res@cnInfoLabelOn          = False
 res@cnLevelSelectionMode   ="ExplicitLevels"
-res@cnLevels               = (/0.9/)
+res@cnLevels               = (/0.5/)
 
 res@gsnStringFontHeightF = 0.035
 

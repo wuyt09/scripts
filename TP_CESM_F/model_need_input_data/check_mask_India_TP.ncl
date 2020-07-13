@@ -7,7 +7,8 @@ latstr = -5
 latend = 50
 
 diri = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
-fili1 = "TPmask_1000m_C20190410.nc"
+; fili1 = "TPmask_1000m_C20190410.nc"
+fili1 = "TPmask_1500m_C20200713.nc"
 fili2 = "India_mask_C20190710.nc"
 
 f1 = addfile(diri+fili1, "r")
@@ -66,7 +67,7 @@ res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
 res@cnLevelSelectionMode   ="ExplicitLevels"
-res@cnLevels               = (/0.2,0.4,0.6,0.8,0.99/)
+res@cnLevels               = 0.5 ;(/0.2,0.4,0.6,0.8,0.99/)
 res@gsnLeftString = "Mask data"
 plot(0) = gsn_csm_contour_map(wks, hgt1, res)
 

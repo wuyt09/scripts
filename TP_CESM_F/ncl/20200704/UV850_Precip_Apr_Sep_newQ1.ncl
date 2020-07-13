@@ -14,7 +14,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1"/) ;"NOTP"
+casename = (/"CTRL","NOQ1"/) ;"NOTP"TP
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
@@ -89,7 +89,7 @@ printVarSummary(tpmask)
 ;-------------------------------------------------------------------
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "UV850_Precip_Apr_Jul_newQ1"
+figname = "UV850_Precip_Apr_Jul_noQ1"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
