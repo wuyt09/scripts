@@ -14,28 +14,27 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1"/) ;"NOTP"
+casename = (/"CTRL","NOTPQ1"/)
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 nmonth = dimsizes(month)
-LEV = 850
+
+LEV = 500
 z = new((/ncase,nyear,nmonth,96,144/), float)
 u = z
 v = z
 
 do i = 0, ncase-1
   diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/"
-  zname = "F2000_"+casename(i)+".PREC.mon.0601-3012.nc"
+  zname = "F2000_"+casename(i)+".plevel.Z3.mon.0601-3012.nc"
   uname = "F2000_"+casename(i)+".plevel.U.mon.0601-3012.nc"
   vname = "F2000_"+casename(i)+".plevel.V.mon.0601-3012.nc"
   fz = addfile(diri+zname, "r")
   fu = addfile(diri+uname, "r")
   fv = addfile(diri+vname, "r")
-  Z = fz->PREC
-  Z = Z*1000*86400
-  Z@units = "mm/day"
+  Z = fz->Z3(:,{LEV},:,:)
   U = fu->U(:,{LEV},:,:)
   V = fv->V(:,{LEV},:,:)
   z(i,:,:,:,:) = reshape(Z, (/nyear,nmonth,96,144/))
@@ -75,10 +74,11 @@ diff_v = v_ave(0,:,:,:)
 diff_v = v_ave(0,:,:,:) - v_ave(1,:,:,:)
 
 sig = 0.05
-; diff_u = mask(diff_u, (probu.lt.sig).or.(probv.lt.sig), True)
-; diff_v = mask(diff_v, (probu.lt.sig).or.(probv.lt.sig), True)
-; diff_z = mask(diff_z, probz.lt.sig, True)
+diff_u = mask(diff_u, (probu.lt.sig).or.(probv.lt.sig), True)
+diff_v = mask(diff_v, (probu.lt.sig).or.(probv.lt.sig), True)
+diff_z = mask(diff_z, probz.lt.sig, True)
 printVarSummary(diff_z)
+
 ;----------------------------------------------------------------
 tpmaskpath = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/model_need_input_data/"
 ; tpmaskname = "TPmask_1000m_C20190410.nc"
@@ -89,9 +89,10 @@ tpmask = ftp->tp
 printVarSummary(tpmask)
 ;-------------------------------------------------------------------
 ;-------------------------------------------------------------------
+Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "UV850_Precip_Apr_Jul_"+casename(0)+"_"+casename(1)
+figname = "UV500_H500_Apr_Jul_"+casename(0)+"_"+casename(1)
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
@@ -109,7 +110,7 @@ plot_topo = plot
  res_topo@cnLineLabelsOn         = False
  res_topo@cnLineThicknessF       = 4
  res_topo@cnLineDashPattern      = 16
- res_topo@cnLineColor            = "gray"
+ res_topo@cnLineColor            = "blue"
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
  res_topo@cnLevels               = (/0.5/)
@@ -125,7 +126,7 @@ res@mpOutlineOn = True
 res@mpGeophysicalLineThicknessF = 2
 res@mpGeophysicalLineColor = "grey25" ;"red" 
 res@mpFillDrawOrder = "PreDraw"
-; res@mpFillOn = True
+res@mpFillOn = True
 
 res@mpMinLatF = latstr
 res@mpMaxLatF = latend
@@ -137,10 +138,6 @@ res@cnLinesOn = False
 res@cnLineLabelsOn = False
 res@lbLabelBarOn = False
 res@cnInfoLabelOn = False
-;res@cnLineDrawOrder = "PostDraw"
-; res@cnLabelDrawOrder = "PostDraw"
-;res@cnLevelFlag = "LineAndLabel"
-;res@cnLineLabelInterval = 1
 
 res@gsnStringFontHeightF = 0.035
 res@tmXBLabelFontHeightF = 0.025
@@ -155,15 +152,13 @@ res@tmYLLabelFontHeightF = 0.025
     cnres@cnLinesOn = True
     cnres@cnLineLabelsOn = True
     cnres@cnLineLabelFontColor = "red"
-    cnres@cnLineColor = "purple" ;goldenrod2 ;dodgerblue2
+    cnres@cnLineColor = "green4"
     cnres@cnLineThicknessF = 5
     cnres@cnInfoLabelOn = True
     ;cnres@cnLineDrawOrder = "PostDraw"
     cnres@cnLabelDrawOrder = "PostDraw"
     ;cnres@cnLevelFlag = "LineAndLabel"
     cnres@cnLineLabelInterval = 1
-    cnres@gsnLeftString = ""
-    cnres@gsnRightString = ""
 
 ;=====================================================
 
@@ -192,25 +187,24 @@ res@tmYLLabelFontHeightF = 0.025
 ;res@gsnRightString = "mm/day"
 
   vcres@vcRefMagnitudeF         = 2.0  ; define vector ref mag
-
+  res@cnFillPalette = "WhiteYellowOrangeRed"
   res@cnLevelSelectionMode = "ManualLevels"
-  res@cnLevelSpacingF = 1 ;0.5
-  res@cnMaxLevelValF = 10.
-  res@cnMinLevelValF = -10.
-  res@cnFillPalette = "CBR_drywet"
+  res@cnLevelSpacingF = 5.
+  res@cnMaxLevelValF = 5900.
+  res@cnMinLevelValF = 5880.
   ; cnres@cnLevelSelectionMode = "ExplicitLevels"
   ; cnres@cnLevels = (/12460,12470,12480,12490,12500,15210,12520,12540/);12520,12560
   cnres@cnLevelSelectionMode = "ManualLevels"
-  cnres@cnLevelSpacingF = 5.
-  cnres@cnMaxLevelValF = 20.
-  cnres@cnMinLevelValF = 0.
+  cnres@cnLevelSpacingF = 10.
+  cnres@cnMaxLevelValF = 5900.
+  cnres@cnMinLevelValF = 5880.
 
   do i = 0,5
-  res@gsnLeftString = month(i+3)
+  res@gsnLeftString = Month(i+3)
   
-  plot(i) = gsn_csm_contour_map(wks, diff_z(i+3,:,:), res)
+  plot(i) = gsn_csm_contour_map(wks, z_ave(1,i+3,:,:), res)
   plotc(i) = gsn_csm_contour(wks, z_ave(0,i+3,:,:), cnres)
-  ;overlay(plot(i), plotc(i))
+  overlay(plot(i), plotc(i))
   plotv(i) = gsn_csm_vector(wks, diff_u(i+3,:,:), diff_v(i+3,:,:), vcres)
   overlay(plot(i), plotv(i))
   plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
