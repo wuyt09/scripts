@@ -14,7 +14,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1"/) ;"NOTP"
+casename = (/"CTRL","NOTPQ1_MAR"/) ;"NOTP"
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
@@ -206,12 +206,22 @@ res@tmYLLabelFontHeightF = 0.025
   cnres@cnMinLevelValF = 0.
 
   do i = 0,5
-  res@gsnLeftString = month(i+3)
+  ; res@gsnLeftString = month(i+3)
   
-  plot(i) = gsn_csm_contour_map(wks, diff_z(i+3,:,:), res)
-  plotc(i) = gsn_csm_contour(wks, z_ave(0,i+3,:,:), cnres)
+  ; plot(i) = gsn_csm_contour_map(wks, diff_z(i+3,:,:), res)
+  ; plotc(i) = gsn_csm_contour(wks, z_ave(0,i+3,:,:), cnres)
+  ; ;overlay(plot(i), plotc(i))
+  ; plotv(i) = gsn_csm_vector(wks, diff_u(i+3,:,:), diff_v(i+3,:,:), vcres)
+  ; overlay(plot(i), plotv(i))
+  ; plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
+  ; overlay(plot(i), plot_topo(i))
+
+  res@gsnLeftString = month(i+1)
+  
+  plot(i) = gsn_csm_contour_map(wks, diff_z(i+1,:,:), res)
+  plotc(i) = gsn_csm_contour(wks, z_ave(0,i+1,:,:), cnres)
   ;overlay(plot(i), plotc(i))
-  plotv(i) = gsn_csm_vector(wks, diff_u(i+3,:,:), diff_v(i+3,:,:), vcres)
+  plotv(i) = gsn_csm_vector(wks, diff_u(i+1,:,:), diff_v(i+1,:,:), vcres)
   overlay(plot(i), plotv(i))
   plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(i), plot_topo(i))

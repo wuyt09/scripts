@@ -14,7 +14,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1"/) ;"NOTP"
+casename = (/"CTRL","NOTPQ1_MAR"/) ;"NOTP"
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
@@ -74,9 +74,9 @@ diff_v = v_ave(0,:,:,:)
 diff_v = v_ave(0,:,:,:) - v_ave(1,:,:,:)
 
 sig = 0.05
-diff_u = mask(diff_u, (probu.lt.sig).or.(probv.lt.sig), True)
-diff_v = mask(diff_v, (probu.lt.sig).or.(probv.lt.sig), True)
-diff_z = mask(diff_z, probz.lt.sig, True)
+; diff_u = mask(diff_u, (probu.lt.sig).or.(probv.lt.sig), True)
+; diff_v = mask(diff_v, (probu.lt.sig).or.(probv.lt.sig), True)
+; diff_z = mask(diff_z, probz.lt.sig, True)
 printVarSummary(diff_z)
 
 ;----------------------------------------------------------------
@@ -190,7 +190,7 @@ res@tmYLLabelFontHeightF = 0.025
 
 ;res@gsnRightString = "mm/day"
 
-  vcres@vcRefMagnitudeF         = 8.0  ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5.0  ; define vector ref mag
   res@cnFillPalette = "WhiteYellowOrangeRed"
   res@cnLevelSelectionMode = "ManualLevels"
   res@cnMinLevelValF = 12460
@@ -204,12 +204,12 @@ res@tmYLLabelFontHeightF = 0.025
   cnres@cnLevelSpacingF = 40
 
   do i = 0,5
-  res@gsnLeftString = Month(i+3)
+  res@gsnLeftString = Month(i+1)
   
-  plot(i) = gsn_csm_contour_map(wks, z_ave(1,i+3,:,:), res)
-  plotc(i) = gsn_csm_contour(wks, z_ave(0,i+3,:,:), cnres)
+  plot(i) = gsn_csm_contour_map(wks, z_ave(1,i+1,:,:), res)
+  plotc(i) = gsn_csm_contour(wks, z_ave(0,i+1,:,:), cnres)
   overlay(plot(i), plotc(i))
-  plotv(i) = gsn_csm_vector(wks, diff_u(i+3,:,:), diff_v(i+3,:,:), vcres)
+  plotv(i) = gsn_csm_vector(wks, diff_u(i+1,:,:), diff_v(i+1,:,:), vcres)
   overlay(plot(i), plotv(i))
   plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(i), plot_topo(i))

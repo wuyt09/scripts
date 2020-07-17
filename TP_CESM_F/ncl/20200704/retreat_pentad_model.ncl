@@ -21,7 +21,7 @@ latend = 30
   lonL3  = 110
   lonR3  = 120.0
 
-casename = (/"CTRL","NOTPQ1"/)
+casename = (/"CTRL","NOTPQ1_MAR"/)
 ncase = dimsizes(casename)
 pens = 43
 pene = 72
@@ -184,7 +184,7 @@ end do
 ;-------------------------------------------------------------------
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "retreat_pentad_model"
+figname = "retreat_pentad_model_"+casename(0)+"_"+casename(1)
 
 wks = gsn_open_wks("ps", figpath+figname)
 gsn_define_colormap(wks,"so4_23")  ; choose colormap
