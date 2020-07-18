@@ -30,13 +30,13 @@ TIME = f->time
 YYYY = cd_calendar(TIME, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-T = short2flt(f->t(iYYYY,:,::-1,:))
+T = short2flt(f->t(iYYYY,:,{latstr:latend},{lonstr:lonend}))
 printVarSummary(T)
 printMinMax(T, True)
 
 filip = "Surface_pressure.mon.mean.nc"
 fp = addfile(diri+filip, "r")
-PS = short2flt(fp->sp(iYYYY,::-1,:))
+PS = short2flt(fp->sp(iYYYY,{latstr:latend},{lonstr:lonend}))
 
 ; print(T&latitude)
 nlat = dimsizes(T&latitude)
@@ -75,7 +75,8 @@ printVarSummary(t)
 ;t = dtrend_msg_n(year, t, True, False, 0)
 
 t_clm = dim_avg_n_Wrap(t, 0)
-t = t - conform_dims(dimsizes(t), t_clm, (/1,2,3/))
+; ; t = calcMonAnomTLL(t, t_clm)
+; t = t - conform_dims(dimsizes(t), t_clm, (/1,2,3/))
 
 neval = 1
 optEOF = True
@@ -121,6 +122,7 @@ plot_topo = new(3, graphic)
 res = True
 res@gsnDraw  = False
 res@gsnFrame = False
+res@gsnAddCyclic = False
 
 res@mpOutlineOn = True
 res@mpGeophysicalLineThicknessF = 2
@@ -145,9 +147,9 @@ res@tmYLLabelFontHeightF = 0.025
 
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -0.01
-res@cnMaxLevelValF = 0.01
-res@cnLevelSpacingF = 0.002
+res@cnMinLevelValF = -0.03
+res@cnMaxLevelValF = 0.03
+res@cnLevelSpacingF = 0.005
 
 ;*******************************************
 ; time series (principal component) plot
@@ -186,6 +188,7 @@ do i = 0, 2
     res@gsnCenterString = "EOF1"
     res@gsnRightString = sprintf("%4.2f", pcvar(j))+"%"
     plot(i) = gsn_csm_contour_map(wks, t_eof(0,j,:,:), res)
+    ; plot(i) = gsn_csm_contour_map(wks, t_clm(j,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 

@@ -14,7 +14,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1_MAR"/) ;"NOTP"
+casename = (/"CTRL","NOTPQ1_MAY"/) ;"NOTP"
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
