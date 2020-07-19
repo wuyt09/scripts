@@ -21,7 +21,7 @@ latend = 30
   lonL3  = 110
   lonR3  = 120.0
 
-casename = (/"CTRL","NOTPQ1_MAR"/)
+casename = (/"CTRL","NOTPQ1_MAY"/)
 ncase = dimsizes(casename)
 pens = 43
 pene = 72
