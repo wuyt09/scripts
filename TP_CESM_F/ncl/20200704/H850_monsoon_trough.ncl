@@ -98,32 +98,41 @@ res@mpMaxLonF = lonend
 
 res@cnFillOn = False
 res@cnLinesOn = True
-res@cnLineLabelsOn = False
+; res@cnLineLabelsOn = False
 res@cnLineLabelFontColor = "red"
-res@cnLineColor = "green4"
+; res@cnLineColor = "green4"
 res@cnLineThicknessF = 5
 res@cnInfoLabelOn = False
 ;res@cnLineDrawOrder = "PostDraw"
-res@cnLabelDrawOrder = "PostDraw"
+; res@cnLabelDrawOrder = "PostDraw"
 ;res@cnLevelFlag = "LineAndLabel"
-res@cnLineLabelInterval = 1
+; res@cnLineLabelInterval = 1
+
+res@gsnStringFontHeightF = 0.025
+res@tmXBLabelFontHeightF = 0.02
+res@tmYLLabelFontHeightF = 0.02
+
 
 res@cnLevelSelectionMode = "ExplicitLevels"
 res@cnLevels = (/1480/)
 
-
+res@cnExplicitLineLabelsOn = True
+res@cnLineLabelFontHeightF = 0.02
 
 
 pens = 22
 
 Colors = (/20,30,40,50,60,70,80,90,100,110/)
+text_p = ispan(pens, pens+10, 1)
 do i = 0, ncase-1
     res@gsnLeftString = casename(i)
     res@cnLineColor = Colors(0)
+    res@cnLineLabelStrings = "Pentad "+text_p(0)
     plot(i,0) = gsn_csm_contour_map(wks, clim_pentad_z(i,pens,:,:), res)
     do j = 1, 9
         delete(res@gsnLeftString)
         res@cnLineColor = Colors(j)
+        res@cnLineLabelStrings = "Pentad "+text_p(j)
         plot(i,j) = gsn_csm_contour(wks, clim_pentad_z(i,pens+j,:,:), res)
         overlay(plot(i,0), plot(i,j))
     end do
