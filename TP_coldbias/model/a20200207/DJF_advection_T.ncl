@@ -28,6 +28,7 @@ do i = 0, ncase-1
     iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
     VT = f1->P2
+    VT = VT*6.371e6
     PS = f2->PS(iYYYY,:,:)
 
     lev = VT&lev
@@ -120,20 +121,20 @@ res@tmYLLabelFontHeightF = 0.025
 res@gsnStringFontHeightF = 0.035
 
 res@gsnRightString = "K/day"
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMinLevelValF = -1.
-; res@cnMaxLevelValF = 1.
-; res@cnLevelSpacingF = 0.1
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMinLevelValF = -1.
+res@cnMaxLevelValF = 1.
+res@cnLevelSpacingF = 0.1
 res@gsnLeftString = "Ctrl Clim"
 plot(0) = gsn_csm_contour_map(wks, vt(0,:,:), res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
 
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMinLevelValF = -0.1
-; res@cnMaxLevelValF = 0.1
-; res@cnLevelSpacingF = 0.01
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMinLevelValF = -0.1
+res@cnMaxLevelValF = 0.1
+res@cnLevelSpacingF = 0.01
 res@gsnLeftString = "Diff"
 plot(1) = gsn_csm_contour_map(wks, vt_diff, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)

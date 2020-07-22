@@ -20,8 +20,8 @@ do i = 0, ncase-1
     fili2 = casename(i)+".cam.h0.LHFLX.1979-2005.nc"
     fili3 = casename(i)+".cam.h0.FSNS.1979-2005.nc"
     fili4 = casename(i)+".cam.h0.FLNS.1979-2005.nc"
-    fili5 = casename(i)+".cam.h0.FLDS.1979-2005.nc"
-    ;fili5 = casename(i)+".clm2.h0.FSR.1979-2005.nc"
+    ; fili5 = casename(i)+".cam.h0.FLDS.1979-2005.nc"
+    fili5 = casename(i)+".clm2.h0.FSR.1979-2005.nc"
 
     f1 = addfile(diri+fili1, "r")
     f2 = addfile(diri+fili2, "r")
@@ -36,7 +36,8 @@ do i = 0, ncase-1
     x2 = f2->LHFLX(iYYYY,:,:)
     x3 = f3->FSNS(iYYYY,:,:)
     x4 = f4->FLNS(iYYYY,:,:)
-    x5 = f5->FLDS(iYYYY,:,:)
+    ; x5 = f5->FLDS(iYYYY,:,:)
+    x5 = f5->FSR(iYYYY,:,:)
 
     ; TS(i,0,:,:,:) = clmMonTLL(x1)
     ; TS(i,1,:,:,:) = clmMonTLL(x2)
@@ -62,7 +63,7 @@ do i = 0, ncase-1
     TSX = x1
     TSX = x1 + x2 - x3 + x4 + x5
     TSXX = month_to_season(TSX, season)
-    TS(i,4,:,:) = dim_avg_n_Wrap(TSXX, 0)
+    TS(i,3,:,:) = dim_avg_n_Wrap(TSXX, 0)
 
 end do
 printVarSummary(TS)
@@ -90,7 +91,7 @@ topo = ftopo->topo(::-1,:)
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200408/"
 figname = season+"_surf_energy_budget"
 
-leftsti = (/"SH","LH","netS","netR","DownL"/) ;"G0=netS-netR-LH-SH"
+leftsti = (/"SH","LH","netS","netS-netR-LH-SH-G0","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(10, graphic)
