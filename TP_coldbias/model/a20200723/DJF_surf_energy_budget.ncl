@@ -93,7 +93,7 @@ topo = ftopo->topo(::-1,:)
 ; plot 
 ;=========================================================
 
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200408/"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200723/"
 figname = season+"_surf_energy_budget"
 
 leftsti = (/"SH","LH","netS","netS-netR-LH-SH-G0","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
@@ -116,8 +116,6 @@ plot_topo = plot
  res_topo@gsnLeftString = ""
  res_topo@gsnRightString = ""
 
-
-print("=============================================3")
 res                       = True     ; plot mods desired
 res@gsnDraw               = False
 res@gsnFrame              = False
@@ -142,7 +140,6 @@ res@gsnStringFontHeightF = 0.035
 
 ;res@gsnRightString = "W/m~S~2~C~"
 
-print("=============================================4")
 do i = 0,4
     res@gsnLeftString = leftsti(i)
     res@cnLevelSelectionMode = "ManualLevels"
@@ -160,9 +157,7 @@ do i = 0,4
     res@cnMaxLevelValF = 20
     res@cnLevelSpacingF = 2
     res@gsnRightString = "Diff"
-print("=============================================45")
     plot(i+5) = gsn_csm_contour_map(wks, ts_diff(i,:,:), res)
-print("=============================================5")
     plot_topo(i+5) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i+5), plot_topo(i+5))
 end do
