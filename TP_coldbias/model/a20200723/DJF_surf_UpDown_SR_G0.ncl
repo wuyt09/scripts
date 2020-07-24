@@ -1,5 +1,6 @@
 
 begin
+
 lonstr = 75
 lonend = 105
 latstr = 25
@@ -13,21 +14,24 @@ casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_P
 ncase = dimsizes(casename)
 season = "DJF"
 
-TS = new((/ncase,6,96,144/), float, "1e+36")
+TS = new((/ncase,9,96,144/), float, "1e+36")
 do i = 0, ncase-1
     diri = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
     fili1 = casename(i)+".cam.h0.SHFLX.1979-2005.nc"
     fili2 = casename(i)+".cam.h0.LHFLX.1979-2005.nc"
     fili3 = casename(i)+".cam.h0.FSNS.1979-2005.nc"
     fili4 = casename(i)+".cam.h0.FLNS.1979-2005.nc"
-    ; fili5 = casename(i)+".cam.h0.FLDS.1979-2005.nc"
-    fili5 = casename(i)+".clm2.h0.FGR.1979-2005.nc"
+    fili5 = casename(i)+".cam.h0.FSDS.1979-2005.nc"
+    fili6 = casename(i)+".cam.h0.FLDS.1979-2005.nc"
+    fili7 = casename(i)+".clm2.h0.FGR.1979-2005.nc"
 
     f1 = addfile(diri+fili1, "r")
     f2 = addfile(diri+fili2, "r")
     f3 = addfile(diri+fili3, "r")
     f4 = addfile(diri+fili4, "r")
     f5 = addfile(diri+fili5, "r")
+    f6 = addfile(diri+fili6, "r")
+    f7 = addfile(diri+fili7, "r")
     TIME = f1->time
     YYYY = cd_calendar(TIME, -1)
     iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
@@ -36,40 +40,39 @@ do i = 0, ncase-1
     x2 = f2->LHFLX(iYYYY,:,:)
     x3 = f3->FSNS(iYYYY,:,:)
     x4 = f4->FLNS(iYYYY,:,:)
-    ; x5 = f5->FLDS(iYYYY,:,:)
-    x5 = x4
-    x5 = (/f5->FGR(iYYYY,:,:)/)
-    ; printVarSummary(x3)
-    ; printVarSummary(x4)
+    x5 = f5->FSDS(iYYYY,:,:)
+    x6 = f6->FLDS(iYYYY,:,:)
     ; printVarSummary(x5)
+    ; printVarSummary(x6)
     ; exit
-
-    ; TS(i,0,:,:,:) = clmMonTLL(x1)
-    ; TS(i,1,:,:,:) = clmMonTLL(x2)
-    ; TS(i,2,:,:,:) = clmMonTLL(x3)
-    ; TS(i,3,:,:,:) = clmMonTLL(x4)
-    ; TS(i,4,:,:,:) = clmMonTLL(x5)
-
-    ; TSX = x1
-    ; TSX = x1 + x2 - x3 + x4 + x5
-    ; TS(i,5,:,:,:) = clmMonTLL(TSX)
+    x7 = x6
+    x7 = (/f7->FGR(iYYYY,:,:)/)
+    
+    US = x5
+    US = x5 - x3
+    UR = x6
+    UR = x6 + x4
 
     X1 = month_to_season(x1, season)
     TS(i,0,:,:) = dim_avg_n_Wrap(X1, 0)
     X2 = month_to_season(x2, season)
     TS(i,1,:,:) = dim_avg_n_Wrap(X2, 0)
-    X3 = month_to_season(x3, season)
+    X3 = month_to_season(US, season)
     TS(i,2,:,:) = dim_avg_n_Wrap(X3, 0)
-    X4 = month_to_season(x4, season)
+    X4 = month_to_season(UR, season)
     TS(i,3,:,:) = dim_avg_n_Wrap(X4, 0)
     X5 = month_to_season(x5, season)
     TS(i,4,:,:) = dim_avg_n_Wrap(X5, 0)
+    X6 = month_to_season(x6, season)
+    TS(i,5,:,:) = dim_avg_n_Wrap(X6, 0)
 
-    ; TSX = x1
-    ; TSX = (/x1 + x2 - x3 + x4/);  + x5
-    ; TSXX = month_to_season(TSX, season)
-    ; TS(i,3,:,:) = dim_avg_n_Wrap(TSXX, 0)
+    X33 = month_to_season(x3, season)
+    TS(i,6,:,:) = dim_avg_n_Wrap(X33, 0)
+    X44 = month_to_season(x4, season)
+    TS(i,7,:,:) = dim_avg_n_Wrap(X44, 0)
 
+    X7 = month_to_season(x7, season)
+    TS(i,8,:,:) = dim_avg_n_Wrap(X7, 0)
 end do
 printVarSummary(TS)
 ; ts = TS(0:ncase-2,:,:,:)
@@ -78,8 +81,8 @@ printVarSummary(TS)
 ; end do
 ; printVarSummary(ts)
 
-ts_diff = (/TS(0,:,:,:)/)
-ts_diff = (/TS(1,:,:,:) - TS(0,:,:,:)/)
+ts_diff = TS(0,:,:,:)
+ts_diff = TS(1,:,:,:) - TS(0,:,:,:)
 copy_VarCoords(TS(0,0,:,:), ts_diff(0,:,:))
 printVarSummary(ts_diff)
 
@@ -94,12 +97,12 @@ topo = ftopo->topo(::-1,:)
 ;=========================================================
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200723/"
-figname = season+"_surf_energy_budget"
+figname = season+"_surf_UpDown_SR_G0"
 
-leftsti = (/"SH","LH","netS","netR","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
+leftsti = (/"SH","LH","UpS","UpR","DownS","DownR","netS","netR","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
 
 wks = gsn_open_wks("pdf", figpath+figname)
-plot = new(10, graphic)
+plot = new(9, graphic)
 plot_topo = plot
 
  res_topo            = True
@@ -140,36 +143,32 @@ res@gsnStringFontHeightF = 0.035
 
 ;res@gsnRightString = "W/m~S~2~C~"
 
-do i = 0,4
+
+res@gsnRightString = "Diff"
+res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMinLevelValF = -5
+; res@cnMaxLevelValF = 5
+; res@cnLevelSpacingF = 0.5
+res@cnMinLevelValF = -300
+res@cnMaxLevelValF = 300
+res@cnLevelSpacingF = 20
+do i = 0,8
     res@gsnLeftString = leftsti(i)
-    res@cnLevelSelectionMode = "ManualLevels"
-    res@cnMinLevelValF = -50
-    res@cnMaxLevelValF = 50
-    res@cnLevelSpacingF = 5.
-    res@gsnRightString = "Ctrl"
+    ; plot(i) = gsn_csm_contour_map(wks, ts_diff(i,:,:), res)
+    ; plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+    ; overlay(plot(i), plot_topo(i))
+
     plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
-
-
-    res@cnLevelSelectionMode = "ManualLevels"
-    res@cnMinLevelValF = -2
-    res@cnMaxLevelValF = 2
-    res@cnLevelSpacingF = 0.2
-    res@gsnRightString = "Diff"
-    plot(i+5) = gsn_csm_contour_map(wks, ts_diff(i,:,:), res)
-    plot_topo(i+5) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plot(i+5), plot_topo(i+5))
 end do
 
 pres = True
 pres@gsnMaximize = True
 ;pres@gsnPanelLabelBar = True
-pres@gsnPanelMainString = season+" mean surface energy budget" ;(500hPa to 200hPa)
+pres@gsnPanelMainString = season+" mean surface energy change" ;(500hPa to 200hPa)
 ; pres@pmLabelBarOrthogonalPosF = -0.02
 ; pres@lbLabelFontHeightF = 0.015
 
-gsn_panel(wks, plot, (/2,5/), pres)
-
-
+gsn_panel(wks, plot, (/3,3/), pres)
 end
