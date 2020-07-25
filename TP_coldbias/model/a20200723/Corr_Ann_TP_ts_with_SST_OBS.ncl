@@ -169,7 +169,7 @@ res3@cnFillScaleF  = 1 ;1.2
 sig = 0.95
 res@gsnRightString = sig*100+"%"
 
-res@gsnLeftString = "OBS"
+res@gsnLeftString = "OBS_Ann"
 plot(0) = gsn_csm_contour_map(wks, cc, res)
 plot_prob(0) = gsn_csm_contour(wks, prob, res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),(1-sig),6)

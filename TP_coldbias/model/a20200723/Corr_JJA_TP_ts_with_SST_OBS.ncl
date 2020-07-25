@@ -7,6 +7,7 @@ year = ispan(yrStrt, yrLast, 1)
 nyr = dimsizes(year)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 nm = dimsizes(month)
+season = "JJA"
 
 lonstr = 75
 lonend = 105
@@ -37,25 +38,23 @@ printVarSummary(ts_obsx)
 
 ts_obsx = ts_obsx(:,::-1,:)
 time = ispan(1, nyr*12, 1)
-ts_obs_dtrend = dtrend_msg_n(time, ts_obsx, False, False, 0)
-ts_obs = reshape(ts_obs_dtrend, (/nyr,nm,72,128/))
+ts_obs = dtrend_msg_n(time, ts_obsx, False, False, 0)
 
 lat = fspan(18.25, 53.75, 72)
 lon = fspan(72.25, 135.75, 128)
 
-ts_obs!0 = "year"
-ts_obs!1 = "month"
-ts_obs!2 = "lat"
-ts_obs!3 = "lon"
-ts_obs&year = year
-ts_obs&month = month
+ts_obs!0 = "time"
+ts_obs!1 = "lat"
+ts_obs!2 = "lon"
+ts_obs&time = ispan(1, nyr*nm, 1)
 ts_obs&lat = lat
 ts_obs&lon = lon
 ts_obs&lat@units = "degrees_north"
 ts_obs&lon@units = "degrees_east"
 printVarSummary(ts_obs)
 
-TS_obs = dim_avg_n_Wrap(ts_obs, 1)
+TS_obs = month_to_season(ts_obs, season)
+printVarSummary(TS_obs)
 
 topox1 = ftopo->topo({18:54},{72:136})
 lonx = topox1&lon
@@ -79,7 +78,8 @@ iYYYYo = ind(YYYYo.ge.yrStrt .and. YYYYo.le.yrLast)
 SST_OBS = fobs->sst(iYYYYo,::-1,:)
 
 sst_OBS = dtrend_msg_n(SST_OBS&time, SST_OBS, False, False, 0)
-sst_obs = month_to_annual(SST_OBS, 1)
+copy_VarCoords(SST_OBS, sst_OBS)
+sst_obs = month_to_season(sst_OBS, season)
 printVarSummary(sst_obs)
 
 ; ;===================================================================
@@ -106,7 +106,7 @@ printVarSummary(cc)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200723/"
-filiname = "Corr_Ann_TP_ts_with_SST_OBS"
+filiname = "Corr_"+season+"_TP_ts_with_SST_OBS"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(1, graphic)
 plot_prob = plot
@@ -169,7 +169,7 @@ res3@cnFillScaleF  = 1 ;1.2
 sig = 0.95
 res@gsnRightString = sig*100+"%"
 
-res@gsnLeftString = "OBS"
+res@gsnLeftString = "OBS_"+season
 plot(0) = gsn_csm_contour_map(wks, cc, res)
 plot_prob(0) = gsn_csm_contour(wks, prob, res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),(1-sig),6)

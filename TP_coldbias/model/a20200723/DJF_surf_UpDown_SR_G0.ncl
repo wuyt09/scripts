@@ -146,21 +146,21 @@ res@gsnStringFontHeightF = 0.035
 
 res@gsnRightString = "Diff"
 res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMinLevelValF = -5
-; res@cnMaxLevelValF = 5
-; res@cnLevelSpacingF = 0.5
-res@cnMinLevelValF = -300
-res@cnMaxLevelValF = 300
-res@cnLevelSpacingF = 20
+res@cnMinLevelValF = -5
+res@cnMaxLevelValF = 5
+res@cnLevelSpacingF = 0.5
+; res@cnMinLevelValF = -300
+; res@cnMaxLevelValF = 300
+; res@cnLevelSpacingF = 20
 do i = 0,8
     res@gsnLeftString = leftsti(i)
-    ; plot(i) = gsn_csm_contour_map(wks, ts_diff(i,:,:), res)
-    ; plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
-    ; overlay(plot(i), plot_topo(i))
-
-    plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
+    plot(i) = gsn_csm_contour_map(wks, ts_diff(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
+
+    ; plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
+    ; plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+    ; overlay(plot(i), plot_topo(i))
 end do
 
 pres = True
