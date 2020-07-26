@@ -20,7 +20,6 @@ do i = 0, ncase-1
     fili2 = casename(i)+".cam.h0.LHFLX.1979-2005.nc"
     fili3 = casename(i)+".cam.h0.FSNS.1979-2005.nc"
     fili4 = casename(i)+".cam.h0.FLNS.1979-2005.nc"
-    ; fili5 = casename(i)+".cam.h0.FLDS.1979-2005.nc"
     fili5 = casename(i)+".clm2.h0.FGR.1979-2005.nc"
 
     f1 = addfile(diri+fili1, "r")
@@ -50,10 +49,6 @@ do i = 0, ncase-1
     ; TS(i,3,:,:,:) = clmMonTLL(x4)
     ; TS(i,4,:,:,:) = clmMonTLL(x5)
 
-    ; TSX = x1
-    ; TSX = x1 + x2 - x3 + x4 + x5
-    ; TS(i,5,:,:,:) = clmMonTLL(TSX)
-
     X1 = month_to_season(x1, season)
     TS(i,0,:,:) = dim_avg_n_Wrap(X1, 0)
     X2 = month_to_season(x2, season)
@@ -65,10 +60,10 @@ do i = 0, ncase-1
     X5 = month_to_season(x5, season)
     TS(i,4,:,:) = dim_avg_n_Wrap(X5, 0)
 
-    ; TSX = x1
-    ; TSX = (/x1 + x2 - x3 + x4/);  + x5
-    ; TSXX = month_to_season(TSX, season)
-    ; TS(i,3,:,:) = dim_avg_n_Wrap(TSXX, 0)
+    x0 = x1
+    x0 = x3 - x1 - x2 - x4
+    X0 = month_to_season(x0, season)
+    TS(i,5,:,:) = dim_avg_n_Wrap(X0, 0)
 
 end do
 printVarSummary(TS)
@@ -96,10 +91,10 @@ topo = ftopo->topo(::-1,:)
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200723/"
 figname = season+"_surf_energy_budget"
 
-leftsti = (/"SH","LH","netS","netR","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
+leftsti = (/"SH","LH","netS","netR","G0","netS-netR-LH-SH"/)
 
 wks = gsn_open_wks("pdf", figpath+figname)
-plot = new(10, graphic)
+plot = new(6, graphic)
 plot_topo = plot
 
  res_topo            = True
@@ -140,26 +135,28 @@ res@gsnStringFontHeightF = 0.035
 
 ;res@gsnRightString = "W/m~S~2~C~"
 
-do i = 0,4
+do i = 0,3
     res@gsnLeftString = leftsti(i)
     res@cnLevelSelectionMode = "ManualLevels"
-    res@cnMinLevelValF = -50
-    res@cnMaxLevelValF = 50
-    res@cnLevelSpacingF = 5.
+    res@cnMinLevelValF = -100
+    res@cnMaxLevelValF = 100
+    res@cnLevelSpacingF = 10.
     res@gsnRightString = "Ctrl"
     plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
+end do
 
-
+do i = 4, 5
+    res@gsnLeftString = leftsti(i)
     res@cnLevelSelectionMode = "ManualLevels"
-    res@cnMinLevelValF = -2
-    res@cnMaxLevelValF = 2
-    res@cnLevelSpacingF = 0.2
-    res@gsnRightString = "Diff"
-    plot(i+5) = gsn_csm_contour_map(wks, ts_diff(i,:,:), res)
-    plot_topo(i+5) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plot(i+5), plot_topo(i+5))
+    res@cnMinLevelValF = -10
+    res@cnMaxLevelValF = 10
+    res@cnLevelSpacingF = 1.
+    res@gsnRightString = "Ctrl"
+    plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
+    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+    overlay(plot(i), plot_topo(i))
 end do
 
 pres = True
@@ -169,7 +166,7 @@ pres@gsnPanelMainString = season+" mean surface energy budget" ;(500hPa to 200hP
 ; pres@pmLabelBarOrthogonalPosF = -0.02
 ; pres@lbLabelFontHeightF = 0.015
 
-gsn_panel(wks, plot, (/2,5/), pres)
+gsn_panel(wks, plot, (/2,3/), pres)
 
 
 end
