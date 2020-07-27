@@ -13,6 +13,7 @@ casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_P
 
 ncase = dimsizes(casename)
 season = "DJF"
+; season = "JJA"
 var = (/"DownS","UpS","netS","DownR","UpR","netR","SH","LH","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
 nvar = dimsizes(var)
 
@@ -144,38 +145,51 @@ res@gsnStringFontHeightF = 0.035
 
 ;res@gsnRightString = "W/m~S~2~C~"
 
+; res@gsnRightString = "Ctrl"
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMinLevelValF = -500
+; res@cnMaxLevelValF = 500
+; res@cnLevelSpacingF = 50
+
+; do i = 0, 8
+;     res@gsnLeftString = var(i)
+;     plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
+;     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+;     overlay(plot(i), plot_topo(i))
+;     ; write loop content
+; end do
 
 res@gsnRightString = "Diff"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -20
-res@cnMaxLevelValF = 20
-res@cnLevelSpacingF = 2.
-do i = 0,1
+res@cnMinLevelValF = -10
+res@cnMaxLevelValF = 10
+res@cnLevelSpacingF = 1.
+do i = 0,5
     res@gsnLeftString = var(i)
     plot(i) = gsn_csm_contour_map(wks, ts_diff(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 
-    res@gsnLeftString = var(i+3)
-    plot(i+3) = gsn_csm_contour_map(wks, ts_diff(i+3,:,:), res)
-    plot_topo(i+3) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plot(i+3), plot_topo(i+3))
+    ; res@gsnLeftString = var(i+3)
+    ; plot(i+3) = gsn_csm_contour_map(wks, ts_diff(i+3,:,:), res)
+    ; plot_topo(i+3) = gsn_csm_contour(wks, topo, res_topo)
+    ; overlay(plot(i+3), plot_topo(i+3))
 end do
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -3
-res@cnMaxLevelValF = 3
-res@cnLevelSpacingF = 0.2
+res@cnMinLevelValF = -1
+res@cnMaxLevelValF = 1
+res@cnLevelSpacingF = 0.1
 
-res@gsnLeftString = var(2)
-plot(2) = gsn_csm_contour_map(wks, ts_diff(2,:,:), res)
-plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(2), plot_topo(2))
+; res@gsnLeftString = var(2)
+; plot(2) = gsn_csm_contour_map(wks, ts_diff(2,:,:), res)
+; plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(2), plot_topo(2))
 
-res@gsnLeftString = var(5)
-plot(5) = gsn_csm_contour_map(wks, ts_diff(5,:,:), res)
-plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(5), plot_topo(5))
+; res@gsnLeftString = var(5)
+; plot(5) = gsn_csm_contour_map(wks, ts_diff(5,:,:), res)
+; plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(5), plot_topo(5))
 
 do i = 6,8
     res@gsnLeftString = var(i)

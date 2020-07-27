@@ -11,7 +11,7 @@ yrLast = 200601
 casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 
 ncase = dimsizes(casename)
-season = "DJF"
+season = "JJA"
 
 TS = new((/ncase,6,96,144/), float, "1e+36")
 do i = 0, ncase-1
