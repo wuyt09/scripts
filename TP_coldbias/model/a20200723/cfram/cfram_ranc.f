@@ -12,6 +12,8 @@ c  input data
       real rht_solar(ix,iy,zd18),rht_co2(ix,iy,zd18)
       real lhflx_base(ix,iy),shflx_base(ix,iy)
       real lhflx_warm(ix,iy),shflx_warm(ix,iy)
+      real ssrflx_base(ix,iy),strflx_base(ix,iy)
+      real ssrflx_warm(ix,iy),strflx_warm(ix,iy)
       real SR(ix,iy)
 
 !forcing output
@@ -239,8 +241,9 @@ c  input data
        read(37,rec=1)strflx_base
        read(38,rec=1)strflx_warm
 
-       SR(:,:)=(ssrflx_warm(:,:)-ssrflx_base(:,:))-
-     &  (strflx_warm(:,:)-strflx_base(:,:))
+c       SR(:,:)=(ssrflx_warm(:,:)-ssrflx_base(:,:))-(strflx_warm(:,:)-strflx_base(:,:))
+       SR(:,:)=ssrflx_warm(:,:)-ssrflx_base(:,:)+
+     & (strflx_warm(:,:)-strflx_base(:,:))
 
        print*, "end of 100 loop"
        print*, "end of input"
@@ -441,7 +444,7 @@ c          print*, "after cloud"
              fc(k)=0
              fc_SR(i,j,k)=fc(k)
           enddo
-          fc_SR(i,j,nv1)=-SR(i,j)+fc_lhflx(i,j,nv1)+fc_shflx(i,j,nv1)
+          fc_SR(i,j,nv1)=-SR(i,j)-(fc_lhflx(i,j,nv1)+fc_shflx(i,j,nv1))
           fc(nv1)=fc_SR(i,j,nv1)
           call delt_gauss(drdt,fc,nv1)
           do k = 1, nv1
