@@ -267,10 +267,10 @@ res@tmYLLabelFontHeightF = 0.025
       res@gsnLeftString = "Pentad "+pen(2*j+1)
       plot(j*4+i) = gsn_csm_contour_map(wks, diff_prec(i+1,2*j+1,:,:), res)
       cnres@cnLineColor = "red"
-      plotc1(j*4+i) = gsn_csm_contour(wks, z_ave(0,2*j+1,:,:), cnres)
+      plotc1(j*4+i) = gsn_csm_contour(wks, z_ave(0,2*j+1,:,{105:lonend}), cnres)
       overlay(plot(j*4+i), plotc1(j*4+i))
       cnres@cnLineColor = "blue"
-      plotc2(j*4+i) = gsn_csm_contour(wks, z_ave(i+1,2*j+1,:,:), cnres)
+      plotc2(j*4+i) = gsn_csm_contour(wks, z_ave(i+1,2*j+1,:,{105:lonend}), cnres)
       overlay(plot(j*4+i), plotc2(j*4+i))
       plotv(j*4+i) = gsn_csm_vector(wks, diff_u(i+1,2*j+1,:,:), diff_v(i+1,2*j+1,:,:), vcres)
       overlay(plot(j*4+i), plotv(j*4+i))

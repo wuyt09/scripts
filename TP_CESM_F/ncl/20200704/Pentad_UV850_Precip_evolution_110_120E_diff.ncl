@@ -179,7 +179,7 @@ vcres@vcLineArrowColor = "black" ;grey50
 ; res@vcVectorDrawOrder = "PostDraw"
 
 do i = 0, ncase-2
-    res@gsnLeftString = title(i+1)
+    res@gsnLeftString = title(i+1)+" - Ctrl"
     ; plot(i) = gsn_csm_vector_scalar(wks, ud(i,{latstr:latend},pens-1:pene-1), vd(i,{latstr:latend},pens-1:pene-1), precd(i,{latstr:latend},pens-1:pene-1), res)
     plot(i) = gsn_csm_contour(wks, prec_diff(i,{latstr:latend},pens-1:pene-1), res)
     plotd(i) = gsn_csm_vector(wks, u_diff(i,{latstr:latend},pens-1:pene-1), v_diff(i,{latstr:latend},pens-1:pene-1), vcres)

@@ -5,11 +5,11 @@ nlat = 96
 nlon = 144
 
 lonstr = 70
-lonend = 100
+lonend = 120
 latstr = 5
 latend = 28
 
-casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_MAY"/)
+casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/)
 ncase = dimsizes(casename)
 clim_pentad_z = new((/ncase,73,nlat,nlon/), float)
 ; clim_pentad_v = clim_pentad_u
@@ -72,8 +72,8 @@ figname = "H850_monsoon_trough"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)
-gsn_define_colormap(wks, "MPL_rainbow")
-nplot = ncase
+gsn_define_colormap(wks, "MPL_gist_ncar")
+nplot = ncase+1
 plot = new((/nplot,10/), graphic)
 ; plot2 = plot1
 ; plot3 = plot1
@@ -98,7 +98,7 @@ res@mpMaxLonF = lonend
 
 res@cnFillOn = False
 res@cnLinesOn = True
-; res@cnLineLabelsOn = False
+res@cnLineLabelsOn = False
 res@cnLineLabelFontColor = "red"
 ; res@cnLineColor = "green4"
 res@cnLineThicknessF = 5
@@ -116,69 +116,72 @@ res@tmYLLabelFontHeightF = 0.02
 res@cnLevelSelectionMode = "ExplicitLevels"
 res@cnLevels = (/1480/)
 
-res@cnExplicitLineLabelsOn = True
-res@cnLineLabelFontHeightF = 0.02
+; res@cnExplicitLineLabelsOn = True
+; res@cnLineLabelFontHeightF = 0.015
 
 
 pens = 22
 
 Colors = (/20,30,40,50,60,70,80,90,100,110/)
-text_p = ispan(pens, pens+10, 1)
+text_p = ispan(pens+1, pens+10, 1)
 do i = 0, ncase-1
     res@gsnLeftString = casename(i)
     res@cnLineColor = Colors(0)
-    res@cnLineLabelStrings = "Pentad "+text_p(0)
+    ; res@cnLineLabelStrings = "Pentad "+text_p(0)
     plot(i,0) = gsn_csm_contour_map(wks, clim_pentad_z(i,pens,:,:), res)
+
+    delete(res@gsnLeftString)
     do j = 1, 9
-        delete(res@gsnLeftString)
         res@cnLineColor = Colors(j)
-        res@cnLineLabelStrings = "Pentad "+text_p(j)
+        ; res@cnLineLabelStrings = "Pentad "+text_p(j)
         plot(i,j) = gsn_csm_contour(wks, clim_pentad_z(i,pens+j,:,:), res)
         overlay(plot(i,0), plot(i,j))
     end do
 end do
 
+;==================================================================================
+    res_lines                   = True                  ; polyline mods desired
+    res_lines@gsLineThicknessF  = 5                     ; line thicker
+    
 
-; do i = 0, ncase-1
-;     res@gsnLeftString = casename(i)
-;     ; res@cnLineColor = "grey49"
-;     ; plot1(i) = gsn_csm_contour_map(wks, clim_pentad_z(i,24,:,:), res)
-;     ; delete(res@gsnLeftString)
-;     ; res@cnLineColor = "grey39"
-;     ; plot2(i) = gsn_csm_contour(wks, clim_pentad_z(i,25,:,:), res)
-;     ; res@cnLineColor = "grey29"
-;     ; plot3(i) = gsn_csm_contour(wks, clim_pentad_z(i,26,:,:), res)
-;     ; res@cnLineColor = "grey9"
-;     ; plot4(i) = gsn_csm_contour(wks, clim_pentad_z(i,27,:,:), res)
-;     ; res@cnLineColor = "grey3"
-;     ; plot5(i) = gsn_csm_contour(wks, clim_pentad_z(i,28,:,:), res)
-;     ; res@cnLineColor = "black"
-;     ; plot6(i) = gsn_csm_contour(wks, clim_pentad_z(i,29,:,:), res)
+    res_text                    = True                  ; text mods desired
+    res_text@txFontHeightF      = 0.018                 ; change text size
+    res_text@txJust             = "CenterLeft"          ; text justification
 
-;     res@cnLineColor = "red"
-;     plot1(i) = gsn_csm_contour_map(wks, clim_pentad_z(i,pens,:,:), res)
-;     delete(res@gsnLeftString)
-;     res@cnLineColor = "orange"
-;     plot2(i) = gsn_csm_contour(wks, clim_pentad_z(i,pens+1,:,:), res)
-;     res@cnLineColor = "yellow"
-;     plot3(i) = gsn_csm_contour(wks, clim_pentad_z(i,pens+2,:,:), res)
-;     res@cnLineColor = "green"
-;     plot4(i) = gsn_csm_contour(wks, clim_pentad_z(i,pens+3,:,:), res)
-;     res@cnLineColor = "blue"
-;     plot5(i) = gsn_csm_contour(wks, clim_pentad_z(i,pens+4,:,:), res)
-;     res@cnLineColor = "purple"
-;     plot6(i) = gsn_csm_contour(wks, clim_pentad_z(i,pens+5,:,:), res)
-;     overlay(plot1(i), plot2(i))
-;     overlay(plot1(i), plot3(i))
-;     overlay(plot1(i), plot4(i))
-;     overlay(plot1(i), plot5(i))
-;     overlay(plot1(i), plot6(i))
-; end do
+    Texts = "Pentad "+text_p
+; ;============================================================
+    interval = 0.03
+    gx1 = (/0.55,0.6/)
+    text_pos1 = 0.62
 
+    gx2 = (/0.75,0.8/)
+    text_pos2 = 0.82
+
+    gy1 = (/0.3,0.3/)
+    print(gy1)
+
+do i = 0, 4
+    res_lines@gsLineColor = Colors(i)
+    gsn_polyline_ndc(wks, gx1, gy1-interval*i, res_lines)
+    gsn_text_ndc(wks, Texts(i), text_pos1, gy1-interval*i, res_text)
+
+
+    res_lines@gsLineColor = Colors(i+5)
+    gsn_polyline_ndc(wks, gx2, gy1-interval*i, res_lines)
+    gsn_text_ndc(wks, Texts(i+5), text_pos2, gy1-interval*i, res_text)
+end do
+    ; res_lines@gsLineColor = Colors(1)
+    ; ;res_lines@gsLineDashPattern = Patterns(1)
+    ; dum21 = gsn_add_polyline(wks, plot(0), gx, gy2, res_lines)
+    ; dum22 = gsn_add_text(wks, plot(0), Texts(1), text_pos, gy2, res_text)
+    ; res_lines@gsLineColor = Colors(2)
+    ; ;res_lines@gsLineDashPattern = Patterns(2)
+    ; dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
+    ; dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
 
 pres = True
 pres@gsnMaximize = True
 ; pres@gsnPanelLabelBar = True
 pres@gsnPanelMainString = "Z850 1480gpm"
-gsn_panel(wks, plot(:,0), (/ncase/2,2/), pres)
+gsn_panel(wks, plot(:,0), (/3,2/), pres)
 end
