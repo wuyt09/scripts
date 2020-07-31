@@ -21,10 +21,10 @@ latend = 30
   lonL3  = 110
   lonR3  = 120.0
 
-casename = (/"CTRL","NOTPQ1"/)
+casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/) ;
 ncase = dimsizes(casename)
-pens = 43
-pene = 72
+pens = 13 ;19
+pene = 42 ;36
 npen = pene - pens + 1
 nlat = 96
 nlon = 144
@@ -52,13 +52,13 @@ do i = 0, ncase-1
   delete([/ps,pentad_ps,clim_pentad_PS/])
 
   ;--------------------------------------------------------------------
-  tname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.T.*.daily.nc")
+  tname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.T.1*.daily.nc")
   print(tname)
 
   ft = addfiles(tname, "r")
 
   T = ft[:]->T(:,::-1,:,:)
-  t = reshape(T, (/25,365,37,nlat,nlon/))
+  t = reshape(T, (/10,365,37,nlat,nlon/))
   copy_VarCoords(T(0:364,:,:,:), t(0,:,:,:,:))
 
   pentad_t = t(:,0:72,:,:,:)
@@ -111,7 +111,7 @@ plev&lev = lev
 Cmp_MTG = MTG(:,:,0,:,:)
 pbot = 50000
 ptop = 20000
-do k = 0,1
+do k = 0,ncase-1
   do p = 0, npen-1
     xxx  = MTG(case|k,time|p,lat|:,lon|:,lev|:)
     Cmp_MTG(k,p,:,:) = vibeta(plev, xxx, 1, clim_pentad_ps(k,p,:,:), pbot, ptop)
@@ -124,56 +124,64 @@ printVarSummary(Cmp_MTG)
 ;-------------------------------------------------------------------
 ; Reversal Pentad
 
-  bob = wgt_areaave_Wrap(Cmp_MTG(:,:,{latS2:latN2},{lonL2:lonR2}),1.0,1.0,1)
-  scs = wgt_areaave_Wrap(Cmp_MTG(:,:,{latS3:latN3},{lonL3:lonR3}),1.0,1.0,1)
-  ism = wgt_areaave_Wrap(Cmp_MTG(:,:,{latS1:latN1},{lonL1:lonR1}),1.0,1.0,1)
-  printVarSummary(bob)
-
   diff  = Cmp_MTG
   last  = Cmp_MTG
-  diff1 = bob
-  last1 = bob
-  diff2 = bob
-  last2 = bob
-  diff3 = bob
-  last3 = bob
   do n=1,npen-1
     diff(:,n,:,:) = Cmp_MTG(:,n,:,:)*Cmp_MTG(:,n-1,:,:)
-    diff1(:,n) = bob(:,n)*bob(:,n-1)
-    diff2(:,n) = scs(:,n)*scs(:,n-1)
-    diff3(:,n) = ism(:,n)*ism(:,n-1)
     end do
-  do n=0,npen-3
+  do n=0,npen-2
     last(:,n,:,:) = Cmp_MTG(:,n,:,:)*Cmp_MTG(:,n+1,:,:)
-    last1(:,n) = bob(:,n)*bob(:,n+1)
-    last2(:,n) = scs(:,n)*scs(:,n+1)
-    last3(:,n) = ism(:,n)*ism(:,n+1)
    end do
 ;************************************************
   u_peak = Cmp_MTG(:,0,:,:)
-  BOB = new(2,integer)
-  SCS = BOB
-  ISM = BOB
-  
-  do k = 0, 1
+
+  do k = 0, ncase-1
     do j=0,nlat-1
       do i=0,nlon-1
-        a= ind((diff(k,:,j,i).lt.0).and.(Cmp_MTG(k,:,j,i).lt.0).and.(last(k,:,j,i).gt.0))
+        a= ind((diff(k,:,j,i).lt.0).and.(Cmp_MTG(k,:,j,i).gt.0).and.(last(k,:,j,i).gt.0))
         u_peak(k,j,i)=(/a(0)/)  +pens-1
         delete(a)
       end do
     end do
+  end do
 
-    a= ind((diff1(k,:).lt.0).and.(bob(k,:).lt.0).and.(last1(k,:).gt.0))
-    BOB(k) =(/a(0)/)  +pens
-    delete(a)
-    a= ind((diff2(k,:).lt.0).and.(scs(k,:).lt.0).and.(last2(k,:).gt.0))
-    SCS(k) =(/a(0)/)  +pens
-    delete(a)
-    a= ind((diff3(k,:).lt.0).and.(ism(k,:).lt.0).and.(last3(k,:).gt.0))
-    ISM(k) =(/a(0)/)  +pens
-    delete(a)
-end do
+  udiff_peak = u_peak(1:ncase-1,:,:)
+  do i = 0, ncase-2
+    udiff_peak(i,:,:) = u_peak(i+1,:,:) - u_peak(0,:,:)
+  end do
+
+  BOB = wgt_areaave_Wrap(udiff_peak(:,{latS2:latN2},{lonL2:lonR2}),1.0,1.0,1)
+  SCS = wgt_areaave_Wrap(udiff_peak(:,{latS3:latN3},{lonL3:lonR3}),1.0,1.0,1)
+  ISM = wgt_areaave_Wrap(udiff_peak(:,{latS1:latN1},{lonL1:lonR1}),1.0,1.0,1)
+;   printVarSummary(bob)
+;   diff1 = bob
+;   last1 = bob
+;   diff2 = bob
+;   last2 = bob
+;   diff3 = bob
+;   last3 = bob
+;     diff1(:,n) = bob(:,n)*bob(:,n-1)
+;     diff2(:,n) = scs(:,n)*scs(:,n-1)
+;     diff3(:,n) = ism(:,n)*ism(:,n-1)
+
+;     last1(:,n) = bob(:,n)*bob(:,n+1)
+;     last2(:,n) = scs(:,n)*scs(:,n+1)
+;     last3(:,n) = ism(:,n)*ism(:,n+1)
+
+;     BOB = new(ncase,integer)
+;     SCS = BOB
+;     ISM = BOB
+
+;     a= ind((diff1(k,:).lt.0).and.(bob(k,:).gt.0).and.(last1(k,:).gt.0))
+;     BOB(k) =(/a(0)/)  +pens
+;     delete(a)
+;     a= ind((diff2(k,:).lt.0).and.(scs(k,:).gt.0).and.(last2(k,:).gt.0))
+;     SCS(k) =(/a(0)/)  +pens
+;     delete(a)
+;     a= ind((diff3(k,:).lt.0).and.(ism(k,:).gt.0).and.(last3(k,:).gt.0))
+;     ISM(k) =(/a(0)/)  +pens
+;     delete(a)
+; end do
 
   print(u_peak(:,{10},{100}))
 
@@ -184,21 +192,22 @@ end do
 ;-------------------------------------------------------------------
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "retreat_pentad_model_"+casename(0)+"_"+casename(1)
+figname = "onset_pentad_multi_exp_diff"
 
 wks = gsn_open_wks("ps", figpath+figname)
-gsn_define_colormap(wks,"so4_23")  ; choose colormap
+gsn_define_colormap(wks,"BlAqGrWh2YeOrReVi22")  ; choose colormap
 
-nplot = 2
+nplot = ncase-1
 plot = new(nplot, graphic)
-Left = (/"Ctrl","NoHeat"/)
+; Left = (/"Ctrl","NoHeat"/)
+Left = casename(1:ncase-1)+" - Ctrl"
 
  resR                       = True     ; plot mods desired
  resR@gsnDraw               = False
  resR@gsnFrame              = False
- resR@gsnSpreadColors       = True     ; use full range of color map
- resR@gsnSpreadColorStart   = 24 ;40       ; choose starting color
- resR@gsnSpreadColorEnd     = 2 ;-40      ; choose ending color
+ ; resR@gsnSpreadColors       = True     ; use full range of color map
+ ; resR@gsnSpreadColorStart   = 24 ;40       ; choose starting color
+ ; resR@gsnSpreadColorEnd     = 2 ;-40      ; choose ending color
  resR@gsnLeftStringFontHeightF =0.025
  resR@gsnRightStringFontHeightF =0.025
  resR@gsnRightString = " " ;"ERA-40: JJA" ;
@@ -213,8 +222,8 @@ Left = (/"Ctrl","NoHeat"/)
  resR@cnLineLabelsOn       = False
  resR@cnInfoLabelOn        = False
  resR@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- resR@cnMinLevelValF        = pens ;-2 ; 17 ;-6e-5 ;1.6e7 ;2.5         ; set min contour level
- resR@cnMaxLevelValF        = pene ;+2 ;40 ;6e-5 ;1.6e7 ;2.5          ; set max contour level
+ resR@cnMinLevelValF        = -10 ;-2 ; 17 ;-6e-5 ;1.6e7 ;2.5         ; set min contour level
+ resR@cnMaxLevelValF        = 10 ;+2 ;40 ;6e-5 ;1.6e7 ;2.5          ; set max contour level
  resR@cnLevelSpacingF       =  1 ;1e-5 ;0.5 ; set contour interval
 
  resR@lbLabelBarOn         = False
@@ -256,7 +265,7 @@ Left = (/"Ctrl","NoHeat"/)
   resLine@gsLineColor = "black" ;"red"
 
 ; add the text
-   txid = new((/2,3/),graphic)                  ; Nine text strings
+   txid = new((/ncase,3/),graphic)                  ; Nine text strings
    txres               = True
    txres@txFont        = "helvetica"
 ;   txres@txFontHeightF = 0.01
@@ -284,17 +293,17 @@ Left = (/"Ctrl","NoHeat"/)
 ; create array of dummy graphic variables. This is required, b/c each line
 ; must be associated with a unique dummy variable.
 
-  dum1 = new((/2,4/),graphic)
-  dum2 = new((/2,4/),graphic)
-  dum3 = new((/2,4/),graphic)
+  dum1 = new((/ncase,4/),graphic)
+  dum2 = new((/ncase,4/),graphic)
+  dum3 = new((/ncase,4/),graphic)
 
-  do k = 0,1 ;4-6月
+  do k = 0,ncase-2 ;4-6月
     resR@gsnLeftString  = Left(k)
-    plot(k) = gsn_csm_contour_map(wks,u_peak(k,:,:),resR) ; create a default plot
-
-     txid(k,0) = gsn_add_text (wks,plot(k),tostring(BOB(k)), 95.0,  10.0 ,txres)
-     txid(k,1) = gsn_add_text (wks,plot(k),tostring(SCS(k)), 115.0, 15.0,txres)
-     txid(k,2) = gsn_add_text (wks,plot(k),tostring(ISM(k)), 72.5,  15.0,txres)
+    plot(k) = gsn_csm_contour_map(wks,udiff_peak(k,:,:),resR) ; create a default plot
+     ;tostring(BOB(k))
+     txid(k,0) = gsn_add_text (wks,plot(k),sprintf("%4.2f", BOB(k)), 95.0,  10.0 ,txres)
+     txid(k,1) = gsn_add_text (wks,plot(k),sprintf("%4.2f", SCS(k)), 115.0, 15.0,txres)
+     txid(k,2) = gsn_add_text (wks,plot(k),sprintf("%4.2f", ISM(k)), 72.5,  15.0,txres)
 
   ; draw each line separately. Each line must contain two points.
     do i = 0 , 3
@@ -319,7 +328,7 @@ Left = (/"Ctrl","NoHeat"/)
   resP@gsnPanelYWhiteSpacePercent = 3   ;图间隔大小
   resP@lbLabelAlignment       = "BoxCenters"
   resP@txFontHeightF = 0.03   ;标题字体大小
-  gsn_panel(wks,plot,(/2,1/),resP)               ; now draw as one plot
+  gsn_panel(wks,plot,(/2,2/),resP)               ; now draw as one plot
   frame(wks)   
 
 end

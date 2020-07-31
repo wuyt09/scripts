@@ -227,7 +227,7 @@ begin
 		do i=0,nlon-1
 	;		a= ind(MTG(:,j,i).gt.0)
 			a= ind((diff(k,:,j,i).lt.0).and.(Cmp_MTG(k,:,j,i).lt.0).and.(last(k,:,j,i).gt.0))
-			u_peak(k,j,i)=(/a(0)/)	+42
+			u_peak(k,j,i)=(/a(0)/)	+43
 			delete(a)
 		end do
 		end do

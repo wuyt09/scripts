@@ -72,7 +72,7 @@ figname = "H850_monsoon_trough"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)
-gsn_define_colormap(wks, "MPL_gist_ncar")
+gsn_define_colormap(wks, "example") ;MPL_gist_ncar
 nplot = ncase+1
 plot = new((/nplot,10/), graphic)
 ; plot2 = plot1
