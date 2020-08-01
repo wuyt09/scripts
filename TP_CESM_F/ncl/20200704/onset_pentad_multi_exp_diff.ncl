@@ -52,13 +52,13 @@ do i = 0, ncase-1
   delete([/ps,pentad_ps,clim_pentad_PS/])
 
   ;--------------------------------------------------------------------
-  tname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.T.1*.daily.nc")
+  tname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.T.*.daily.nc")
   print(tname)
 
   ft = addfiles(tname, "r")
 
   T = ft[:]->T(:,::-1,:,:)
-  t = reshape(T, (/10,365,37,nlat,nlon/))
+  t = reshape(T, (/25,365,37,nlat,nlon/))
   copy_VarCoords(T(0:364,:,:,:), t(0,:,:,:,:))
 
   pentad_t = t(:,0:72,:,:,:)

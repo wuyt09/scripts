@@ -21,7 +21,7 @@ do i = 0, ncase-1
  
     ; uname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.U.*.daily.nc")
     ; vname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.V.*.daily.nc")
-    zname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.Z3.1*.daily.nc")
+    zname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.Z3.*.daily.nc")
     print(zname)
 
     fz = addfiles(zname, "r")
@@ -37,7 +37,7 @@ do i = 0, ncase-1
     ; copy_VarCoords(V(0:364,:,:), v(0,:,:,:))
 
     Z = fz[:]->Z3(:,{LEV},:,:)
-    z = reshape(Z, (/10,365,nlat,nlon/)) ;25
+    z = reshape(Z, (/25,365,nlat,nlon/)) ;25
     copy_VarCoords(Z(0:364,:,:), z(0,:,:,:))
 
     ; pentad_u = u(:,0:72,:,:)

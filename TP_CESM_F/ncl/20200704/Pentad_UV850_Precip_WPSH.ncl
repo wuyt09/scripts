@@ -20,7 +20,7 @@ lon = fspan(0, 357.5, 144)
 lon@units = "degrees_east"
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
-year = ispan(10, 19, 1)
+year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 
 LEV = (/850,500/)
@@ -36,17 +36,17 @@ do i = 0, ncase-1
   lname = "F2000_"+casename(i)+".PRECL.daily.06-30.nc"
   fc = addfile(diri+cname, "r")
   fl = addfile(diri+lname, "r")
-  PRECL = fl->PRECL(4:13,:,:,:)
-  PRECC = fc->PRECC(4:13,:,:,:)
+  PRECL = fl->PRECL ;(4:13,:,:,:)
+  PRECC = fc->PRECC ;(4:13,:,:,:)
   PREC = (PRECC+PRECL)*86400*1000
   copy_VarCoords(PRECC, PREC)
   PREC@units = "mm/day"
   printVarSummary(PREC)
 
 
-  zname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.Z3.1*.daily.nc")
-  uname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.U.1*.daily.nc")
-  vname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.V.1*.daily.nc")
+  zname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.Z3.*.daily.nc")
+  uname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.U.*.daily.nc")
+  vname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.V.*.daily.nc")
   fz = addfiles(zname, "r")
   fu = addfiles(uname, "r")
   fv = addfiles(vname, "r")
@@ -262,7 +262,7 @@ res@tmYLLabelFontHeightF = 0.025
   ; plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
   ; overlay(plot(i), plot_topo(i))
 
-  res@gsnRightString = casename(i+1)
+  res@gsnRightString = casename(i+1)+" - Ctrl"
     do j = 0,4
       res@gsnLeftString = "Pentad "+pen(2*j+1)
       plot(j*4+i) = gsn_csm_contour_map(wks, diff_prec(i+1,2*j+1,:,:), res)
