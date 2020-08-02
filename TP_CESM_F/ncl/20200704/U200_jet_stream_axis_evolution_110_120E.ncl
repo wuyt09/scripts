@@ -67,7 +67,7 @@ figname = "U200_jet_stream_axis_evolution_110-120E"
 
 yaxis = ispan(1, 73, 2)
 pens = 13
-pene = 48
+pene = 66 ;48
 
 wks = gsn_open_wks("pdf", figpath+figname)
 

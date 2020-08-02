@@ -262,7 +262,7 @@ res@tmYLLabelFontHeightF = 0.025
   ; plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
   ; overlay(plot(i), plot_topo(i))
 
-  res@gsnRightString = casename(i+1)+" - Ctrl"
+  res@gsnRightString = "Ctrl - "+casename(i+1)
     do j = 0,4
       res@gsnLeftString = "Pentad "+pen(2*j+1)
       plot(j*4+i) = gsn_csm_contour_map(wks, diff_prec(i+1,2*j+1,:,:), res)

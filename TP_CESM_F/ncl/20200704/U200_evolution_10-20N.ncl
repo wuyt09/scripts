@@ -93,7 +93,7 @@ res@gsnStringFontHeightF = 0.03
 ; res@cnLinesOn        = False               ; turn off contour lines
 do i = 0, ncase-1
     res@gsnLeftString = title(i)
-    plot(i) = gsn_csm_hov(wks, prec_tlat(i,18:35,{50:140}), res)
+    plot(i) = gsn_csm_hov(wks, prec_tlat(i,13:65,{50:140}), res)
 end do
 
 ; res@cnFillPalette = "BlueWhiteOrangeRed"
@@ -118,7 +118,7 @@ end do
   res@gsnRightString = ""
   ;res@gsnContourZeroLineThicknessF = 5
   do i = 0, ncase-1
-    plots(i) = gsn_csm_hov(wks, prec_tlat(i,18:35,{50:140}), res)
+    plots(i) = gsn_csm_hov(wks, prec_tlat(i,13:65,{50:140}), res)
     overlay(plot(i), plots(i))
   end do
 
