@@ -46,7 +46,7 @@ begin
 ; ==============================================================
    ; f3  = addfile("./data/sp.interim.1979.2017.nc","r")
    f3  = addfile("/home/yangsong3/data-observation/wuyt/ERAI/monthly/1.5x1.5/sp_era_mn_197901_201507.nc","r")
-   PS0 = short2flt(f3->sp(0:431,:,:))
+   PS0 = short2flt(f3->sp(0:431,::-1,:))
 
    fils  = systemfunc("ls /home/yangsong3/data-observation/ERA-interim/pressure/air/air.interim.19*.nc /home/yangsong3/data-observation/ERA-interim/pressure/air/air.interim.200*.nc /home/yangsong3/data-observation/ERA-interim/pressure/air/air.interim.201[0-5].nc")
    print(fils)
