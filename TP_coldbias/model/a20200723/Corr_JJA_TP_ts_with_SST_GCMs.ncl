@@ -70,6 +70,14 @@ lsdata = a->LSMASK
 lsm = landsea_mask(lsdata, SST_GCM&lat, SST_GCM&lon)
 ;lmask = where(lsm.eq.1 .or. lsm.eq.3 .or. lsm.eq.4, 0, 1)
 SST_GCM = mask(SST_GCM, lsm.eq.1 .or. lsm.eq.3 .or. lsm.eq.4, False)
+
+t_bias = TP_GCM - TP_obs
+copy_VarCoords(TP_GCM, t_bias)
+printVarSummary(t_bias)
+tbias = abs(t_bias)
+ip_tbias = dim_pqsort(tbias,1)
+
+print(models(ip_tbias)+"  "+sprintf("%4.2f",tbias(ip_tbias)))
 ;===================================================================
 ; regression data
 ;===================================================================
@@ -101,7 +109,7 @@ res@gsnMaximize = True
 res@mpOutlineOn = True
 res@mpFillOn = True
 res@mpGeophysicalLineThicknessF = 2
-res@mpGeophysicalLineColor = "grey25" ;"red" 
+res@mpGeophysicalLineColor = "grey25" ;"red"
 res@mpFillDrawOrder = "PostDraw"
 res@mpCenterLonF = 180
 
@@ -129,7 +137,7 @@ res3  = True
 res3@gsnDraw   = False
 res3@gsnFrame  = False
 
-;res3@cnFillOn  = False 
+;res3@cnFillOn  = False
 res3@cnLinesOn = False
 res3@cnLineLabelsOn = False
 res3@cnInfoLabelOn  = False

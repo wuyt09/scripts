@@ -6,7 +6,9 @@ load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
 ;************************************************
 begin
-
+; x = 2 .gt. 1
+; print(x)
+; exit
    latS = 0.
    latN = 30.
    lonL = 50.
@@ -35,8 +37,8 @@ begin
   levs = 500
   levt = 200
 
-   ; npt  = 13
-   npnt = 30
+   nptS  = 19
+   npnt = 24
    x      = ispan(1,12,1)
 ; ==============================================================
 ; (I) Basic Field ==> VP200
@@ -69,12 +71,12 @@ begin
        mn(n,:)   = ispan(1,12,1)
        dy(n,:)   = ispan(1,31,1)
    end do
-   ddd4   = day_of_year(yr,mn(:,2),dy(:,1)) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;要减一！！！
+   ddd4   = day_of_year(yr,mn(:,3),dy(:,0)) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;要减一！！！
    ddd6   = day_of_year(yr,mn(:,6),dy(:,28))   ;13-42pentad
    ddd12  = day_of_year(yr,mn(:,11),dy(:,30))
-   ; print(ddd4)
-   ; print(ddd6)
-   ; print(ddd12)
+   print(ddd4)
+   print(ddd6)
+   print(ddd12)
    ; exit
 ;************************************************
 
@@ -131,7 +133,7 @@ begin
     MTG_column = 0
     ppppp = ps0(6,:,:)
     do k= 0, nyr-1
-    do n=0,29
+    do n=0,npnt-1
         kkkkk=MTG(year|k,time|n,lat|:,lon|:,level|:)
         MTG_column(k,n,:,:) = vibeta(plev,kkkkk,linlog,ppppp,pbot,ptop)
     end do
@@ -151,23 +153,40 @@ begin
     last  = MTG_column
     diff1 = bob
     last1 = bob
-    last11 = bob
+    boblast = new(dimsizes(bob), logical)
+    ; last11 = bob    
+    ; last111 = bob
     diff2 = bob
     last2 = bob
+    scslast = boblast
+    ; last22 = bob
+    ; last222 = bob
     diff3 = bob
     last3 = bob
+    ismlast = boblast
+    ; last33 = bob
+    ; last333 = bob
+
     do n=1,npnt-1
         diff(:,n,:,:) = MTG_column(:,n,:,:)*MTG_column(:,n-1,:,:)
         diff1(:,n) = bob(:,n)*bob(:,n-1)
         diff2(:,n) = scs(:,n)*scs(:,n-1)
         diff3(:,n) = ism(:,n)*ism(:,n-1)
     end do
-    do n=0,npnt-5
+    do n=0,npnt-4
         last(:,n,:,:) = MTG_column(:,n,:,:)*MTG_column(:,n+1,:,:)
         last1(:,n) = bob(:,n)*bob(:,n+1)
-        last11(:,n) = bob(:,n+1)*bob(:,n+2)*bob(:,n+3)*bob(:,n+4)
+        boblast(:,n) = bob(:,n+2).gt.0 .and. bob(:,n+3).gt.0
+        ; last11(:,n) = bob(:,n)*bob(:,n+1)*bob(:,n+2)
+        ; last111(:,n) = bob(:,n)*bob(:,n+1)*bob(:,n+2)*bob(:,n+3)
         last2(:,n) = scs(:,n)*scs(:,n+1)
+        scslast(:,n) = scs(:,n+2).gt.0 .and. scs(:,n+3).gt.0
+        ; last22(:,n) = scs(:,n)*scs(:,n+1)*scs(:,n+2)
+        ; last222(:,n) = scs(:,n)*scs(:,n+1)*scs(:,n+2)*scs(:,n+3)
         last3(:,n) = ism(:,n)*ism(:,n+1)
+        ismlast(:,n) = ism(:,n+2).gt.0 .and. ism(:,n+3).gt.0
+        ; last33(:,n) = ism(:,n)*ism(:,n+1)*ism(:,n+2)
+        ; last333(:,n) = ism(:,n)*ism(:,n+1)*ism(:,n+2)*ism(:,n+3)
    end do
 ;************************************************
     u_peak = MTG_column(:,0,:,:)
@@ -180,18 +199,18 @@ begin
         do i=0,nlon-1
     ;       a= ind(MTG(:,j,i).gt.0)
             a= ind((diff(k,:,j,i).lt.0).and.(MTG_column(k,:,j,i).gt.0).and.(last(k,:,j,i).gt.0))
-            u_peak(k,j,i)=(/a(0)/)  +12
+            u_peak(k,j,i)=(/a(0)/)  +nptS-1
             delete(a)
         end do
         end do
-        a= ind((diff1(k,:).lt.0).and.(bob(k,:).gt.0).and.(last1(k,:).gt.0).and.(last11(k,:).gt.0))
-        BOB(k) =(/a(0)/)    +13
+        a= ind((diff1(k,:).lt.0).and.(bob(k,:).gt.0).and.(last1(k,:).gt.0).and.boblast(k,:))
+        BOB(k) =(/a(0)/)    +nptS
         delete(a)
-        a= ind((diff2(k,:).lt.0).and.(scs(k,:).gt.0).and.(last2(k,:).gt.0))
-        SCS(k) =(/a(0)/)    +13
+        a= ind((diff2(k,:).lt.0).and.(scs(k,:).gt.0).and.(last2(k,:).gt.0).and.scslast(k,:))
+        SCS(k) =(/a(0)/)    +nptS
         delete(a)
-        a= ind((diff3(k,:).lt.0).and.(ism(k,:).gt.0).and.(last3(k,:).gt.0))
-        ISM(k) =(/a(0)/)    +13
+        a= ind((diff3(k,:).lt.0).and.(ism(k,:).gt.0).and.(last3(k,:).gt.0).and.ismlast(k,:))
+        ISM(k) =(/a(0)/)    +nptS
         delete(a)
     end do
     print(u_peak(:,{10},{50}))
@@ -236,8 +255,8 @@ res@xyDashPattern = 0
 res@trXMinF = yrStrt
 res@trXMaxF = yrLast
 res@tmXBPrecision = 4
-res@trYMinF = 15
-res@trYMaxF = 33
+res@trYMinF = 20
+res@trYMaxF = 35
 res@tmYLPrecision = 2
 
 res@gsnRightString = ""
@@ -265,10 +284,10 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
     Texts  = (/"BOB","SCS","ISM"/)
 
 ; ;============================================================
-    interval = 3
+    interval = 2
     gx = (/2002,2005/)
     text_pos = 2006
-    gy1 = (/36,36/)
+    gy1 = (/33,33/)
     gy2 = gy1-interval ;(/15,15/)
     gy3 = gy2-interval
     gy4 = gy3-interval

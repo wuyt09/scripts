@@ -242,7 +242,7 @@ c  input data
        read(38,rec=1)strflx_warm
 
 c       SR(:,:)=(ssrflx_warm(:,:)-ssrflx_base(:,:))-(strflx_warm(:,:)-strflx_base(:,:))
-       SR(:,:)=ssrflx_warm(:,:)-ssrflx_base(:,:)+
+       SR(:,:)=ssrflx_warm(:,:)-ssrflx_base(:,:)-
      & (strflx_warm(:,:)-strflx_base(:,:))
 
        print*, "end of 100 loop"
@@ -444,7 +444,7 @@ c          print*, "after cloud"
              fc(k)=0
              fc_SR(i,j,k)=fc(k)
           enddo
-          fc_SR(i,j,nv1)=-SR(i,j)-(fc_lhflx(i,j,nv1)+fc_shflx(i,j,nv1))
+          fc_SR(i,j,nv1)=SR(i,j)-(fc_lhflx(i,j,nv1)+fc_shflx(i,j,nv1))
           fc(nv1)=fc_SR(i,j,nv1)
           call delt_gauss(drdt,fc,nv1)
           do k = 1, nv1

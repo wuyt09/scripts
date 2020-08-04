@@ -20,7 +20,7 @@ nvar = dimsizes(var)
 TS = new((/ncase,nvar,96,144/), float) ;, "1e+36"
 do i = 0, ncase-1
     diri = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
-    
+
     fili1 = casename(i)+".cam.h0.FSDS.1979-2005.nc"
     fili2 = casename(i)+".cam.h0.FSNS.1979-2005.nc"
     fili3 = casename(i)+".cam.h0.FLDS.1979-2005.nc"
@@ -51,9 +51,9 @@ do i = 0, ncase-1
     ; exit
     x7 = x6
     x7 = (/f7->FGR(iYYYY,:,:)/)
-    
+
     us = x2
-    us = x2 - x1
+    us = x1 - x2
     ur = x4
     ur = x3 + x4
 
@@ -90,13 +90,13 @@ copy_VarCoords(TS(0,0,:,:), ts_diff(0,:,:))
 printVarSummary(ts_diff)
 
 ;=========================================================
-; outline of tp 
+; outline of tp
 ;=========================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
 
 ;=========================================================
-; plot 
+; plot
 ;=========================================================
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200723/"
