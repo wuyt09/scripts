@@ -54,8 +54,13 @@ do i = 0, ncase-1
 
     us = x2
     us = x1 - x2
+    us = -1.*us
     ur = x4
     ur = x3 + x4
+    ur = -1.*ur
+    x5 = -1.*x5
+    x6 = -1.*x6
+    x4 = -1.*x4
 
     X1 = month_to_season(x1, season)
     TS(i,0,:,:) = dim_avg_n_Wrap(X1, 0)
@@ -177,9 +182,9 @@ do i = 0,5
 end do
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.1
+res@cnMinLevelValF = -2
+res@cnMaxLevelValF = 2
+res@cnLevelSpacingF = 0.2
 
 ; res@gsnLeftString = var(2)
 ; plot(2) = gsn_csm_contour_map(wks, ts_diff(2,:,:), res)
@@ -201,7 +206,7 @@ end do
 pres = True
 pres@gsnMaximize = True
 ;pres@gsnPanelLabelBar = True
-pres@gsnPanelMainString = season+" mean surface energy balance" ;(500hPa to 200hPa)
+pres@gsnPanelMainString = season+" mean change: downward is positive" ;(500hPa to 200hPa)
 ; pres@pmLabelBarOrthogonalPosF = -0.02
 ; pres@lbLabelFontHeightF = 0.015
 
