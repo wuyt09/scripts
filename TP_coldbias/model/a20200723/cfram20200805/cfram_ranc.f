@@ -242,7 +242,7 @@ c  input data
        read(38,rec=1)strflx_warm
 
 c       SR(:,:)=(ssrflx_warm(:,:)-ssrflx_base(:,:))-(strflx_warm(:,:)-strflx_base(:,:))
-       SR(:,:)=ssrflx_warm(:,:)-ssrflx_base(:,:)-
+       SR(:,:)=ssrflx_warm(:,:)-ssrflx_base(:,:)+
      & (strflx_warm(:,:)-strflx_base(:,:))
 
        print*, "end of 100 loop"

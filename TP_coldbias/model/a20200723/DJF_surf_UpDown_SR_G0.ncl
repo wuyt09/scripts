@@ -50,7 +50,8 @@ do i = 0, ncase-1
     ; printVarSummary(x6)
     ; exit
     x7 = x6
-    x7 = (/f7->FGR(iYYYY,:,:)/)
+    ; x7 = (/f7->FGR(iYYYY,:,:)/)
+    x7 = x2-x4-x5-x6
 
     us = x2
     us = x1 - x2
