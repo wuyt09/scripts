@@ -119,6 +119,8 @@ ip_tbias = dim_pqsort(abs_tbias,1)
 
 print(models(ip_tbias)+"  "+sprintf("%4.2f",t_bias(ip_tbias)))
 
+write_table("./bias_list_"+season+".txt", "w", [/ip_tbias/], "%2i")
+exit
 ;===================================================================
 ; model sst
 ;===================================================================
