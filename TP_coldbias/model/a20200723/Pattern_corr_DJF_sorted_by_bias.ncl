@@ -1,6 +1,7 @@
 
 begin
 season = "DJF"
+sig = 0.1
 
 ip_tbias = asciiread("./bias_list_"+season+".txt", (/28/), "integer")
 print(ip_tbias)
@@ -92,8 +93,9 @@ printVarSummary(sst_obs)
 cc_obs = escorc_n(TP_obs, sst_obs, 0, 0)
 prob_obs = rtest(cc_obs, nyr, 0)
 prob_obs = mask(prob_obs, cc_obs.eq.0, False)
-cc_obs = mask(cc_obs, cc_obs.eq.0, False)
+; cc_obs = mask(cc_obs, cc_obs.eq.0, False)
 
+cc_obs = mask(cc_obs, prob_obs.le.sig, True)
 ;=============================================================================
 ; GCMs
 ;=============================================================================
@@ -171,8 +173,8 @@ copy_VarCoords(SST_GCM(:,0,:,:), cc_model)
 copy_VarCoords(SST_GCM(:,0,:,:), prob_model)
 prob_model = mask(prob_model, cc_model.eq.0, False)
 
-cc_model = mask(cc_model, cc_model.eq.0, False)
-cc_model = mask(cc_model, prob_model.le.0.05, True)
+; cc_model = mask(cc_model, cc_model.eq.0, False)
+cc_model = mask(cc_model, prob_model.le.sig, True)
 ; cc_model_mean = wgt_areaave(cc_model, 1, 1, 0)
 ; print(cc_model(7,:,:))
 ; exit
@@ -187,31 +189,34 @@ pa_corr4 = pa_corr1
 cc_lat = tofloat(cc_model&lat)
 clat = cos(0.01745329*cc_lat)
 cc_obsx = linint2_Wrap(cc_obs&lon, cc_obs&lat, cc_obs, True, cc_model&lon, cc_model&lat, 0)
-prob_obsx = linint2_Wrap(prob_obs&lon, prob_obs&lat, prob_obs, True, cc_model&lon, cc_model&lat, 0)
-cc_obsx = mask(cc_obsx, cc_obsx.eq.0, False)
-cc_obsx = mask(cc_obsx, prob_obsx.le.0.05, True)
+; prob_obsx = linint2_Wrap(prob_obs&lon, prob_obs&lat, prob_obs, True, cc_model&lon, cc_model&lat, 0)
+; cc_obsx = mask(cc_obsx, cc_obsx.eq.0, False)
+; cc_obsx = mask(cc_obsx, prob_obsx.le.sig, True)
 printVarSummary(cc_obsx)
-cc_model(7,:,:) = cc_model@_FillValue
+; cc_model(7,:,:) = cc_model@_FillValue
+x_obs = cc_obsx
 do i = 0,nmodel-1
-    print(i)
-    pa_corr1(i) = pattern_cor(cc_obsx, cc_model(i,:,:), 1., 0)
-    pa_corr2(i) = pattern_cor(cc_obsx, cc_model(i,:,:), 1., 1)
-    pa_corr3(i) = pattern_cor(cc_obsx, cc_model(i,:,:), clat, 0)
-    pa_corr4(i) = pattern_cor(cc_obsx, cc_model(i,:,:), clat, 1)
+    ; print(i)
+    x_model = mask(cc_model(i,:,:), ismissing(cc_obsx), False)
+    x_obs = mask(cc_obsx, ismissing(cc_model(i,:,:)), False)
+    pa_corr1(i) = pattern_cor(x_obs, x_model, 1., 0)
+    pa_corr2(i) = pattern_cor(x_obs, x_model, 1., 1)
+    pa_corr3(i) = pattern_cor(x_obs, x_model, clat, 0)
+    pa_corr4(i) = pattern_cor(x_obs, x_model, clat, 1)
 end do
 
 write_table("./Pattern_corr_weightlat_uncentered_mask_"+season+".txt", "w", [/"model", "w1c", "w1u","wlatc","wlatu"/], "%4s %4s %4s %4s %4s")
 write_table("./Pattern_corr_weightlat_uncentered_mask_"+season+".txt", "a", [/models(ip_tbias),pa_corr1(ip_tbias),pa_corr2(ip_tbias),pa_corr3(ip_tbias),pa_corr4(ip_tbias)/], "%4s %4.2f %4.2f %4.2f %4.2f")
 
 ; write_table("./Pattern_corr_weightlat_centered_"+season+".txt", "w", [/models(ip_tbias),pa_corr3(ip_tbias)/], "%10s %4.2f")
-exit
+; exit
 ;===================================================================
 ; Plot
 ;===================================================================
 filipath = "./"
 filiname = "test"
 wks = gsn_open_wks("pdf", filipath+filiname)
-plot = new(1, graphic)
+plot = new(2, graphic)
 plot_prob = plot
 
 res = True
@@ -235,7 +240,7 @@ res@gsnStringFontHeightF = 0.035
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-;res@lbLabelBarOn = False
+res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 0.1
 res@cnMaxLevelValF = 0.5
@@ -269,14 +274,20 @@ res3@gsnLeftString = ""
 res3@cnFillDotSizeF = 0.003
 res3@cnFillScaleF  = 1 ;1.2
 
-sig = 0.95
-res@gsnRightString = sig*100+"%"
+res@gsnRightString = (1-sig)*100+"%"
 
-res@gsnLeftString = "OBS_"+season
+
+res@gsnLeftString = "OBS corr map"
 plot(0) = gsn_csm_contour_map(wks, cc_obsx, res)
+
+res@gsnLeftString = models(ip_tbias(1))
+plot(1) = gsn_csm_contour_map(wks, cc_model(ip_tbias(1),:,:), res)
 ; plot_prob(0) = gsn_csm_contour(wks, prob, res3)
 ; plot_prob(0) = ShadeLtContour(plot_prob(0),(1-sig),6)
 ; overlay(plot(0), plot_prob(0))
-draw(plot)
 
+pres = True
+pres@gsnPanelLabelBar = True
+pres@gsnMaximize  = True
+gsn_panel(wks, plot, (/2,1/), pres)
 end

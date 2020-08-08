@@ -91,9 +91,9 @@ printVarSummary(TP_obs)
 printVarSummary(sst_obs)
 cc_obs = escorc_n(TP_obs, sst_obs, 0, 0)
 prob_obs = rtest(cc_obs, nyr, 0)
-prob_obs = mask(prob_obs, cc_obs.eq.0, False)
 printVarSummary(cc_obs)
 
+prob_obs = mask(prob_obs, cc_obs.eq.0, False)
 cc_obs = mask(cc_obs, prob_obs.le.0.05, True)
 ;=============================================================================
 ; GCMs
@@ -171,7 +171,6 @@ end do
 copy_VarCoords(SST_GCM(:,0,:,:), cc_model)
 copy_VarCoords(SST_GCM(:,0,:,:), prob_model)
 prob_model = mask(prob_model, cc_model.eq.0, False)
-
 cc_model = mask(cc_model, prob_model.le.0.05, True)
 printVarSummary(cc_model)
 
