@@ -93,9 +93,8 @@ printVarSummary(sst_obs)
 cc_obs = escorc_n(TP_obs, sst_obs, 0, 0)
 prob_obs = rtest(cc_obs, nyr, 0)
 prob_obs = mask(prob_obs, cc_obs.eq.0, False)
-; cc_obs = mask(cc_obs, cc_obs.eq.0, False)
 
-cc_obs = mask(cc_obs, prob_obs.le.sig, True)
+cc_obs = where(prob_obs.le.sig, cc_obs, 0)
 ;=============================================================================
 ; GCMs
 ;=============================================================================
@@ -123,21 +122,7 @@ printVarSummary(TS_GCM)
 TS_GCM = TS_GCM - 273.15
 TS_GCM = mask(TS_GCM, topo.ge.1500, True)
 TP_GCM = wgt_areaave_Wrap(TS_GCM(:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
-; TP_GCM_mme = dim_avg_n_Wrap(TP_GCM, 0)
-; printVarSummary(TP_GCM_mme)
 
-; TP_GCM_tm = dim_avg_n_Wrap(TP_GCM, 1)
-; printVarSummary(TP_GCM_tm)
-
-; t_bias = TP_GCM_tm - TP_obs
-; copy_VarCoords(TP_GCM_tm, t_bias)
-; printVarSummary(t_bias)
-; abs_tbias = abs(t_bias)
-; ip_tbias = dim_pqsort(abs_tbias,1)
-; print(ip_tbias)
-; print(models(ip_tbias)+"  "+sprintf("%4.2f",t_bias(ip_tbias)))
-; write_table("./bias_list_"+season+".txt", "w", [/ip_tbias/], "%2i")
-; exit
 ;---------------------------------------------------------
 ; GCM sst
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/ts/"
@@ -167,17 +152,13 @@ cc_model = new((/nmodel,181,360/), float)
 prob_model = cc_model
 do i = 0, nmodel-1
     cc_model(i,:,:) = escorc_n(TP_GCM(i,:), SST_GCM(i,:,:,:), 0, 0)
-    prob_model(i,:,:) = rtest(cc_model(i,:,:), nmodel, 0)
+    prob_model(i,:,:) = rtest(cc_model(i,:,:), 50, 0)
 end do
 copy_VarCoords(SST_GCM(:,0,:,:), cc_model)
 copy_VarCoords(SST_GCM(:,0,:,:), prob_model)
 prob_model = mask(prob_model, cc_model.eq.0, False)
 
-; cc_model = mask(cc_model, cc_model.eq.0, False)
-cc_model = mask(cc_model, prob_model.le.sig, True)
-; cc_model_mean = wgt_areaave(cc_model, 1, 1, 0)
-; print(cc_model(7,:,:))
-; exit
+cc_model = where(prob_model.le.sig, cc_model, 0)
 printVarSummary(cc_model)
 
 
@@ -189,20 +170,13 @@ pa_corr4 = pa_corr1
 cc_lat = tofloat(cc_model&lat)
 clat = cos(0.01745329*cc_lat)
 cc_obsx = linint2_Wrap(cc_obs&lon, cc_obs&lat, cc_obs, True, cc_model&lon, cc_model&lat, 0)
-; prob_obsx = linint2_Wrap(prob_obs&lon, prob_obs&lat, prob_obs, True, cc_model&lon, cc_model&lat, 0)
-; cc_obsx = mask(cc_obsx, cc_obsx.eq.0, False)
-; cc_obsx = mask(cc_obsx, prob_obsx.le.sig, True)
 printVarSummary(cc_obsx)
-; cc_model(7,:,:) = cc_model@_FillValue
-x_obs = cc_obsx
+
 do i = 0,nmodel-1
-    ; print(i)
-    x_model = mask(cc_model(i,:,:), ismissing(cc_obsx), False)
-    x_obs = mask(cc_obsx, ismissing(cc_model(i,:,:)), False)
-    pa_corr1(i) = pattern_cor(x_obs, x_model, 1., 0)
-    pa_corr2(i) = pattern_cor(x_obs, x_model, 1., 1)
-    pa_corr3(i) = pattern_cor(x_obs, x_model, clat, 0)
-    pa_corr4(i) = pattern_cor(x_obs, x_model, clat, 1)
+    pa_corr1(i) = pattern_cor(cc_obsx, cc_model(i,:,:), 1., 0)
+    pa_corr2(i) = pattern_cor(cc_obsx, cc_model(i,:,:), 1., 1)
+    pa_corr3(i) = pattern_cor(cc_obsx, cc_model(i,:,:), clat, 0)
+    pa_corr4(i) = pattern_cor(cc_obsx, cc_model(i,:,:), clat, 1)
 end do
 
 write_table("./Pattern_corr_weightlat_uncentered_mask_"+season+".txt", "w", [/"model", "w1c", "w1u","wlatc","wlatu"/], "%4s %4s %4s %4s %4s")
@@ -216,8 +190,9 @@ write_table("./Pattern_corr_weightlat_uncentered_mask_"+season+".txt", "a", [/mo
 filipath = "./"
 filiname = "test"
 wks = gsn_open_wks("pdf", filipath+filiname)
-plot = new(2, graphic)
+plot = new(nmodel, graphic)
 plot_prob = plot
+plotc = plot
 
 res = True
 res@gsnDraw  = False
@@ -240,13 +215,38 @@ res@gsnStringFontHeightF = 0.035
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@lbLabelBarOn = False
+; res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 0.1
 res@cnMaxLevelValF = 0.5
 res@cnMinLevelValF = -0.5
 res@cnFillPalette = "CBR_coldhot"
 ;res@gsnRightString = "K"
+
+;=====================================================
+    cnres = True
+    cnres@gsnDraw = False
+    cnres@gsnFrame = False
+
+    cnres@cnFillOn = False
+    cnres@cnLinesOn = True
+    cnres@cnLineLabelsOn = True
+    cnres@cnLineLabelFontColor = "red"
+    cnres@cnLineColor = "purple" ;goldenrod2 ;dodgerblue2
+    cnres@cnLineThicknessF = 5
+    cnres@cnInfoLabelOn = True
+    ;cnres@cnLineDrawOrder = "PostDraw"
+    cnres@cnLabelDrawOrder = "PostDraw"
+    ;cnres@cnLevelFlag = "LineAndLabel"
+    cnres@cnLineLabelInterval = 1
+    cnres@gsnLeftString = ""
+    cnres@gsnRightString = ""
+    cnres@cnLevelSelectionMode = "ManualLevels"
+    cnres@cnLevelSpacingF = 0.1
+    cnres@cnMaxLevelValF = 1 ;0.5
+    cnres@cnMinLevelValF = -1 ;0.5
+
+;=====================================================
 
 ;------------------------
 ; draw prob
@@ -277,17 +277,17 @@ res3@cnFillScaleF  = 1 ;1.2
 res@gsnRightString = (1-sig)*100+"%"
 
 
-res@gsnLeftString = "OBS corr map"
-plot(0) = gsn_csm_contour_map(wks, cc_obsx, res)
+; res@gsnLeftString = "OBS corr map"
+; plot(0) = gsn_csm_contour_map(wks, x_obsx, res)
 
-res@gsnLeftString = models(ip_tbias(1))
-plot(1) = gsn_csm_contour_map(wks, cc_model(ip_tbias(1),:,:), res)
-; plot_prob(0) = gsn_csm_contour(wks, prob, res3)
-; plot_prob(0) = ShadeLtContour(plot_prob(0),(1-sig),6)
-; overlay(plot(0), plot_prob(0))
+do i = 0, nmodel-1
+    res@gsnLeftString = models(ip_tbias(i))
+    plot(i) = gsn_csm_contour_map(wks, cc_model(ip_tbias(i),:,:), res)
+    ; plotc(i) = gsn_csm_contour(wks, x_obs(ip_tbias(i),:,:), cnres)
+    plotc(i) = gsn_csm_contour(wks, cc_obsx, cnres)
+    overlay(plot(i), plotc(i))
+    draw(plot(i))
+    frame(wks)
+end do
 
-pres = True
-pres@gsnPanelLabelBar = True
-pres@gsnMaximize  = True
-gsn_panel(wks, plot, (/2,1/), pres)
 end

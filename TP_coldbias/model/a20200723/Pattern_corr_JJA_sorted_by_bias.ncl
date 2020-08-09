@@ -1,6 +1,7 @@
 
 begin
 season = "JJA"
+sig = 0.1
 
 ip_tbias = asciiread("./bias_list_"+season+".txt", (/28/), "integer")
 print(ip_tbias)
@@ -93,6 +94,7 @@ cc_obs = escorc_n(TP_obs, sst_obs, 0, 0)
 prob_obs = rtest(cc_obs, nyr, 0)
 prob_obs = mask(prob_obs, cc_obs.eq.0, False)
 
+cc_obs = where(prob_obs.le.sig, cc_obs, 0)
 ;=============================================================================
 ; GCMs
 ;=============================================================================
@@ -120,21 +122,7 @@ printVarSummary(TS_GCM)
 TS_GCM = TS_GCM - 273.15
 TS_GCM = mask(TS_GCM, topo.ge.1500, True)
 TP_GCM = wgt_areaave_Wrap(TS_GCM(:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
-; TP_GCM_mme = dim_avg_n_Wrap(TP_GCM, 0)
-; printVarSummary(TP_GCM_mme)
 
-; TP_GCM_tm = dim_avg_n_Wrap(TP_GCM, 1)
-; printVarSummary(TP_GCM_tm)
-
-; t_bias = TP_GCM_tm - TP_obs
-; copy_VarCoords(TP_GCM_tm, t_bias)
-; printVarSummary(t_bias)
-; abs_tbias = abs(t_bias)
-; ip_tbias = dim_pqsort(abs_tbias,1)
-; print(ip_tbias)
-; print(models(ip_tbias)+"  "+sprintf("%4.2f",t_bias(ip_tbias)))
-; write_table("./bias_list_"+season+".txt", "w", [/ip_tbias/], "%2i")
-; exit
 ;---------------------------------------------------------
 ; GCM sst
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/ts/"
@@ -169,7 +157,7 @@ end do
 copy_VarCoords(SST_GCM(:,0,:,:), cc_model)
 copy_VarCoords(SST_GCM(:,0,:,:), prob_model)
 prob_model = mask(prob_model, cc_model.eq.0, False)
-cc_model = mask(cc_model, prob_model.le.0.05, True)
+cc_model = where(prob_model.le.sig, cc_model, 0)
 printVarSummary(cc_model)
 
 
@@ -181,8 +169,6 @@ pa_corr4 = pa_corr1
 cc_lat = tofloat(cc_model&lat)
 clat = cos(0.01745329*cc_lat)
 cc_obsx = linint2_Wrap(cc_obs&lon, cc_obs&lat, cc_obs, True, cc_model&lon, cc_model&lat, 0)
-prob_obsx = linint2_Wrap(prob_obs&lon, prob_obs&lat, cc_obs, True, cc_model&lon, cc_model&lat, 0)
-cc_obsx = mask(cc_obsx, prob_obsx.le.0.05, True)
 printVarSummary(cc_obsx)
 
 do i = 0,nmodel-1
