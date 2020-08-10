@@ -6,11 +6,11 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
 monsoon = (/"BOB","SCS","ISM"/)
-month = "May"
+month = "April"
 
 lonstr = 60
-lonend = 150
-latstr = 0
+lonend = 110
+latstr = 20
 latend = 45
 ;===============================================================
 ; read onset pentad
@@ -31,64 +31,49 @@ topo = ftopo->topo(::-1,:)
 ; Q1
 ;=========================================================
 
-diri = "/home/yangsong3/wuyt/data/ERA-Interim/monthly/"
-fili = "q1.mon.mean.1979.2016.ERAI.nc"
-f = addfile(diri+fili, "r")
+diri = "/home/yangsong3/data-observation/wuyt/ERAI/monthly/1x1/"
+fili1 = "sshf.mon.mean.7916.r1.nc" ;"q1.mon.mean.1979.2013.nc"
+fili2 = "slhf.mon.mean.7916.r1.nc"
+f1 = addfile(diri+fili1, "r")
+f2 = addfile(diri+fili2, "r")
 
-TIME = f->time
+TIME = f1->time
 YYYY = cd_calendar(TIME, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-q1 = f->q1(iYYYY,:,::-1,:)
-printVarSummary(q1)
+sshf = f1->sshf(iYYYY,:,:)
+slhf = f2->slhf(iYYYY,:,:)
+hf = sshf
+; hf = sshf+slhf
 
-lat = q1&lat
-lon = q1&lon
-lev = q1&lev
-nlat = dimsizes(lat)
-nlon = dimsizes(lon)
-nlev = dimsizes(lev)
+nlon = dimsizes(sshf&longitude)
+nlat = dimsizes(sshf&latitude)
 
-fsp = addfile("/home/yangsong3/data-observation/ERA-interim/monthly/Surface_pressure.mon.mean.nc", "r")
-PS = short2flt(fsp->sp(iYYYY,::-1,:))
-ps = linint2_Wrap(PS&longitude, PS&latitude, PS, True, lon, lat, 0)
-printVarSummary(ps)
+prec_mon = hf(3::12,:,:)
+printVarSummary(prec_mon)
 
-;-----------------------------------------
-; vertical integration
-;-----------------------------------------
-
-plev = lev
-plev = plev*100
-ptop = min(plev)
-dp = dpres_plevel_Wrap(plev, ps, ptop, 0)
-q1dp = q1*dp
-copy_VarCoords(q1, q1dp)
-Q1 = dim_sum_n_Wrap(q1dp, 1)
-printVarSummary(Q1)
-
-Q1_mon = Q1(4::12,:,:)
-printVarSummary(Q1_mon)
-
-
+; print(x(:,0))
+; print(Q1_mon(:,{25:40},{75:105}))
+; exit
 ;============================================================
 ; Correlation
 ;============================================================
 cc = new((/3,nlat,nlon/), float)
 prob = cc
 do i = 0, 2
-    cc(i,:,:) = escorc_n(x(:,i), Q1_mon, 0, 0)
+    cc(i,:,:) = escorc_n(x(:,i), prec_mon, 0, 0)
     prob(i,:,:) = rtest(cc(i,:,:), nyear, 0)
 end do
-copy_VarCoords(Q1_mon(0,:,:), cc(0,:,:))
+copy_VarCoords(prec_mon(0,:,:), cc(0,:,:))
 copy_VarCoords(cc, prob)
 printVarSummary(cc)
 printVarSummary(prob)
-
+print(cc(0,{25:40},{75:105}))
+; exit
 ;============================================================
 ; figure
 ;============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "Corr_onset_pentad_with_TP_Q1_"+month+"_ERAI"
+figname = "Corr_onset_pentad_with_TP_SHflx_"+month+"_GPCP"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(3, graphic)

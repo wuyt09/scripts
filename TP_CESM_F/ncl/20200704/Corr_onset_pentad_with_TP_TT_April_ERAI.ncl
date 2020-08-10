@@ -6,11 +6,11 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
 monsoon = (/"BOB","SCS","ISM"/)
-month = "May"
+month = "April"
 
 lonstr = 60
-lonend = 150
-latstr = 0
+lonend = 110
+latstr = 20
 latend = 45
 ;===============================================================
 ; read onset pentad
@@ -31,19 +31,19 @@ topo = ftopo->topo(::-1,:)
 ; Q1
 ;=========================================================
 
-diri = "/home/yangsong3/wuyt/data/ERA-Interim/monthly/"
-fili = "q1.mon.mean.1979.2016.ERAI.nc"
+diri = "/home/yangsong3/data-observation/ERA-interim/monthly/"
+fili = "air.mon.mean.nc"
 f = addfile(diri+fili, "r")
 
 TIME = f->time
 YYYY = cd_calendar(TIME, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-q1 = f->q1(iYYYY,:,::-1,:)
+q1 = short2flt(f->t(iYYYY,:,::-1,:))
 printVarSummary(q1)
 
-lat = q1&lat
-lon = q1&lon
-lev = q1&lev
+lat = q1&latitude
+lon = q1&longitude
+lev = q1&level
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 nlev = dimsizes(lev)
@@ -63,10 +63,11 @@ ptop = min(plev)
 dp = dpres_plevel_Wrap(plev, ps, ptop, 0)
 q1dp = q1*dp
 copy_VarCoords(q1, q1dp)
-Q1 = dim_sum_n_Wrap(q1dp, 1)
+Q1 = dim_sum_n_Wrap(q1dp, 1)/dim_sum_n_Wrap(dp, 1)
+copy_VarCoords(q1(:,0,:,:), Q1)
 printVarSummary(Q1)
 
-Q1_mon = Q1(4::12,:,:)
+Q1_mon = Q1(3::12,:,:)
 printVarSummary(Q1_mon)
 
 
@@ -88,7 +89,7 @@ printVarSummary(prob)
 ; figure
 ;============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "Corr_onset_pentad_with_TP_Q1_"+month+"_ERAI"
+figname = "Corr_onset_pentad_with_TP_TT_"+month+"_ERAI"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(3, graphic)
