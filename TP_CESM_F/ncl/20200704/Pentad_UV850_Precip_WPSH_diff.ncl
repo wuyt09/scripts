@@ -10,7 +10,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1"/) ;,"NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY";"NOTP"
+casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/) ;"NOTP"
 ncase = dimsizes(casename)
 pentad = ispan(1, 73, 1)
 npen = dimsizes(pentad)
@@ -83,7 +83,7 @@ copy_VarCoords(z, prec)
 
 ;------------ttest--------------------------------------
 pens = 24
-pene = 37
+pene = 34
 pen = ispan(pens, pene, 1)
 ux = u(:,:,pens-1:pene-1,:,:)
 vx = v(:,:,pens-1:pene-1,:,:)
@@ -137,14 +137,14 @@ printVarSummary(tpmask)
 ;-------------------------------------------------------------------
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "Pentad_UV850_Precip_WPSH"
+figname = "Pentad_UV850_Precip_WPSH_diff"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new((/ncase*6/), graphic)
+plot = new((/(ncase-1)*5/), graphic)
 plotv = plot
-plotc = plot
-; plotc2 = plot
+plotc1 = plot
+plotc2 = plot
 plot_topo = plot
 ;----------------------------------------------------
  res_topo            = True
@@ -237,13 +237,13 @@ res@tmYLLabelFontHeightF = 0.025
 
 ;res@gsnRightString = "mm/day"
 
-  vcres@vcRefMagnitudeF         = 5.0  ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 2.0  ; define vector ref mag
 
   res@cnLevelSelectionMode = "ManualLevels"
   res@cnLevelSpacingF = 1 ;0.5
-  res@cnMaxLevelValF = 15.
-  res@cnMinLevelValF = 1.
-  res@cnFillPalette = "CBR_wet"
+  res@cnMaxLevelValF = 10.
+  res@cnMinLevelValF = -10.
+  res@cnFillPalette = "CBR_drywet"
   cnres@cnLevelSelectionMode = "ExplicitLevels"
   cnres@cnLevels = (/5885/);12520,12560
   ; cnres@cnLevelSelectionMode = "ManualLevels"
@@ -251,32 +251,31 @@ res@tmYLLabelFontHeightF = 0.025
   ; cnres@cnMaxLevelValF = 20.
   ; cnres@cnMinLevelValF = 0.
 
-  do i = 0,ncase-1
-  res@gsnRightString = casename(i)
+  do i = 0,ncase-2
+  ; res@gsnLeftString = month(i+3)
+  
+  ; plot(i) = gsn_csm_contour_map(wks, diff_z(i+3,:,:), res)
+  ; plotc(i) = gsn_csm_contour(wks, z_ave(0,i+3,:,:), cnres)
+  ; ;overlay(plot(i), plotc(i))
+  ; plotv(i) = gsn_csm_vector(wks, diff_u(i+3,:,:), diff_v(i+3,:,:), vcres)
+  ; overlay(plot(i), plotv(i))
+  ; plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
+  ; overlay(plot(i), plot_topo(i))
 
-  do j = 0,5
+  res@gsnRightString = "Ctrl - "+casename(i+1)
+    do j = 0,4
       res@gsnLeftString = "Pentad "+pen(2*j+1)
-      plot(j*2+i) = gsn_csm_contour_map(wks, prec_ave(i,2*j+1,:,:), res)
-      ; if (i.eq.0) then
-      ;   cnres@cnLevels = (/5885/)
-      ; end if
-      ; if (i.eq.1) then
-      ;   cnres@cnLevels = (/5890/)
-      ; end if
-      plotc(j*2+i) = gsn_csm_contour(wks, z_ave(i,2*j+1,:,{110:lonend}), cnres)
-      overlay(plot(j*2+i), plotc(j*2+i))
-      plotv(j*2+i) = gsn_csm_vector(wks, u_ave(i,2*j+1,:,:), v_ave(i,2*j+1,:,:), vcres)
-      overlay(plot(j*2+i), plotv(j*2+i))
-      plot_topo(j*2+i) = gsn_csm_contour(wks, tpmask, res_topo)
-      overlay(plot(j*2+i), plot_topo(j*2+i))
-
-      ; plot(i*5+j) = gsn_csm_contour_map(wks, prec_ave(i,2*j+1,:,:), res)
-      ; plotc(i*5+j) = gsn_csm_contour(wks, z_ave(i,2*j+1,:,{110:lonend}), cnres)
-      ; overlay(plot(i*5+j), plotc(i*5+j))
-      ; plotv(i*5+j) = gsn_csm_vector(wks, u_ave(i,2*j+1,:,:), v_ave(i,2*j+1,:,:), vcres)
-      ; overlay(plot(i*5+j), plotv(i*5+j))
-      ; plot_topo(i*5+j) = gsn_csm_contour(wks, tpmask, res_topo)
-      ; overlay(plot(i*5+j), plot_topo(i*5+j))
+      plot(j*4+i) = gsn_csm_contour_map(wks, diff_prec(i+1,2*j+1,:,:), res)
+      cnres@cnLineColor = "red"
+      plotc1(j*4+i) = gsn_csm_contour(wks, z_ave(0,2*j+1,:,{105:lonend}), cnres)
+      overlay(plot(j*4+i), plotc1(j*4+i))
+      cnres@cnLineColor = "blue"
+      plotc2(j*4+i) = gsn_csm_contour(wks, z_ave(i+1,2*j+1,:,{105:lonend}), cnres)
+      overlay(plot(j*4+i), plotc2(j*4+i))
+      plotv(j*4+i) = gsn_csm_vector(wks, diff_u(i+1,2*j+1,:,:), diff_v(i+1,2*j+1,:,:), vcres)
+      overlay(plot(j*4+i), plotv(j*4+i))
+      plot_topo(j*4+i) = gsn_csm_contour(wks, tpmask, res_topo)
+      overlay(plot(j*4+i), plot_topo(j*4+i))
     end do
 end do
 
@@ -286,7 +285,7 @@ pres@gsnPanelLabelBar = True
 ; pres@gsnPanelMainString = "UV200_H200"
 ;pres@pmLabelBarOrthogonalPosF = -0.01
 
-gsn_panel(wks, plot, (/6,2/), pres)
+gsn_panel(wks, plot, (/5,4/), pres)
 
 
 end
