@@ -15,10 +15,13 @@ latend = 45
 ;===============================================================
 ; read onset pentad
 ;===============================================================
-X = asciiread("./onset_pentad_ERAI.txt", (/nyear,4/), "float")
-printVarSummary(X)
-x = X(:,1:3)
+; X = asciiread("./onset_pentad_JRA55_by_LiuBoqi.txt", (/nyear,3/), "float")
+; printVarSummary(X)
+; x = X
 
+X = asciiread("./onset_pentad_ERAI_by_wuyt.txt", (/nyear,3/), "float")
+printVarSummary(X)
+x = X ;(:,1:3)
 print(x)
 
 ;---------------------------------------------------------

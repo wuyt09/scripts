@@ -6,7 +6,7 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
 monsoon = (/"BOB","SCS","ISM"/)
-month = "April"
+month = "March"
 
 lonstr = 60
 lonend = 150
@@ -46,7 +46,7 @@ lon = q1&lon
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
-Q1_mon = q1(3::12,:,:)
+Q1_mon = q1(2::12,:,:)
 printVarSummary(Q1_mon)
 
 
