@@ -14,14 +14,14 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1"/)
+casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/)
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 nmonth = dimsizes(month)
 
-LEV = 500
+LEV = 200
 z = new((/ncase,nyear,nmonth,96,144/), float)
 u = z
 v = z
@@ -37,7 +37,7 @@ do i = 0, ncase-1
   Z = fz->Z3(:,{LEV},:,:)
   U = fu->U(:,{LEV},:,:)
   V = fv->V(:,{LEV},:,:)
-  z(i,:,:,:,:) = reshape(Z, (/nyear,nmonth,96,144/))
+    z(i,:,:,:,:) = reshape(Z, (/nyear,nmonth,96,144/))
   copy_VarCoords(Z(0,:,:), z(i,0,0,:,:))
   u(i,:,:,:,:) = reshape(U, (/nyear,nmonth,96,144/))
   v(i,:,:,:,:) = reshape(V, (/nyear,nmonth,96,144/))
@@ -61,22 +61,29 @@ u_ave = dim_avg_n_Wrap(u, 1)
 v_ave = dim_avg_n_Wrap(v, 1)
 z_ave = dim_avg_n_Wrap(z, 1)
 
+probu = u_ave(0:ncase-2,:,:,:)
+probu!0 = "case"
+case2 = "Ctrl -"+casename(1:ncase-1)
+probu&case = case2
+probv = probu
+probz = probu
+diff_u = probu
+diff_v = probu
+diff_z = probz
 
-probu = ttest(u_ave(0,:,:,:), u_var(0,:,:,:), nyear, u_ave(1,:,:,:), u_var(1,:,:,:), nyear, False, False)
-probv = ttest(v_ave(0,:,:,:), v_var(0,:,:,:), nyear, v_ave(1,:,:,:), v_var(1,:,:,:), nyear, False, False)
-probz = ttest(z_ave(0,:,:,:), z_var(0,:,:,:), nyear, z_ave(1,:,:,:), z_var(1,:,:,:), nyear, False, False)
-
-diff_z = z_ave(0,:,:,:)
-diff_z = z_ave(0,:,:,:) - z_ave(1,:,:,:)
-diff_u = u_ave(0,:,:,:)
-diff_u = u_ave(0,:,:,:) - u_ave(1,:,:,:)
-diff_v = v_ave(0,:,:,:)
-diff_v = v_ave(0,:,:,:) - v_ave(1,:,:,:)
+do i = 0, ncase-2
+  probu(i,:,:,:) = ttest(u_ave(0,:,:,:), u_var(0,:,:,:), nyear, u_ave(i+1,:,:,:), u_var(i+1,:,:,:), nyear, False, False)
+  probv(i,:,:,:) = ttest(v_ave(0,:,:,:), v_var(0,:,:,:), nyear, v_ave(i+1,:,:,:), v_var(i+1,:,:,:), nyear, False, False)
+  probz(i,:,:,:) = ttest(z_ave(0,:,:,:), z_var(0,:,:,:), nyear, z_ave(i+1,:,:,:), z_var(i+1,:,:,:), nyear, False, False)
+  diff_u(i,:,:,:) = u_ave(0,:,:,:) - u_ave(i+1,:,:,:)
+  diff_v(i,:,:,:) = v_ave(0,:,:,:) - v_ave(i+1,:,:,:)
+  diff_z(i,:,:,:) = z_ave(0,:,:,:) - z_ave(i+1,:,:,:)
+end do
 
 sig = 0.05
-; diff_u = mask(diff_u, (probu.lt.sig).or.(probv.lt.sig), True)
-; diff_v = mask(diff_v, (probu.lt.sig).or.(probv.lt.sig), True)
-; diff_z = mask(diff_z, probz.lt.sig, True)
+diff_u = mask(diff_u, (probu.lt.sig).or.(probv.lt.sig), True)
+diff_v = mask(diff_v, (probu.lt.sig).or.(probv.lt.sig), True)
+diff_z = mask(diff_z, probz.lt.sig, True)
 printVarSummary(diff_z)
 
 ;----------------------------------------------------------------
@@ -89,14 +96,13 @@ tpmask = ftp->tp
 printVarSummary(tpmask)
 ;-------------------------------------------------------------------
 ;-------------------------------------------------------------------
-Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "UV500_H500_Apr_Jul_"+casename(0)+"_"+casename(1)
+figname = "UV200_H200_Apr_Jul_diff_multi_model"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
-nplot = 6
+nplot = 4*(ncase-1)
 plot = new(nplot, graphic)
 plotv = plot
 plotc = plot
@@ -110,7 +116,7 @@ plot_topo = plot
  res_topo@cnLineLabelsOn         = False
  res_topo@cnLineThicknessF       = 4
  res_topo@cnLineDashPattern      = 16
- res_topo@cnLineColor            = "blue"
+ res_topo@cnLineColor            = "blue" ; gray25
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
  res_topo@cnLevels               = (/0.5/)
@@ -128,16 +134,20 @@ res@mpGeophysicalLineColor = "grey25" ;"red"
 res@mpFillDrawOrder = "PreDraw"
 res@mpFillOn = True
 
-res@mpMinLatF = 0 ;latstr
-; res@mpMaxLatF = latend
-; res@mpMinLonF = lonstr
-; res@mpMaxLonF = lonend
+res@mpMinLatF = latstr
+res@mpMaxLatF = latend
+res@mpMinLonF = lonstr
+res@mpMaxLonF = lonend
 
 res@cnFillOn = True
 res@cnLinesOn = False
 res@cnLineLabelsOn = False
 res@lbLabelBarOn = False
 res@cnInfoLabelOn = False
+;res@cnLineDrawOrder = "PostDraw"
+; res@cnLabelDrawOrder = "PostDraw"
+;res@cnLevelFlag = "LineAndLabel"
+;res@cnLineLabelInterval = 1
 
 res@gsnStringFontHeightF = 0.035
 res@tmXBLabelFontHeightF = 0.025
@@ -186,35 +196,33 @@ res@tmYLLabelFontHeightF = 0.025
 
 ;res@gsnRightString = "mm/day"
 
-  vcres@vcRefMagnitudeF         = 2.0  ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 3.0  ; define vector ref mag
   res@cnFillPalette = "WhiteYellowOrangeRed"
   res@cnLevelSelectionMode = "ManualLevels"
-  ; res@cnLevelSpacingF = 5.
-  ; res@cnMaxLevelValF = 5900.
-  ; res@cnMinLevelValF = 5880.
-  res@cnLevelSpacingF = 10.
-  res@cnMaxLevelValF = 100.
-  res@cnMinLevelValF = -100.
-  res@cnFillPalette = "BlueWhiteOrangeRed"
+  res@cnMinLevelValF = 12460
+  res@cnMaxLevelValF = 12540
+  res@cnLevelSpacingF = 20
   ; cnres@cnLevelSelectionMode = "ExplicitLevels"
   ; cnres@cnLevels = (/12460,12470,12480,12490,12500,15210,12520,12540/);12520,12560
   cnres@cnLevelSelectionMode = "ManualLevels"
-  cnres@cnLevelSpacingF = 10.
-  cnres@cnMaxLevelValF = 5900.
-  cnres@cnMinLevelValF = 5880.
+  cnres@cnMinLevelValF = 12460
+  cnres@cnMaxLevelValF = 12540
+  cnres@cnLevelSpacingF = 40
 
-  do i = 0,5
-  res@gsnLeftString = Month(i+3)
-  
-  plot(i) = gsn_csm_contour_map(wks, diff_z(i+3,:,:), res)
-  ; plot(i) = gsn_csm_contour_map(wks, z_ave(1,i+3,:,:), res)
-  ; plotc(i) = gsn_csm_contour(wks, z_ave(0,i+3,:,:), cnres)
-  ; overlay(plot(i), plotc(i))
-  plotv(i) = gsn_csm_vector(wks, diff_u(i+3,:,:), diff_v(i+3,:,:), vcres)
-  overlay(plot(i), plotv(i))
-  plot_topo(i) = gsn_csm_contour(wks, tpmask, res_topo)
-  overlay(plot(i), plot_topo(i))
-end do
+  ll = 2
+  do j = 0,ncase-2
+    res@gsnRightString = case2(j)
+    do i = 0,3
+      res@gsnLeftString = month(i+ll)
+      plot(i*4+j) = gsn_csm_contour_map(wks, z_ave(j+1,i+ll,:,:), res)
+      plotc(i*4+j) = gsn_csm_contour(wks, z_ave(0,i+ll,:,:), cnres)
+      overlay(plot(i*4+j), plotc(i*4+j))
+      plotv(i*4+j) = gsn_csm_vector(wks, diff_u(j,i+ll,:,:), diff_v(j,i+ll,:,:), vcres)
+      overlay(plot(i*4+j), plotv(i*4+j))
+      plot_topo(i*4+j) = gsn_csm_contour(wks, tpmask, res_topo)
+      overlay(plot(i*4+j), plot_topo(i*4+j))
+    end do
+  end do
 
 pres = True
 pres@gsnMaximize = True
@@ -222,7 +230,7 @@ pres@gsnPanelLabelBar = True
 ; pres@gsnPanelMainString = "UV200_H200"
 ;pres@pmLabelBarOrthogonalPosF = -0.01
 
-gsn_panel(wks, plot, (/3,2/), pres)
+gsn_panel(wks, plot, (/4,4/), pres)
 
 
 end

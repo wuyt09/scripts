@@ -6,16 +6,17 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 
-indexfili = "./TTT_TP_dtrend_standardize_Mar_Apr_ERAI.txt"
-inx = asciiread(indexfili, (/nyear,3/), "float")
+indexfili = "./Q1_TP_dtrend_standardize_MAM_SON_ERAI.txt"
+inx = asciiread(indexfili, (/nyear,2/), "float")
 inx!0 = "year"
 inx&year = year
 
-index = inx(:,1)
-printVarSummary(index)
+index = inx(:,0)
+; printVarSummary(index)
+print(index)
 
-indhig = ind(index.ge.0.8)
-indlow = ind(index.le.-0.8)
+indhig = ind(index.ge.1.)
+indlow = ind(index.le.-1.)
 yearhig = year(indhig)
 yearlow = year(indlow)
 print(yearlow)
@@ -52,8 +53,8 @@ U = short2flt(fu->u(iYYYY,{LEV},{latstr:latend},{lonstr:lonend}))
 V = short2flt(fv->v(iYYYY,{LEV},{latstr:latend},{lonstr:lonend}))
 nlat = dimsizes(U&latitude)
 nlon = dimsizes(U&longitude)
-U_SEA = reshape(U, (/37,12,nlat,nlon/)) ;month_to_seasonN(U, season)
-V_SEA = reshape(V, (/37,12,nlat,nlon/)) ;month_to_seasonN(V, season)
+U_SEA = reshape(U, (/nyear,12,nlat,nlon/)) ;month_to_seasonN(U, season)
+V_SEA = reshape(V, (/nyear,12,nlat,nlon/)) ;month_to_seasonN(V, season)
 copy_VarCoords(U(0,:,:), U_SEA(0,0,:,:))
 U_SEA!0 = "time"
 U_SEA&time = year
@@ -158,11 +159,11 @@ sig = 0.05
 
 ;==================================================================
 
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200513/obs/"
-figname = "Comp_UV200_SAH_TropoT"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
+figname = "Comp_Q1_UV200_SAH_TropoT"
 
 wks = gsn_open_wks("pdf", figpath+figname)
-plotc = new(6, graphic)
+plotc = new(4, graphic)
 plotz = plotc
 plotv = plotc
 plotz1 = plotc
@@ -278,8 +279,8 @@ resZ@cnMinLevelValF = 12460.
 
 vcres@vcRefMagnitudeF         = 3.0  ; define vector ref mag
 ; res@gsnRightString = "Comp"
-do i = 0, 5
-    res@gsnLeftString = Month(i+3)
+do i = 0, 3
+    res@gsnLeftString = Month(i+2)
     plotc(i) = gsn_csm_contour_map_ce(wks, t_diff(i,:,:), res)
     resZ@cnLineDashPattern = 0
     resZ@cnLineColor = "red"
@@ -295,6 +296,6 @@ do i = 0, 5
     overlay(plotc(i), plot_topo(i))
 end do
 resP@gsnPanelMainString = "UV200_H200_TropoT"
-gsn_panel(wks, plotc, (/2,3/), resP)
+gsn_panel(wks, plotc, (/2,2/), resP)
 
 end

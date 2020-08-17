@@ -38,9 +38,10 @@ begin
    npt  = 18
    npnt = 30
   x      = ispan(1,12,1)
-  Left = (/"(a) High_TTT","(b) Low_TTT"/)
+  ; Left = (/"(a) High_TTT","(b) Low_TTT"/)
+  Left = (/"(a) High_Q1","(b) Low_Q1"/)
 
-   TITLE = "SON_Clim_Overturn_Pentad_MTG_TTT_7915"
+   TITLE = "SON_Clim_Overturn_Pentad_MTG_Q1_7915"
 ; ==============================================================
 ; (I) Basic Field ==> VP200
 ; ==============================================================
@@ -128,7 +129,7 @@ begin
 ;  indx1 = asciiread("indx_SST_SCS_110120E_0515N_7914_Mar.txt",(/36/),"float")   ;
 ;  indx2 = asciiread("indx_SST_SCS_110120E_0515N_7914_Apr.txt",(/36/),"float")   ;
 ;  indx3 = asciiread("indx_SST_SCS_110120E_0515N_7914_May.txt",(/36/),"float")   ;
-  indxx = asciiread("TTT_TP_dtrend_standardize_MAM_SON_ERAI.txt",(/nyr,2/),"float")   ;
+  indxx = asciiread("Q1_TP_dtrend_standardize_MAM_SON_ERAI.txt",(/nyr,2/),"float")   ;
   indx = indxx(:,1)
 ;  print(indx)
 

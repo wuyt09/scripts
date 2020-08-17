@@ -7,7 +7,7 @@ nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 season = "JJA"
 
-indexfili = "./TTT_TP_dtrend_standardize_MAM_SON_ERAI.txt"
+indexfili = "./Q1_TP_dtrend_standardize_MAM_SON_ERAI.txt"
 inx = asciiread(indexfili, (/nyear,2/), "float")
 inx!0 = "year"
 inx&year = year
@@ -84,7 +84,7 @@ copy_VarCoords(Z(0:11,:,:), Z_clm)
 ;==================================================================
 ;==================================================================
 monS = 3
-monE = 8
+monE = 6
 U_hig = U_SEA(indhig,monS-1:monE-1,:,:)
 U_low = U_SEA(indlow,monS-1:monE-1,:,:)
 V_hig = V_SEA(indhig,monS-1:monE-1,:,:)
@@ -130,7 +130,7 @@ sig = 0.05
 ;==================================================================
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "Comp_UV500_WPSH"
+figname = "Comp_Q1_UV500_WPSH"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 plotv = new(monE-monS+1, graphic)
@@ -271,6 +271,6 @@ end do
 
 resP@gsnPanelMainString = "UV500_WPSH"
 ;gsn_panel(wks, plotz, (/2,4/), resP)
-gsn_panel(wks, plotz, (/2,3/), resP)
+gsn_panel(wks, plotz, (/2,2/), resP)
 
 end

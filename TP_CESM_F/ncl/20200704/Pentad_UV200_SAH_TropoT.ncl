@@ -10,7 +10,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/) ;;"NOTP"
+casename = (/"CTRL","NOTPQ1"/) ;,"NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY";"NOTP"
 ncase = dimsizes(casename)
 pentad = ispan(1, 73, 1)
 npen = dimsizes(pentad)
@@ -23,47 +23,58 @@ nlon = dimsizes(lon)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 
-LEV = (/850,500/)
+LEV = (/200/)
+levs = 500
+levt = 200
 
 z = new((/ncase,nyear,npen,nlat,nlon/), float)
 u = z
 v = z
-prec = z
+t = z
 
 do i = 0, ncase-1
   diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/daily/"
-  cname = "F2000_"+casename(i)+".PRECC.daily.06-30.nc"
-  lname = "F2000_"+casename(i)+".PRECL.daily.06-30.nc"
+  cname = "F2000_"+casename(i)+".PS.daily.06-30.nc"
   fc = addfile(diri+cname, "r")
-  fl = addfile(diri+lname, "r")
-  PRECL = fl->PRECL ;(4:13,:,:,:)
-  PRECC = fc->PRECC ;(4:13,:,:,:)
-  PREC = (PRECC+PRECL)*86400*1000
-  copy_VarCoords(PRECC, PREC)
-  PREC@units = "mm/day"
-  printVarSummary(PREC)
+  PS0 = fc->PS
+  PS = reshape(PS0, (/nyear*365,nlat,nlon/))
+  ; copy_VarCoords(PS0(0,0,:,:), PS(0,:,:))
+  ; printVarSummary(PS)
 
-
+  tname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.T.*.daily.nc")
   zname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.Z3.*.daily.nc")
   uname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.U.*.daily.nc")
   vname = systemfunc("ls "+diri+"F2000_"+casename(i)+".plevel.V.*.daily.nc")
+  ft = addfiles(tname, "r")
   fz = addfiles(zname, "r")
   fu = addfiles(uname, "r")
   fv = addfiles(vname, "r")
-  ZX = fz[:]->Z3(:,{LEV(1)},:,:)
-  UX = fu[:]->U(:,{LEV(0)},:,:)
-  VX = fv[:]->V(:,{LEV(0)},:,:)
+  TX = ft[:]->T
+  ZX = fz[:]->Z3(:,{LEV},:,:)
+  UX = fu[:]->U(:,{LEV},:,:)
+  VX = fv[:]->V(:,{LEV},:,:)
+
+  copy_VarCoords(UX, PS)
+
+  plev = tofloat(TX&lev)
+  plev = plev*100.
+  plev@units = "Pa"
+  dp = dpres_plevel_Wrap(plev, PS, min(plev), 0)
+  Tdp = TX*dp
+  copy_VarCoords(TX, Tdp)
+  tdp = dim_sum_n_Wrap(Tdp(:,{levs:levt},:,:), 1)/dim_sum_n_Wrap(dp(:,{levs:levt},:,:), 1)
+  T = reshape(tdp, (/nyear,365,nlat,nlon/))
   Z = reshape(ZX, (/nyear,365,nlat,nlon/))  
   U = reshape(UX, (/nyear,365,nlat,nlon/))
   V = reshape(VX, (/nyear,365,nlat,nlon/))
 
   do p = 0, npen-1
-    prec(i,:,p,:,:) = dim_sum_n_Wrap(PREC(:,5*p:5*p+4,:,:), 1)/5.0
+    t(i,:,p,:,:) = dim_sum_n_Wrap(T(:,5*p:5*p+4,:,:), 1)/5.0
     z(i,:,p,:,:) = dim_sum_n_Wrap(Z(:,5*p:5*p+4,:,:), 1)/5.0
     u(i,:,p,:,:) = dim_sum_n_Wrap(U(:,5*p:5*p+4,:,:), 1)/5.0
     v(i,:,p,:,:) = dim_sum_n_Wrap(V(:,5*p:5*p+4,:,:), 1)/5.0
   end do
-  copy_VarCoords(PRECL(0,0,:,:), z(0,0,0,:,:))
+  copy_VarCoords(ZX(0,:,:), z(0,0,0,:,:))
 end do
 
 z!0 = "case"
@@ -79,7 +90,7 @@ z&pentad = pentad
 printVarSummary(z)
 copy_VarCoords(z, u)
 copy_VarCoords(z, v)
-copy_VarCoords(z, prec)
+copy_VarCoords(z, t)
 
 ;------------ttest--------------------------------------
 pens = 24
@@ -88,16 +99,16 @@ pen = ispan(pens, pene, 1)
 ux = u(:,:,pens-1:pene-1,:,:)
 vx = v(:,:,pens-1:pene-1,:,:)
 zx = z(:,:,pens-1:pene-1,:,:)
-precx = prec(:,:,pens-1:pene-1,:,:)
+tx = t(:,:,pens-1:pene-1,:,:)
 u_var = dim_variance_n_Wrap(ux, 1)
 v_var = dim_variance_n_Wrap(vx, 1)
 z_var = dim_variance_n_Wrap(zx, 1)
-prec_var = dim_variance_n_Wrap(precx, 1)
+t_var = dim_variance_n_Wrap(tx, 1)
 
 u_ave = dim_avg_n_Wrap(ux, 1)
 v_ave = dim_avg_n_Wrap(vx, 1)
 z_ave = dim_avg_n_Wrap(zx, 1)
-prec_ave = dim_avg_n_Wrap(precx, 1)
+t_ave = dim_avg_n_Wrap(tx, 1)
 
 probu = u_ave(0:ncase-1,:,:,:)
 probv = probu
@@ -137,7 +148,7 @@ printVarSummary(tpmask)
 ;-------------------------------------------------------------------
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "Pentad_UV850_Precip_WPSH"
+figname = "Pentad_UV200_SAH_TropoT"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
