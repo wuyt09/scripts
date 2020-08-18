@@ -140,8 +140,9 @@ begin
   ind2 = ind(indx.le.-1)
  ; ind1 = ind(indx.ge.0.8)
  ; ind2 = ind(indx.le.-0.8)
-  print(ind1)
-  print(ind2)
+  print(year(ind1))
+  print(year(ind2))
+  exit
 
   num1 = dimsizes(ind1)
   num2 = dimsizes(ind2)
