@@ -80,7 +80,7 @@ printVarSummary(tpmask)
 t =  mask(t, tpmask.ge.0.5, True)
 
 t_TP = wgt_areaave_Wrap(t(:,{25:40},{75:105}), 1, 1, 0)
-t_mar = t_TP(2::12)
+t_mar = t_TP(3::12)
 printVarSummary(t_mar)
 
 index = dim_standardize_Wrap(t_mar, 1)
@@ -236,7 +236,7 @@ end do
 ;-------------------------------------------------------------------
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200820/"
-figname = "TTT_CTRL_Mar_Comp_Overturn_Pentad_MTG"
+figname = "TTT_CTRL_Apr_Comp_Overturn_Pentad_MTG"
 
 wks = gsn_open_wks("ps", figpath+figname)
 gsn_define_colormap(wks,"so4_23")  ; choose colormap
