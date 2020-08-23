@@ -2,7 +2,7 @@
 begin
 
 lonstr = 50
-lonend = 180
+lonend = 150
 latstr = 0
 latend = 30
 
