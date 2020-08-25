@@ -281,8 +281,8 @@ begin
  resR@cnLineLabelsOn       = False
  resR@cnInfoLabelOn        = False
  resR@cnLevelSelectionMode  = "ManualLevels" ; set manual contour levels
- resR@cnMinLevelValF        =  17 ;-6e-5 ;1.6e7 ;2.5         ; set min contour level
- resR@cnMaxLevelValF        =  40 ;6e-5 ;1.6e7 ;2.5          ; set max contour level
+ resR@cnMinLevelValF        =  14 ;-6e-5 ;1.6e7 ;2.5         ; set min contour level
+ resR@cnMaxLevelValF        =  37 ;6e-5 ;1.6e7 ;2.5          ; set max contour level
  resR@cnLevelSpacingF       =  1 ;1e-5 ;0.5 ; set contour interval
 
  resR@lbLabelBarOn         = False

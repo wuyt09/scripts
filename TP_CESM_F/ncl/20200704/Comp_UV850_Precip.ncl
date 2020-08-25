@@ -6,18 +6,32 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 
-indexfili = "./Q1_TP_dtrend_standardize_MAM_SON_ERAI.txt"
-inx = asciiread(indexfili, (/nyear,2/), "float")
+indexfili = "./TTT_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt"
+inx = asciiread(indexfili, (/nyear,3/), "float")
 inx!0 = "year"
 inx&year = year
 
-index = inx(:,0)
+title = (/"Mar","Apr","May"/)
+
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
+figname = "Comp_TTT_UV850_Precip"
+
+wks = gsn_open_wks("pdf", figpath+figname)
+plot = new((/4,3/), graphic)
+plotz1 = plot
+plotz2 = plot
+plotv = plot
+plot_topo = plotv
+
+
+do ll = 0, 2
+index = inx(:,ll)
 printVarSummary(index)
 
-indhig = ind(index.ge.1.)
-indlow = ind(index.le.-1.)
-yearhig = year(indhig)
-yearlow = year(indlow)
+indhig := ind(index.ge.1.)
+indlow := ind(index.le.-1.)
+yearhig := year(indhig)
+yearlow := year(indlow)
 print(yearlow)
 print(yearhig)
 ; exit
@@ -72,28 +86,41 @@ copy_VarCoords(U(0:11,:,:), U_clm)
 copy_VarCoords(V(0:11,:,:), V_clm)
 printVarSummary(U_clm)
 
-filiz = "/home/yangsong3/data-observation/GPCP/precip.mon.mean.nc"
-fz = addfile(filiz, "r")
-Zx = fz->precip(0:443,{latstr:latend},{lonstr:lonend})
-Z = linint2_Wrap(Zx&lon, Zx&lat, Zx, False, U&longitude, U&latitude, 0)
+filiz = "hgt.mon.mean.nc"
+fz = addfile(diri+filiz, "r")
+Z = short2flt(fz->z(iYYYY,{500},{latstr:latend},{lonstr:lonend}))
+Z = Z/9.8
 Z_SEA = reshape(Z, (/37,12,nlat,nlon/)) ;month_to_seasonN(Z, season)
 copy_VarCoords(U_SEA, Z_SEA)
 Z_clm = dim_avg_n_Wrap(Z_SEA, 0)
 copy_VarCoords(Z(0:11,:,:), Z_clm)
+
+
+filip = "/home/yangsong3/data-observation/GPCP/precip.mon.mean.nc"
+fp = addfile(filip, "r")
+Px = fp->precip(0:443,{latstr:latend},{lonstr:lonend})
+P = linint2_Wrap(Px&lon, Px&lat, Px, False, U&longitude, U&latitude, 0)
+P_SEA = reshape(P, (/37,12,nlat,nlon/)) ;month_to_seasonN(Z, season)
+copy_VarCoords(U_SEA, P_SEA)
+P_clm = dim_avg_n_Wrap(P_SEA, 0)
+copy_VarCoords(P(0:11,:,:), P_clm)
 ;==================================================================
 
 ;==================================================================
-
-U_hig = U_SEA(indhig,3:8,:,:)
-U_low = U_SEA(indlow,3:8,:,:)
-V_hig = V_SEA(indhig,3:8,:,:)
-V_low = V_SEA(indlow,3:8,:,:)
-Z_hig = Z_SEA(indhig,3:8,:,:)
-Z_low = Z_SEA(indlow,3:8,:,:)
+monS = 3
+monE = 6
+U_hig := U_SEA(indhig,monS-1:monE-1,:,:)
+U_low := U_SEA(indlow,monS-1:monE-1,:,:)
+V_hig := V_SEA(indhig,monS-1:monE-1,:,:)
+V_low := V_SEA(indlow,monS-1:monE-1,:,:)
+Z_hig := Z_SEA(indhig,monS-1:monE-1,:,:)
+Z_low := Z_SEA(indlow,monS-1:monE-1,:,:)
+P_hig := P_SEA(indhig,monS-1:monE-1,:,:)
+P_low := P_SEA(indlow,monS-1:monE-1,:,:)
 printVarSummary(U_hig)
 
-Z_higx = dim_avg_n_Wrap(Z_hig, 0)
-Z_lowx = dim_avg_n_Wrap(Z_low, 0)
+P_higx = dim_avg_n_Wrap(P_hig, 0)
+P_lowx = dim_avg_n_Wrap(P_low, 0)
 
 ;------------ttest--------------------------------------
 uhig_var = dim_variance_n_Wrap(U_hig, 0)
@@ -109,18 +136,23 @@ vhig_ave = dim_avg_n_Wrap(V_hig, 0)
 vlow_ave = dim_avg_n_Wrap(V_low, 0)
 zhig_ave = dim_avg_n_Wrap(Z_hig, 0)
 zlow_ave = dim_avg_n_Wrap(Z_low, 0)
+phig_ave = dim_avg_n_Wrap(P_hig, 0)
+plow_ave = dim_avg_n_Wrap(P_low, 0)
 
 
 probu = ttest(uhig_ave, uhig_var, numhig, ulow_ave, ulow_var, numlow, False, False)
 probv = ttest(vhig_ave, vhig_var, numhig, vlow_ave, vlow_var, numlow, False, False)
-probz = ttest(zhig_ave, zhig_var, numhig, zlow_ave, zlow_var, numlow, False, False)
+; probz = ttest(zhig_ave, zhig_var, numhig, zlow_ave, zlow_var, numlow, False, False)
+probp = ttest(zhig_ave, zhig_var, numhig, zlow_ave, zlow_var, numlow, False, False)
 
 u_diff = uhig_ave - ulow_ave
 copy_VarCoords(uhig_ave, u_diff)
 v_diff = vhig_ave - vlow_ave
 copy_VarCoords(vhig_ave, v_diff)
-z_diff = zhig_ave - zlow_ave
-copy_VarCoords(zhig_ave, z_diff)
+; z_diff = zhig_ave - zlow_ave
+; copy_VarCoords(zhig_ave, z_diff)
+p_diff = phig_ave - plow_ave
+copy_VarCoords(phig_ave, p_diff)
 
 sig = 0.05
 ; u_diff = mask(u_diff, (probu.lt.sig).or.(probv.lt.sig), True)
@@ -128,13 +160,7 @@ sig = 0.05
 ; z_diff = mask(z_diff, probz.lt.sig, True)
 ;==================================================================
 
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "Comp_Q1_UV850_Precip"
 
-wks = gsn_open_wks("pdf", figpath+figname)
-plotv = new(4, graphic)
-plotz = plotv
-plot_topo = plotv
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -202,6 +228,26 @@ res@lbLabelBarOn = False
   vcres@vcRefAnnoString2On = False
   vcres@vcRefAnnoFontHeightF = 0.02
 ;------------------------------------------
+;=====================================================
+    cnres = True
+    cnres@gsnDraw = False
+    cnres@gsnFrame = False
+
+    cnres@cnFillOn = False
+    cnres@cnLinesOn = True
+    cnres@cnLineLabelsOn = True
+    cnres@cnLineLabelFontColor = "red"
+    cnres@cnLineColor = "purple" ;goldenrod2 ;dodgerblue2
+    cnres@cnLineThicknessF = 5
+    cnres@cnInfoLabelOn = False
+    ;cnres@cnLineDrawOrder = "PostDraw"
+    cnres@cnLabelDrawOrder = "PostDraw"
+    ;cnres@cnLevelFlag = "LineAndLabel"
+    cnres@cnLineLabelInterval = 1
+    cnres@gsnLeftString = ""
+    cnres@gsnRightString = ""
+
+;=====================================================
 
 ;---------------------画到同一张图------------------------------------------------
     resP                     = True         ; modify the panel plot
@@ -221,17 +267,32 @@ res@cnFillPalette = "CBR_drywet"
 vcres@vcRefMagnitudeF         = 1.0 
 ; res@gsnRightString = "Comp"
 
-do i = 0, 3
-  res@gsnLeftString = Month(i+2)
-  plotz(i) = gsn_csm_contour_map_ce(wks, z_diff(i,:,:), res) ;
-  plotv(i) = gsn_csm_vector(wks, u_diff(i,:,:), v_diff(i,:,:), vcres)
-  overlay(plotz(i), plotv(i))
-  plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
-  overlay(plotz(i), plot_topo(i))
+cnres@cnLevelSelectionMode = "ExplicitLevels"
+cnres@cnLevels = (/5885/);12520,12560
+
+do i = 0, monE - monS
+  res@gsnLeftString = Month(i+monS-1)
+  res@gsnRightString = title(ll)+" TTT Comp"
+  plot(i,ll) = gsn_csm_contour_map_ce(wks, p_diff(i,:,:), res) ;
+  plotv(i,ll) = gsn_csm_vector(wks, u_diff(i,:,:), v_diff(i,:,:), vcres)
+  overlay(plot(i,ll), plotv(i,ll))
+
+  cnres@cnLineColor = "red"
+  plotz1(i,ll) = gsn_csm_contour(wks, zhig_ave(i,:,:), cnres)
+  overlay(plot(i,ll), plotz1(i,ll))
+  cnres@cnLineColor = "blue"
+  plotz2(i,ll) = gsn_csm_contour(wks, zlow_ave(i,:,:), cnres)
+  overlay(plot(i,ll), plotz2(i,ll))
+
+  plot_topo(i,ll) = gsn_csm_contour(wks, topo, res_topo)
+  overlay(plot(i,ll), plot_topo(i,ll))
+end do
 end do
 
-resP@gsnPanelMainString = "UV850_Precip"
+plotx = reshape(plot, 4*3)
+
+resP@gsnPanelMainString = "UV850_Precip_WPSH"
 ;gsn_panel(wks, plotz(4:7), (/1,4/), resP)
-gsn_panel(wks, plotz, (/2,2/), resP)
+gsn_panel(wks, plotx, (/4,3/), resP)
 
 end

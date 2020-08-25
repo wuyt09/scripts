@@ -6,23 +6,38 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 
-indexfili = "./Q1_TP_dtrend_standardize_MAM_SON_ERAI.txt"
-inx = asciiread(indexfili, (/nyear,2/), "float")
+indexfili = "./TTT_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt"
+inx = asciiread(indexfili, (/nyear,3/), "float")
 inx!0 = "year"
 inx&year = year
 
-index = inx(:,0)
+
+title = (/"Mar","Apr","May"/)
+
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
+figname = "Comp_TTT_UV200_SAH_TropoT"
+
+wks = gsn_open_wks("pdf", figpath+figname)
+plotc = new((/4,3/), graphic)
+plotz = plotc
+plotv = plotc
+plotz1 = plotc
+plotz2 = plotc
+plot_topo = plotc
+
+do ll = 0,2
+index = inx(:,ll)
 ; printVarSummary(index)
 print(index)
 
-indhig = ind(index.ge.1.)
-indlow = ind(index.le.-1.)
-yearhig = year(indhig)
-yearlow = year(indlow)
+indhig := ind(index.ge.1.)
+indlow := ind(index.le.-1.)
+yearhig := year(indhig)
+yearlow := year(indlow)
 print(yearlow)
 print(yearhig)
-numhig = dimsizes(yearhig)
-numlow = dimsizes(yearlow)
+numhig := dimsizes(yearhig)
+numlow := dimsizes(yearlow)
 
 ;=================================================================
 filitp = "~/wuyt/data/topo.sfc.1x1.nc"
@@ -103,15 +118,16 @@ t_clm = dim_avg_n_Wrap(t_SEA, 0)
 copy_VarCoords(t(0:11,:,:), t_clm)
 
 ;==================================================================
-
-U_hig = U_SEA(indhig,3:8,:,:)
-U_low = U_SEA(indlow,3:8,:,:)
-V_hig = V_SEA(indhig,3:8,:,:)
-V_low = V_SEA(indlow,3:8,:,:)
-Z_hig = Z_SEA(indhig,3:8,:,:)
-Z_low = Z_SEA(indlow,3:8,:,:)
-t_hig = t_SEA(indhig,3:8,:,:)
-t_low = t_SEA(indlow,3:8,:,:)
+monS = 3
+monE = 6
+U_hig := U_SEA(indhig,monS-1:monE-1,:,:)
+U_low := U_SEA(indlow,monS-1:monE-1,:,:)
+V_hig := V_SEA(indhig,monS-1:monE-1,:,:)
+V_low := V_SEA(indlow,monS-1:monE-1,:,:)
+Z_hig := Z_SEA(indhig,monS-1:monE-1,:,:)
+Z_low := Z_SEA(indlow,monS-1:monE-1,:,:)
+t_hig := t_SEA(indhig,monS-1:monE-1,:,:)
+t_low := t_SEA(indlow,monS-1:monE-1,:,:)
 printVarSummary(U_hig)
 
 Z_higx = dim_avg_n_Wrap(Z_hig, 0)
@@ -159,16 +175,7 @@ sig = 0.05
 
 ;==================================================================
 
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20200704/"
-figname = "Comp_Q1_UV200_SAH_TropoT"
 
-wks = gsn_open_wks("pdf", figpath+figname)
-plotc = new(4, graphic)
-plotz = plotc
-plotv = plotc
-plotz1 = plotc
-plotz2 = plotc
-plot_topo = plotc
 
 
  res_topo            = True
@@ -279,23 +286,26 @@ resZ@cnMinLevelValF = 12460.
 
 vcres@vcRefMagnitudeF         = 3.0  ; define vector ref mag
 ; res@gsnRightString = "Comp"
-do i = 0, 3
-    res@gsnLeftString = Month(i+2)
-    plotc(i) = gsn_csm_contour_map_ce(wks, t_diff(i,:,:), res)
+do i = 0, monE - monS
+    res@gsnLeftString = Month(i+monS-1)
+    res@gsnRightString = title(ll)+" TTT Comp"
+    plotc(i,ll) = gsn_csm_contour_map_ce(wks, t_diff(i,:,:), res)
     resZ@cnLineDashPattern = 0
     resZ@cnLineColor = "red"
-    plotz1(i) = gsn_csm_contour(wks, Z_higx(i,:,:), resZ)
+    plotz1(i,ll) = gsn_csm_contour(wks, Z_higx(i,:,:), resZ)
     resZ@cnLineDashPattern = 0 ;16
     resZ@cnLineColor = "blue"
-    plotz2(i) = gsn_csm_contour(wks, Z_lowx(i,:,:), resZ)
-    plotv(i) = gsn_csm_vector(wks, u_diff(i,:,:), v_diff(i,:,:), vcres)
-    overlay(plotc(i), plotz1(i))
-    overlay(plotc(i), plotz2(i))
-    overlay(plotc(i), plotv(i))
-    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plotc(i), plot_topo(i))
+    plotz2(i,ll) = gsn_csm_contour(wks, Z_lowx(i,:,:), resZ)
+    plotv(i,ll) = gsn_csm_vector(wks, u_diff(i,:,:), v_diff(i,:,:), vcres)
+    overlay(plotc(i,ll), plotz1(i,ll))
+    overlay(plotc(i,ll), plotz2(i,ll))
+    overlay(plotc(i,ll), plotv(i,ll))
+    plot_topo(i,ll) = gsn_csm_contour(wks, topo, res_topo)
+    overlay(plotc(i,ll), plot_topo(i,ll))
 end do
+end do
+plotx = reshape(plotc, 4*3)
 resP@gsnPanelMainString = "UV200_H200_TropoT"
-gsn_panel(wks, plotc, (/2,2/), resP)
+gsn_panel(wks, plotx, (/4,3/), resP)
 
 end

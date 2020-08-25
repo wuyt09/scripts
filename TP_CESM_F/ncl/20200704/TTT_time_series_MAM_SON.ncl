@@ -35,8 +35,8 @@ print(T&latitude)
 nlat = dimsizes(T&latitude)
 nlon = dimsizes(T&longitude)
 ;===========integration========================================
-levs = 600
-levt = 300
+levs = 500
+levt = 200
 
 lev = T&level
 plev = lev*100.
