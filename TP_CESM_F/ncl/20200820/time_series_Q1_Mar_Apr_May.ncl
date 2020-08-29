@@ -89,13 +89,13 @@ t_dtr = dtrend_msg_n(year, ttt, False, False, 1)
 t_std = dim_standardize_n_Wrap(t_dtr, 1, 1)
 
 printVarSummary(t_std)
-; write_table("TTT_TP_dtrend_standardize_Mar_Apr_ERAI.txt", "w", [/"Mar","Apr","MarApr"/], "%10s %10s %10s")
-; write_table("TTT_TP_dtrend_standardize_Mar_Apr_ERAI.txt", "a", [/t_std(0,:),t_std(1,:),t_std(2,:)/], "%10.2f %10.2f %10.2f")
-; write_table("TTT_TP_dtrend_standardize_MAM_SON_ERAI.txt", "w", [/"MAM","SON"/], "%10s %10s")
-; write_table("TTT_TP_dtrend_standardize_MAM_SON_ERAI.txt", "a", [/t_std(0,:),t_std(1,:)/], "%10.2f %10.2f")
-write_table("Q1_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt", "w", [/"MAM","JJA","SON"/], "%10s %10s %10s")
-write_table("Q1_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt", "a", [/t_std(0,:),t_std(1,:),t_std(2,:)/], "%10.2f %10.2f %10.2f")
 
+; write_table("Q1_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt", "w", [/"MAM","JJA","SON"/], "%10s %10s %10s")
+; write_table("Q1_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt", "a", [/t_std(0,:),t_std(1,:),t_std(2,:)/], "%10.2f %10.2f %10.2f")
+corr_34 = escorc(t_std(0,:), t_std(1,:))
+corr_35 = escorc(t_std(0,:), t_std(2,:))
+corr_45 = escorc(t_std(1,:), t_std(2,:))
+print(corr_35)
 ;=================================================================
 ; pp = new((/2,dimsizes(t_std(0,:))/), float)
 ; pp(0,:) = t_std(0,:)
@@ -125,6 +125,9 @@ res@trXMaxF = max(year)
 
 res@gsnRightString = ""
 res@gsnStringFontHeightF = 0.025
+
+res@gsnCenterString = "Corr_34="+sprintf("%4.2f", corr_34)+",  Corr_35="+sprintf("%4.2f", corr_35)+",  Corr_45="+sprintf("%4.2f", corr_45)
+res@gsnCenterStringFontHeightF = 0.015
 
 res@gsnYRefLine = (/-1,1/) ; (/0.8,-0.8/)
 res@gsnYRefLineColor = "gray54"
