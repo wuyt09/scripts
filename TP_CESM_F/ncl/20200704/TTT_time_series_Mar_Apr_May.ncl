@@ -92,7 +92,22 @@ printVarSummary(t_std)
 corr_34 = escorc(t_std(0,:), t_std(1,:))
 corr_35 = escorc(t_std(0,:), t_std(2,:))
 corr_45 = escorc(t_std(1,:), t_std(2,:))
+ave3 = dim_avg_n_Wrap(t_std(0,:), 0)
+ave4 = dim_avg_n_Wrap(t_std(1,:), 0)
+ave5 = dim_avg_n_Wrap(t_std(2,:), 0)
+var3 = dim_variance_n_Wrap(t_std(0,:), 0)
+var4 = dim_variance_n_Wrap(t_std(1,:), 0)
+var5 = dim_variance_n_Wrap(t_std(2,:), 0)
 print(corr_35)
+prob34 = ttest(ave3, var3, nyear, ave4, var4, nyear, False, False)
+prob35 = ttest(ave3, var3, nyear, ave5, var5, nyear, False, False)
+prob45 = ttest(ave5, var5, nyear, ave4, var4, nyear, False, False)
+print(prob35)
+exit
+print(sprintf("%4.2f", prob34))
+print(sprintf("%4.2f", prob35))
+print(sprintf("%4.2f", prob45))
+exit
 ;=================================================================
 ; pp = new((/2,dimsizes(t_std(0,:))/), float)
 ; pp(0,:) = t_std(0,:)
@@ -124,14 +139,14 @@ res@gsnRightString = ""
 res@gsnStringFontHeightF = 0.025
 
 
-res@gsnCenterString = "Corr_34="+sprintf("%4.2f", corr_34)+",  Corr_35="+sprintf("%4.2f", corr_35)+",  Corr_45="+sprintf("%4.2f", corr_45)
-res@gsnCenterStringFontHeightF = 0.015
+res@gsnRightString = "Corr_34="+sprintf("%4.2f", corr_34)+",  Corr_35="+sprintf("%4.2f", corr_35)+",  Corr_45="+sprintf("%4.2f", corr_45)
+res@gsnRightStringFontHeightF = 0.015
 
 res@gsnYRefLine = (/-1,1/) ; (/0.8,-0.8/)
 res@gsnYRefLineColor = "gray54"
 res@gsnYRefLineThicknesses = 3
 res@gsnYRefLineDashPattern = 2
-res@gsnLeftString = "TTT ("+levs+"-"+levt+" hPa)"
+res@gsnLeftString = "TP TT ("+levs+"-"+levt+" hPa)"
 
 
 plot(0) = gsn_csm_xy(wks, year, t_std, res)
