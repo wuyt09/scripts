@@ -31,7 +31,7 @@ filip = "Surface_pressure.mon.mean.nc"
 fp = addfile(diri+filip, "r")
 PS = short2flt(fp->sp(iYYYY,::-1,:))
 
-print(T&latitude)
+; print(T&latitude)
 nlat = dimsizes(T&latitude)
 nlon = dimsizes(T&longitude)
 ;===========integration========================================
@@ -98,16 +98,16 @@ ave5 = dim_avg_n_Wrap(t_std(2,:), 0)
 var3 = dim_variance_n_Wrap(t_std(0,:), 0)
 var4 = dim_variance_n_Wrap(t_std(1,:), 0)
 var5 = dim_variance_n_Wrap(t_std(2,:), 0)
-print(corr_35)
+; print(corr_35)
 prob34 = ttest(ave3, var3, nyear, ave4, var4, nyear, False, False)
 prob35 = ttest(ave3, var3, nyear, ave5, var5, nyear, False, False)
 prob45 = ttest(ave5, var5, nyear, ave4, var4, nyear, False, False)
-print(prob35)
-exit
+; print(prob35)
+; exit
 print(sprintf("%4.2f", prob34))
 print(sprintf("%4.2f", prob35))
 print(sprintf("%4.2f", prob45))
-exit
+; exit
 ;=================================================================
 ; pp = new((/2,dimsizes(t_std(0,:))/), float)
 ; pp(0,:) = t_std(0,:)
@@ -136,7 +136,7 @@ res@trXMinF = min(year)
 res@trXMaxF = max(year)
 
 res@gsnRightString = ""
-res@gsnStringFontHeightF = 0.025
+res@gsnStringFontHeightF = 0.02
 
 
 res@gsnRightString = "Corr_34="+sprintf("%4.2f", corr_34)+",  Corr_35="+sprintf("%4.2f", corr_35)+",  Corr_45="+sprintf("%4.2f", corr_45)
