@@ -287,9 +287,7 @@ res@tmYLLabelFontHeightF = 0.025
       ; plot_topo(j*ncase+i) = gsn_csm_contour(wks, tpmask, res_topo)
       ; overlay(plot(j*ncase+i), plot_topo(j*ncase+i))
 
-      plot(i*5+j) = gsn_csm_contour_map(wks, prec_ave(i,2*j+1,:,:), res)
-      plotc(i*5+j) = gsn_csm_contour(wks, z_ave(i,2*j+1,:,{110:lonend}), cnres)
-      overlay(plot(i*5+j), plotc(i*5+j))
+      plot(i*5+j) = gsn_csm_contour_map(wks, t_ave(i,2*j+1,:,:), res)
       plotv(i*5+j) = gsn_csm_vector(wks, u_ave(i,2*j+1,:,:), v_ave(i,2*j+1,:,:), vcres)
       overlay(plot(i*5+j), plotv(i*5+j))
       plot_topo(i*5+j) = gsn_csm_contour(wks, tpmask, res_topo)
@@ -302,6 +300,7 @@ pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 ; pres@gsnPanelMainString = "UV200_H200"
 pres@pmLabelBarOrthogonalPosF = -0.01
+pres@lbLabelFontHeightF = 0.015
 
 gsn_panel(wks, plot, (/ncase,5/), pres)
 

@@ -117,8 +117,9 @@ figname = "TTT_time_series_Mar_Apr_May" ;Mar_Apr
 Colors = (/"green4","goldenrod2","black"/)
 
 wks = gsn_open_wks("pdf", figpath+figname)
-nplot = 1
+nplot = 4
 plot = new(nplot, graphic)
+plot_topo = plot
 
 res = True
 res@gsnFrame = False
@@ -157,16 +158,16 @@ plot(0) = gsn_csm_xy(wks, year, t_std, res)
     
 
     res_text                    = True                  ; text mods desired
-    res_text@txFontHeightF      = 0.018                 ; change text size
+    res_text@txFontHeightF      = 0.02                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
     Texts  = (/"March","April","May"/)
 
 ; ;============================================================
-    interval = 0.3
+    interval = 0.5
     gx = (/1985,1988/)
     text_pos = 1989
-    gy1 = (/-2.0,-2.0/)
+    gy1 = (/3.7,3.7/)
     gy2 = gy1-interval ;(/15,15/)
     gy3 = gy2-interval
     gy4 = gy3-interval
@@ -185,6 +186,95 @@ plot(0) = gsn_csm_xy(wks, year, t_std, res)
     dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
     dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
 
-draw(plot(0))
-frame(wks)
+
+;========================================================================================
+
+lonstr = 60
+lonend = 120
+latstr = 20 ;-10
+latend = 50
+
+t_diff = t(:,0,:,:)
+
+do i = 0,2
+    inx_hig := ind(t_std(i,:).ge.1.)
+    inx_low := ind(t_std(i,:).le.-1.)
+    t_hig = dim_avg_n_Wrap(t(i,inx_hig,:,:), 0)
+    t_low = dim_avg_n_Wrap(t(i,inx_low,:,:), 0)
+    t_diff(i,:,:) = t_hig - t_low
+end do
+printVarSummary(t_diff)
+
+; t_ave = dim_avg_n_Wrap(t, 1)
+; printVarSummary(t_ave)
+
+;----------------------------------------------------
+ res_topo            = True
+ res_topo@cnFillOn   = False
+ res_topo@cnLinesOn  = True
+ res_topo@gsnFrame   = False
+ res_topo@gsnDraw    = False
+ res_topo@cnLineLabelsOn         = False
+ res_topo@cnLineThicknessF       = 4
+ res_topo@cnLineDashPattern      = 16
+ res_topo@cnLineColor            = "gray"
+ res_topo@cnInfoLabelOn          = False
+ res_topo@cnLevelSelectionMode   ="ExplicitLevels"
+ res_topo@cnLevels               = (/0.5/)
+ res_topo@gsnLeftString = ""
+ res_topo@gsnRightString = ""
+;----------------------------------------------------
+delete(res)
+res = True
+res@gsnDraw  = False
+res@gsnFrame = False
+
+res@mpOutlineOn = True
+res@mpGeophysicalLineThicknessF = 2
+res@mpGeophysicalLineColor = "grey25" ;"red" 
+res@mpFillDrawOrder = "PreDraw"
+; res@mpFillOn = True
+
+res@mpMinLatF = latstr
+res@mpMaxLatF = latend
+res@mpMinLonF = lonstr
+res@mpMaxLonF = lonend
+
+res@cnFillOn = True
+res@cnLinesOn = False
+res@cnLineLabelsOn = False
+; res@lbLabelBarOn = False
+res@cnInfoLabelOn = False
+;res@cnLineDrawOrder = "PostDraw"
+; res@cnLabelDrawOrder = "PostDraw"
+;res@cnLevelFlag = "LineAndLabel"
+;res@cnLineLabelInterval = 1
+
+res@gsnStringFontHeightF = 0.035
+res@tmXBLabelFontHeightF = 0.025
+res@tmYLLabelFontHeightF = 0.025
+
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnLevelSpacingF = 0.5 ;0.5
+res@cnMaxLevelValF = 5
+res@cnMinLevelValF = 0
+res@cnFillPalette = "MPL_YlOrRd"
+res@pmLabelBarOrthogonalPosF = 0.15
+res@gsnRightString = "diff"
+
+;=====================================================
+lftsti = (/"March","April","May"/)
+do i = 0,2
+    res@gsnLeftString = lftsti(i)
+    plot(i+1) = gsn_csm_contour_map(wks, t_diff(i,:,:), res)
+    ; plot_topo(i+1) = gsn_csm_contour(wks, topo, res_topo)
+    ; overlay(plot(i+1), plot_topo(i+1))
+end do
+
+pres = True
+pres@gsnMaximize = True
+pres@gsnPanelLabelBar = True
+gsn_panel(wks, plot, (/2,2/), pres)
+
+
 end

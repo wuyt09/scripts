@@ -141,7 +141,7 @@ figname = "Pentad_UV850_Precip_WPSH"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new((/ncase*6/), graphic)
+plot = new((/ncase*5/), graphic)
 plotv = plot
 plotc = plot
 ; plotc2 = plot
@@ -279,6 +279,7 @@ pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 ; pres@gsnPanelMainString = "UV200_H200"
 pres@pmLabelBarOrthogonalPosF = -0.01
+pres@lbLabelFontHeightF = 0.015
 
 gsn_panel(wks, plot, (/ncase,5/), pres)
 
