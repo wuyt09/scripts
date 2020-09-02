@@ -10,7 +10,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/) ;"NOTP"
+casename = (/"CTRL","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/) ;"NOTP""NOTPQ1",
 ncase = dimsizes(casename)
 pentad = ispan(1, 73, 1)
 npen = dimsizes(pentad)
@@ -264,18 +264,29 @@ res@tmYLLabelFontHeightF = 0.025
 
   res@gsnRightString = "Ctrl - "+casename(i+1)
     do j = 0,4
-      res@gsnLeftString = "Pentad "+pen(2*j+1)
-      plot(j*4+i) = gsn_csm_contour_map(wks, diff_prec(i+1,2*j+1,:,:), res)
+      res@gsnLeftString = "Pentad "+pen(j+1)
+      ; plot(j*4+i) = gsn_csm_contour_map(wks, diff_prec(i+1,2*j+1,:,:), res)
+      ; cnres@cnLineColor = "red"
+      ; plotc1(j*4+i) = gsn_csm_contour(wks, z_ave(0,2*j+1,:,{105:lonend}), cnres)
+      ; overlay(plot(j*4+i), plotc1(j*4+i))
+      ; cnres@cnLineColor = "blue"
+      ; plotc2(j*4+i) = gsn_csm_contour(wks, z_ave(i+1,2*j+1,:,{105:lonend}), cnres)
+      ; overlay(plot(j*4+i), plotc2(j*4+i))
+      ; plotv(j*4+i) = gsn_csm_vector(wks, diff_u(i+1,2*j+1,:,:), diff_v(i+1,2*j+1,:,:), vcres)
+      ; overlay(plot(j*4+i), plotv(j*4+i))
+      ; plot_topo(j*4+i) = gsn_csm_contour(wks, tpmask, res_topo)
+      ; overlay(plot(j*4+i), plot_topo(j*4+i))
+      plot(j+i*5) = gsn_csm_contour_map(wks, diff_prec(i+1,j+1,:,:), res)
       cnres@cnLineColor = "red"
-      plotc1(j*4+i) = gsn_csm_contour(wks, z_ave(0,2*j+1,:,{105:lonend}), cnres)
-      overlay(plot(j*4+i), plotc1(j*4+i))
+      plotc1(j+i*5) = gsn_csm_contour(wks, z_ave(0,j+1,:,{105:lonend}), cnres)
+      overlay(plot(j+i*5), plotc1(j+i*5))
       cnres@cnLineColor = "blue"
-      plotc2(j*4+i) = gsn_csm_contour(wks, z_ave(i+1,2*j+1,:,{105:lonend}), cnres)
-      overlay(plot(j*4+i), plotc2(j*4+i))
-      plotv(j*4+i) = gsn_csm_vector(wks, diff_u(i+1,2*j+1,:,:), diff_v(i+1,2*j+1,:,:), vcres)
-      overlay(plot(j*4+i), plotv(j*4+i))
-      plot_topo(j*4+i) = gsn_csm_contour(wks, tpmask, res_topo)
-      overlay(plot(j*4+i), plot_topo(j*4+i))
+      plotc2(j+i*5) = gsn_csm_contour(wks, z_ave(i+1,j+1,:,{105:lonend}), cnres)
+      overlay(plot(j+i*5), plotc2(j+i*5))
+      plotv(j+i*5) = gsn_csm_vector(wks, diff_u(i+1,j+1,:,:), diff_v(i+1,j+1,:,:), vcres)
+      overlay(plot(j+i*5), plotv(j+i*5))
+      plot_topo(j+i*5) = gsn_csm_contour(wks, tpmask, res_topo)
+      overlay(plot(j+i*5), plot_topo(j+i*5))
     end do
 end do
 
@@ -283,9 +294,10 @@ pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 ; pres@gsnPanelMainString = "UV200_H200"
-;pres@pmLabelBarOrthogonalPosF = -0.01
+pres@pmLabelBarOrthogonalPosF = -0.02
+pres@lbLabelFontHeightF = 0.015
 
-gsn_panel(wks, plot, (/5,4/), pres)
+gsn_panel(wks, plot, (/3,5/), pres)
 
 
 end

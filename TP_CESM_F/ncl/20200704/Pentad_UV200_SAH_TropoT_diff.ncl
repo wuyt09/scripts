@@ -10,7 +10,7 @@ lonend = 150
 latstr = 0 ;-10
 latend = 50
 
-casename = (/"CTRL","NOTPQ1","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/) ;;"NOTP"
+casename = (/"CTRL","NOTPQ1_MAR","NOTPQ1_APR","NOTPQ1_MAY"/) ;;"NOTP""NOTPQ1",
 ncase = dimsizes(casename)
 pentad = ispan(1, 73, 1)
 npen = dimsizes(pentad)
@@ -262,12 +262,12 @@ res@tmYLLabelFontHeightF = 0.025
 
 ;res@gsnRightString = "mm/day"
 
-  vcres@vcRefMagnitudeF         = 8.0  ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 5.0  ; define vector ref mag
 
   res@cnLevelSelectionMode = "ManualLevels"
-  res@cnLevelSpacingF = 1
-  res@cnMaxLevelValF = 10
-  res@cnMinLevelValF = -10
+  res@cnLevelSpacingF = 0.5
+  res@cnMaxLevelValF = 5
+  res@cnMinLevelValF = -5
   res@cnFillPalette = "CBR_coldhot"
   cnres@cnLevelSelectionMode = "ExplicitLevels"
   cnres@cnLevels = (/12450,12500,12550/);
@@ -276,29 +276,22 @@ res@tmYLLabelFontHeightF = 0.025
   ; cnres@cnMaxLevelValF = 20.
   ; cnres@cnMinLevelValF = 0.
 
-  n = ncase-1
+  n = 5
   do i = 0,ncase-2
   res@gsnRightString = "Ctrl - "+casename(i+1)
 
   do j = 0,4
-      res@gsnLeftString = "Pentad "+pen(2*j+1)
-      plot(j*n+i) = gsn_csm_contour_map(wks, diff_t(i+1,2*j+1,:,:), res)
-
-        ; cnres@cnLineDashPattern = 0
-        ; cnres@cnLineColor = "red"
-        ; plotz1(j*ncase+i) = gsn_csm_contour(wks, z_ave(0,2*j+1,:,:), cnres)
-        ; cnres@cnLineDashPattern = 0 ;16
-        ; cnres@cnLineColor = "blue"
-        ; plotz2(j*ncase+i) = gsn_csm_contour(wks, z_ave(i,2*j+1,:,:), cnres)
-        ; overlay(plot(j*ncase+i), plotz1(j*ncase+i))
-        ; overlay(plot(j*ncase+i), plotz2(j*ncase+i))
-      ; plotz1(j*ncase+i) = gsn_csm_contour(wks, z_ave(i,2*j+1,:,:), cnres)
-      ; overlay(plot(j*ncase+i), plotz1(j*ncase+i))
-
-      plotv(j*n+i) = gsn_csm_vector(wks, diff_u(i+1,2*j+1,:,:), diff_v(i+1,2*j+1,:,:), vcres)
-      overlay(plot(j*n+i), plotv(j*n+i))
-      plot_topo(j*n+i) = gsn_csm_contour(wks, tpmask, res_topo)
-      overlay(plot(j*n+i), plot_topo(j*n+i))
+      res@gsnLeftString = "Pentad "+pen(j+1)
+      ; plot(j*n+i) = gsn_csm_contour_map(wks, diff_t(i+1,2*j+1,:,:), res)
+      ; plotv(j*n+i) = gsn_csm_vector(wks, diff_u(i+1,2*j+1,:,:), diff_v(i+1,2*j+1,:,:), vcres)
+      ; overlay(plot(j*n+i), plotv(j*n+i))
+      ; plot_topo(j*n+i) = gsn_csm_contour(wks, tpmask, res_topo)
+      ; overlay(plot(j*n+i), plot_topo(j*n+i))
+      plot(j+i*n) = gsn_csm_contour_map(wks, diff_t(i+1,j+1,:,:), res)
+      plotv(j+i*n) = gsn_csm_vector(wks, diff_u(i+1,j+1,:,:), diff_v(i+1,j+1,:,:), vcres)
+      overlay(plot(j+i*n), plotv(j+i*n))
+      plot_topo(j+i*n) = gsn_csm_contour(wks, tpmask, res_topo)
+      overlay(plot(j+i*n), plot_topo(j+i*n))
 
       ; plot(i*5+j) = gsn_csm_contour_map(wks, prec_ave(i,2*j+1,:,:), res)
       ; plotc(i*5+j) = gsn_csm_contour(wks, z_ave(i,2*j+1,:,{110:lonend}), cnres)
@@ -314,9 +307,10 @@ pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 ; pres@gsnPanelMainString = "UV200_H200"
-;pres@pmLabelBarOrthogonalPosF = -0.01
+pres@pmLabelBarOrthogonalPosF = -0.02
+pres@lbLabelFontHeightF = 0.015
 
-gsn_panel(wks, plot, (/5,(ncase-1)/), pres)
+gsn_panel(wks, plot, (/(ncase-1),5/), pres)
 
 
 end
