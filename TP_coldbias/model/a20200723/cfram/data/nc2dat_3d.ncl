@@ -1,29 +1,36 @@
 
 begin
 
-yrStrt = 198101
-yrLast = 200512
+casename = (/"Ctrl_FAMIP","Hist_FAMIP"/)
+varname = (/"CLOUD","CLDLIQ","CLDICE","Q","T"/)
+nvar = dimsizes(varname)
+
+yrStrt = 198102
+yrLast = 200601
 Season = (/"DJF"/)
 
+outname = (/"cc","clwc","ciwc","hus","t"/)
 outpath = "./"
-outname = "o3"
 
-i = 0
+diri = "../data/"
+do i = 0, nvar-1
     Title  = (/outname(i)+"_base",outname(i)+"_warm","diff_"+outname(i)/)
     basename = outname(i)+"_base.dat"
     warmname = outname(i)+"_warm.dat"
 
-    diri = "../data/"
-    fili = "ozone_1.9x2.5_L26_1850-2005_c091112.nc"
+    fili1 = casename(0)+"."+varname(i)+".raw.1979-2005.nc"
 
-    f1 = addfile(diri+fili, "r")
+    fili2 = casename(1)+"."+varname(i)+".raw.1979-2005.nc"
+
+    f1 = addfile(diri+fili1, "r")
+    f2 = addfile(diri+fili2, "r")
 
     TIME = f1->time
     YYYY = cd_calendar(TIME, -1)
     iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-    X_base = f1->O3(iYYYY,:,:,:)
-    X_warm = f1->O3(iYYYY,:,:,:)
+    X_base = f1->$varname(i)$(iYYYY,:,:,:)
+    X_warm = f2->$varname(i)$(iYYYY,:,:,:)
     
     x_base = month_to_season(X_base, Season)
     x_warm = month_to_season(X_warm, Season)
@@ -37,7 +44,6 @@ i = 0
     fbindirwrite(outpath+basename,xb)
     system("rm -f "+outpath+warmname)
     fbindirwrite(outpath+warmname,xw)
-
 
 ;===================================================================
 x_diff = xw
@@ -93,6 +99,7 @@ plots = plot
 
  gsn_panel(wks,plot,(/3,1/),resP)
 
+end do
 
 end
 
