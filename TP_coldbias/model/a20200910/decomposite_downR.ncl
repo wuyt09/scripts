@@ -64,7 +64,7 @@ printVarSummary(x)
 printMinMax(x(0,:,:),1)
 
 
-nx = 1
+nx = 2
 title = (/"Cloud","WV","Temp","Sum"/)
 x_diff = new((/4,nlat,nlon/), float)
 x_diff!0 = "term"
