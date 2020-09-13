@@ -10,7 +10,7 @@ nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd
 
 ;================read metadata=============================================
 diri  = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_Ctrl_FAMIP/a20191206/" 
-file1 = "Ctrl_FAMIP.cam.h0.T.NoInterpolation.1979-2005.nc"
+file1 = "Ctrl_FAMIP.cam.h0.T.1979-2005.nc"
 f1 = addfile(diri+file1,"r")
 lon = tofloat(f1->lon)
 lat = tofloat(f1->lat)
@@ -24,12 +24,11 @@ delete(f1)
 
 ;===========================================================================
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram/" ;cfram20200805
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200207/cfram/20200228/" ;cfram20200805
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
 fili3 = diri2+"cloud_radsfc_ranc_1.grd"
 fili4 = diri2+"wv_radsfc_ranc_1.grd"
 fili5 = diri2+"t_radsfc_ranc_1.grd"
-fili6 = diri2+"warm_radsfc_ranc_1.grd"
 
 
 UNDEF = -999.
@@ -48,14 +47,12 @@ x@units     = "W/m2"
 cld = x
 wv = x
 t = x
-y = x
 
 do nv = 0,nvars-1
     x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
     cld(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
     wv(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
     t(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
-    y(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
 end do
 
 ; if (any(isnan_ieee(x))) then   ; if x got a element is Not A Number, then the Fill_value
@@ -67,9 +64,9 @@ printVarSummary(x)
 printMinMax(x(0,:,:),1)
 
 
-nx = 6
-title = (/"Cloud","WV","Temp","Sum","warm-base"/)
-x_diff = new((/dimsizes(title),nlat,nlon/), float)
+nx = 0
+title = (/"Cloud","WV","Temp","Sum"/)
+x_diff = new((/4,nlat,nlon/), float)
 x_diff!0 = "term"
 x_diff&term = title
 
@@ -77,7 +74,6 @@ x_diff(0,:,:) = cld(nx,:,:) - x(nx,:,:)
 x_diff(1,:,:) = wv(nx,:,:) - x(nx,:,:)
 x_diff(2,:,:) = t(nx,:,:) - x(nx,:,:)
 x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
-x_diff(4,:,:) = y(nx,:,:) - x(nx,:,:)
 copy_VarCoords(x(0,:,:), x_diff(0,:,:))
 printVarSummary(x_diff)
 
@@ -88,11 +84,11 @@ printVarSummary(x_diff)
 ;****************************************************
 
 figpath = "./" ;diri2
-figname = "decomposite_downR"
+figname = "decomposite_downR_18level"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
-nplot = dimsizes(title)+1
+nplot = 4
 plot = new(nplot, graphic)
 plot_topo = plot
 ;=======================================
@@ -176,18 +172,12 @@ res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 ; res@cnMinLevelValF = -10
 ; res@cnLevelSpacingF = 1
 
-do i = 0, dimsizes(title)-2
+do i = 0, 3
     res@gsnLeftString = title(i)
     plot(i) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 end do
-
-i = dimsizes(title)-1
-res@gsnLeftString = title(i)
-plot(i+1) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
-plot_topo(i+1) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(i+1), plot_topo(i+1))
 
 pres = True
 pres@gsnMaximize = True
@@ -199,6 +189,6 @@ pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
 
-gsn_panel(wks,plot,(/3,2/),pres)
+gsn_panel(wks,plot,(/2,2/),pres)
 
 end 

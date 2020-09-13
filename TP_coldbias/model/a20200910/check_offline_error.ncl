@@ -6,23 +6,50 @@ begin
   latstr = 20 ;-10
   latend = 50 ;70
 
-nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
 
 ;================read metadata=============================================
-diri  = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_Ctrl_FAMIP/a20191206/" 
-file1 = "Ctrl_FAMIP.cam.h0.T.NoInterpolation.1979-2005.nc"
-f1 = addfile(diri+file1,"r")
-lon = tofloat(f1->lon)
-lat = tofloat(f1->lat)
-; level = tofloat(f1->lev)
+casename = (/"Ctrl_FAMIP","Hist_FAMIP"/)
+ncase = dimsizes(casename)
+nlat = 96
+nlon = 144
+yrStrt = 198102
+yrLast = 200601
+season = "DJF"
 
-nlat = dimsizes(lat)
-nlon = dimsizes(lon)
-; nlev = 27
-nvars = dimsizes(nvname)
-delete(f1)
+ssrd = new((/ncase,nlat,nlon/), float)
+ssr = ssrd
+
+do i = 0, ncase-1
+    diri  = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/" 
+    file1 = casename(i)+".cam.h0.FLDS.1979-2005.nc"
+    ; file2 = casename(i)+".cam.h0.FLNS.1979-2005.nc"
+    f1 = addfile(diri+file1,"r")
+    ; f2 = addfile(diri+file2,"r")
+
+    Time = f1->time
+    YYYY = cd_calendar(Time, -1)
+    iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+
+    SSRD = f1->FLDS(iYYYY,:,:)
+    ; SSR  = f2->FLNS(iYYYY,:,:)
+
+    SSRDx = month_to_season(SSRD, season)
+    ssrd(i,:,:) = dim_avg_n_Wrap(SSRDx, 0)
+    ; ssr(i,:,:)  = month_to_season(SSR, season)
+end do
+printVarSummary(ssrd)
+    
+; ; level = tofloat(f1->lev)
+; lon = tofloat(f1->lon)
+; lat = tofloat(f1->lat); nlev = 27
+; delete(f1)
+lat = ssrd&lat
+lon = ssrd&lon
 
 ;===========================================================================
+
+nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
+nvars = dimsizes(nvname)
 
 diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram/" ;cfram20200805
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
@@ -52,9 +79,9 @@ y = x
 
 do nv = 0,nvars-1
     x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
-    cld(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
-    wv(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
-    t(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
+    ; cld(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
+    ; wv(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
+    ; t(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
     y(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
 end do
 
@@ -66,21 +93,21 @@ end do
 printVarSummary(x)
 printMinMax(x(0,:,:),1)
 
+nx = 2
 
-nx = 6
-title = (/"Cloud","WV","Temp","Sum","warm-base"/)
-x_diff = new((/dimsizes(title),nlat,nlon/), float)
-x_diff!0 = "term"
-x_diff&term = title
+pp = new((/4,nlat,nlon/), float)
+pp(0,:,:) = ssrd(0,:,:)
+pp(1,:,:) = x(nx,:,:)
+pp(2,:,:) = (/ssrd(1,:,:)/)
+pp(3,:,:) = y(nx,:,:)
+copy_VarCoords(ssrd(0,:,:), pp(0,:,:))
 
-x_diff(0,:,:) = cld(nx,:,:) - x(nx,:,:)
-x_diff(1,:,:) = wv(nx,:,:) - x(nx,:,:)
-x_diff(2,:,:) = t(nx,:,:) - x(nx,:,:)
-x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
-x_diff(4,:,:) = y(nx,:,:) - x(nx,:,:)
-copy_VarCoords(x(0,:,:), x_diff(0,:,:))
-printVarSummary(x_diff)
-
+diff = pp
+diff(0,:,:) = pp(1,:,:) - pp(0,:,:)
+diff(1,:,:) = pp(3,:,:) - pp(2,:,:)
+diff(2,:,:) = pp(2,:,:) - pp(0,:,:)
+diff(3,:,:) = pp(3,:,:) - pp(1,:,:)
+copy_VarCoords(pp, diff)
 
 ;==========================================================
 ;****************************************************
@@ -88,11 +115,15 @@ printVarSummary(x_diff)
 ;****************************************************
 
 figpath = "./" ;diri2
-figname = "decomposite_downR"
+figname = "check_offline_error"
+
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
-nplot = dimsizes(title)+1
+title = (/"(a) Ctrl_DownR","(b) Hist_DownR","(c) Base_DownR","(d) Warm_DownR",\
+         "(d) b-a","(e) d-c","(f) c-a","(g) d-b"/)
+
+nplot = dimsizes(title)
 plot = new(nplot, graphic)
 plot_topo = plot
 ;=======================================
@@ -152,8 +183,8 @@ res@cnLineLabelsOn = False
 ;res@pmLabelBarWidthF = 0.7
 ;res@pmLabelBarHeightF = 0.15
 ;res@lbLabelFontHeightF = 0.016
-res@lbLabelBarOn         = False 
-res@lbLabelsOn           = False
+; res@lbLabelBarOn         = False 
+; res@lbLabelsOn           = False
 
 res@tmXBLabelFontHeightF = 0.025
 res@tmYLLabelFontHeightF = 0.025
@@ -167,38 +198,66 @@ res@gsnRightString = "W/m~S~2~N~"
 
 ;-------------------------------------------------------
 
-res@cnLevelSelectionMode = "ExplicitLevels"
-res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
-res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
+; res@cnLevelSelectionMode = "ExplicitLevels"
+; res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
+; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMaxLevelValF = 10
-; res@cnMinLevelValF = -10
-; res@cnLevelSpacingF = 1
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 400
+res@cnMinLevelValF = 0
+res@cnLevelSpacingF = 20
 
-do i = 0, dimsizes(title)-2
+do i = 0,3  
     res@gsnLeftString = title(i)
-    plot(i) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
+    plot(i) = gsn_csm_contour_map(wks, pp(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 end do
 
-i = dimsizes(title)-1
-res@gsnLeftString = title(i)
-plot(i+1) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
-plot_topo(i+1) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(i+1), plot_topo(i+1))
+
+
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 100
+res@cnMinLevelValF = -100
+res@cnLevelSpacingF = 10
+
+res@gsnLeftString = title(4)
+plot(4) = gsn_csm_contour_map(wks, diff(0,:,:), res)
+plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(4), plot_topo(4))
+
+res@gsnLeftString = title(5)
+plot(5) = gsn_csm_contour_map(wks, diff(1,:,:), res)
+plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(5), plot_topo(5))
+
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -10
+res@cnLevelSpacingF = 1
+res@gsnLeftString = title(6)
+plot(6) = gsn_csm_contour_map(wks, diff(2,:,:), res)
+plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(6), plot_topo(6))
+
+res@gsnLeftString = title(7)
+plot(7) = gsn_csm_contour_map(wks, diff(3,:,:), res)
+plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(7), plot_topo(7))
 
 pres = True
 pres@gsnMaximize = True
 pres@gsnFrame    = True
 pres@gsnDraw     = True
-pres@gsnPanelLabelBar = True
+; pres@gsnPanelLabelBar = True
 
-pres@lbLabelFontHeightF = 0.015
-pres@pmLabelBarWidthF = 0.8    ;plot manager 
-pres@pmLabelBarHeightF = 0.06
+; pres@lbLabelFontHeightF = 0.015
+; pres@pmLabelBarWidthF = 0.8    ;plot manager 
+; pres@pmLabelBarHeightF = 0.06
 
-gsn_panel(wks,plot,(/3,2/),pres)
+gsn_panel(wks,plot,(/2,4/),pres)
 
-end 
+
+
+end
+
