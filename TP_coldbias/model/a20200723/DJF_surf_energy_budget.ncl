@@ -11,7 +11,7 @@ yrLast = 200601
 casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 
 ncase = dimsizes(casename)
-season = "JJA"
+season = "DJF"
 
 TS = new((/ncase,6,96,144/), float, "1e+36")
 do i = 0, ncase-1
@@ -142,7 +142,7 @@ do i = 0,3
     res@cnMaxLevelValF = 100
     res@cnLevelSpacingF = 10.
     res@gsnRightString = "Ctrl"
-    plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
+    plot(i) = gsn_csm_contour_map(wks, TS(1,i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 end do
@@ -154,7 +154,7 @@ do i = 4, 5
     res@cnMaxLevelValF = 10
     res@cnLevelSpacingF = 1.
     res@gsnRightString = "Ctrl"
-    plot(i) = gsn_csm_contour_map(wks, TS(0,i,:,:), res)
+    plot(i) = gsn_csm_contour_map(wks, TS(1,i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 end do

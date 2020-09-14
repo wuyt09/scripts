@@ -120,7 +120,7 @@ figname = "check_offline_error"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
-title = (/"(a) Ctrl_DownR","(b) Hist_DownR","(c) Base_DownR","(d) Warm_DownR",\
+title = (/"(a) Ctrl_DownR","(b) Base_DownR","(c) Hist_DownR","(d) Warm_DownR",\
          "(d) b-a","(e) d-c","(f) c-a","(g) d-b"/)
 
 nplot = dimsizes(title)
@@ -217,10 +217,9 @@ end do
 
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMaxLevelValF = 100
-res@cnMinLevelValF = -100
+res@cnMaxLevelValF = 0
+res@cnMinLevelValF = -200
 res@cnLevelSpacingF = 10
-
 res@gsnLeftString = title(4)
 plot(4) = gsn_csm_contour_map(wks, diff(0,:,:), res)
 plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
