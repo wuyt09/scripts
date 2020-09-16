@@ -202,10 +202,11 @@ res@gsnRightString = "W/m~S~2~N~"
 ; res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
 ; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 
+res@cnFillPalette = "BlueWhiteOrangeRed"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMaxLevelValF = 400
-res@cnMinLevelValF = 0
-res@cnLevelSpacingF = 20
+res@cnMinLevelValF = -400
+res@cnLevelSpacingF = 40
 
 do i = 0,3  
     res@gsnLeftString = title(i)
@@ -215,11 +216,22 @@ do i = 0,3
 end do
 
 
+res@cnFillPalette = "CBR_coldhot"
 
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMaxLevelValF = 0
+
+  ; res@gsnSpreadColors = True
+  ; res@gsnSpreadColorEnd   = 0
+  ; res@gsnSpreadColorStart = 10
+
+; res@gsnSpreadColors = True
+; res@gsnSpreadColorEnd = 5
+; res@gsnSpreadColorStart = 0
+
+; res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 200
 res@cnMinLevelValF = -200
-res@cnLevelSpacingF = 10
+res@cnLevelSpacingF = 20
+
 res@gsnLeftString = title(4)
 plot(4) = gsn_csm_contour_map(wks, diff(0,:,:), res)
 plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
@@ -230,7 +242,11 @@ plot(5) = gsn_csm_contour_map(wks, diff(1,:,:), res)
 plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(5), plot_topo(5))
 
-res@cnLevelSelectionMode = "ManualLevels"
+; delete(res@gsnSpreadColors)
+; delete(res@gsnSpreadColorEnd)
+; delete(res@gsnSpreadColorStart)
+; res@cnFillPalette = "CBR_coldhot"
+; res@cnLevelSelectionMode = "ManualLevels"
 res@cnMaxLevelValF = 10
 res@cnMinLevelValF = -10
 res@cnLevelSpacingF = 1
