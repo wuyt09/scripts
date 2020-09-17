@@ -51,7 +51,7 @@ lon = ssrd&lon
 nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
 nvars = dimsizes(nvname)
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram/" ;cfram20200805
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/" ;cfram20200805
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
 fili3 = diri2+"cloud_radsfc_ranc_1.grd"
 fili4 = diri2+"wv_radsfc_ranc_1.grd"
@@ -114,14 +114,14 @@ copy_VarCoords(pp, diff)
 ; plot
 ;****************************************************
 
-figpath = "./" ;diri2
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/" ;diri2
 figname = "check_offline_error"
 
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
 title = (/"(a) Ctrl_DownR","(b) Base_DownR","(c) Hist_DownR","(d) Warm_DownR",\
-         "(d) b-a","(e) d-c","(f) c-a","(g) d-b"/)
+         "(d) b-a","(e) d-c","(f) c-a","(g) d-b","(h) g-f: error"/)
 
 nplot = dimsizes(title)
 plot = new(nplot, graphic)
@@ -216,7 +216,7 @@ do i = 0,3
 end do
 
 
-res@cnFillPalette = "CBR_coldhot"
+; res@cnFillPalette = "CBR_coldhot"
 
 
   ; res@gsnSpreadColors = True
@@ -260,6 +260,17 @@ plot(7) = gsn_csm_contour_map(wks, diff(3,:,:), res)
 plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(7), plot_topo(7))
 
+error = diff(3,:,:) - diff(2,:,:)
+copy_VarCoords(diff(0,:,:), error)
+delete(res@cnLevelSpacingF)
+res@cnMaxLevelValF = 5
+res@cnMinLevelValF = -5
+res@cnLevelSpacingF = 0.5
+res@gsnLeftString = title(8)
+plot(8) = gsn_csm_contour_map(wks, error, res)
+plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(8), plot_topo(8))
+
 pres = True
 pres@gsnMaximize = True
 pres@gsnFrame    = True
@@ -270,7 +281,7 @@ pres@gsnDraw     = True
 ; pres@pmLabelBarWidthF = 0.8    ;plot manager 
 ; pres@pmLabelBarHeightF = 0.06
 
-gsn_panel(wks,plot,(/2,4/),pres)
+gsn_panel(wks,plot,(/3,3/),pres)
 
 
 

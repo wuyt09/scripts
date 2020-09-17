@@ -24,7 +24,7 @@ delete(f1)
 
 ;===========================================================================
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram/" ;cfram20200805
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/" ;cfram20200805
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
 fili3 = diri2+"cloud_radsfc_ranc_1.grd"
 fili4 = diri2+"wv_radsfc_ranc_1.grd"
@@ -67,8 +67,8 @@ printVarSummary(x)
 printMinMax(x(0,:,:),1)
 
 
-nx = 6
-title = (/"Cloud","WV","Temp","Sum","warm-base"/)
+nx = 2
+title = (/"(a) Cloud","(b) WV","(c) Temp","(d) a+b+c","(e) model total","(f) error: e-d"/)
 x_diff = new((/dimsizes(title),nlat,nlon/), float)
 x_diff!0 = "term"
 x_diff&term = title
@@ -78,6 +78,7 @@ x_diff(1,:,:) = wv(nx,:,:) - x(nx,:,:)
 x_diff(2,:,:) = t(nx,:,:) - x(nx,:,:)
 x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
 x_diff(4,:,:) = y(nx,:,:) - x(nx,:,:)
+x_diff(5,:,:) = x_diff(4,:,:) - x_diff(3,:,:)
 copy_VarCoords(x(0,:,:), x_diff(0,:,:))
 printVarSummary(x_diff)
 
@@ -87,12 +88,12 @@ printVarSummary(x_diff)
 ; plot
 ;****************************************************
 
-figpath = "./" ;diri2
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/" ;diri2
 figname = "decomposite_downR"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
-nplot = dimsizes(title)+1
+nplot = dimsizes(title)
 plot = new(nplot, graphic)
 plot_topo = plot
 ;=======================================
@@ -167,27 +168,27 @@ res@gsnRightString = "W/m~S~2~N~"
 
 ;-------------------------------------------------------
 
-res@cnLevelSelectionMode = "ExplicitLevels"
-res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
-res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
+; res@cnLevelSelectionMode = "ExplicitLevels"
+; res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
+; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMaxLevelValF = 10
-; res@cnMinLevelValF = -10
-; res@cnLevelSpacingF = 1
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -10
+res@cnLevelSpacingF = 1
 
-do i = 0, dimsizes(title)-2
+do i = 0, dimsizes(title)-1
     res@gsnLeftString = title(i)
     plot(i) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 end do
 
-i = dimsizes(title)-1
-res@gsnLeftString = title(i)
-plot(i+1) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
-plot_topo(i+1) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(i+1), plot_topo(i+1))
+; i = dimsizes(title)-1
+; res@gsnLeftString = title(i)
+; plot(i) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
+; plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(i), plot_topo(i))
 
 pres = True
 pres@gsnMaximize = True
@@ -199,6 +200,6 @@ pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
 
-gsn_panel(wks,plot,(/3,2/),pres)
+gsn_panel(wks,plot,(/2,3/),pres)
 
 end 

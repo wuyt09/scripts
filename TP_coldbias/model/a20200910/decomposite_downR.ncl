@@ -24,7 +24,7 @@ delete(f1)
 
 ;===========================================================================
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram/" ;cfram20200805
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/" ;cfram20200805
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
 fili3 = diri2+"cloud_radsfc_ranc_1.grd"
 fili4 = diri2+"wv_radsfc_ranc_1.grd"
@@ -64,7 +64,7 @@ printVarSummary(x)
 printMinMax(x(0,:,:),1)
 
 
-nx = 0
+nx = 2
 title = (/"Cloud","WV","Temp","Sum"/)
 x_diff = new((/4,nlat,nlon/), float)
 x_diff!0 = "term"
@@ -83,7 +83,7 @@ printVarSummary(x_diff)
 ; plot
 ;****************************************************
 
-figpath = "./" ;diri2
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/" ;diri2
 figname = "decomposite_downR"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
@@ -163,14 +163,14 @@ res@gsnRightString = "W/m~S~2~N~"
 
 ;-------------------------------------------------------
 
-res@cnLevelSelectionMode = "ExplicitLevels"
-res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
-res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
+; res@cnLevelSelectionMode = "ExplicitLevels"
+; res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
+; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMaxLevelValF = 10
-; res@cnMinLevelValF = -10
-; res@cnLevelSpacingF = 1
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -10
+res@cnLevelSpacingF = 1
 
 do i = 0, 3
     res@gsnLeftString = title(i)

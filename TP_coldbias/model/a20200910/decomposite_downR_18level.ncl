@@ -83,7 +83,7 @@ printVarSummary(x_diff)
 ; plot
 ;****************************************************
 
-figpath = "./" ;diri2
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/" ;diri2
 figname = "decomposite_downR_18level"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
