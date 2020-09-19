@@ -4,12 +4,14 @@
       integer,parameter:: xt=144,yt=96,z1=26,z18=27
       real             :: plev(1:xt,1:yt,1:z1)
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
-      real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
+      real             :: q(1:xt,1:yt,1:z1),tem_ax(1:xt,1:yt,1:z1)
+      real             :: tem_a(1:xt,1:yt,1:z1)
       real             :: camt(1:xt,1:yt,1:z1),cice(1:xt,1:yt,1:z1)
       real             :: solar(1:xt,1:yt),cliq(1:xt,1:yt,1:z1)
       real             :: swdn_surf(1:xt,1:yt),swup_surf(1:xt,1:yt)
       real             :: t_surf(1:xt,1:yt),hus_s(1:xt,1:yt)
-      integer          :: irec,i,j,k,n1,n2,n3,n4
+      integer          :: irec,i,j,k,n1,n2,n3,n4,l
+      real             :: par_t(1:xt,1:yt,1:z18,1:14)
 
 c      plev = (/10.,20.,30.,50.,70.,100.,150.,200.,250.,300.,350.,400.,
 c     &       450.,500.,550.,600.,650.,700.,750.,800.,825.,850.,900., 
@@ -38,11 +40,13 @@ c     &       925.,950.,1000./)
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 111, file = './data/hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 112, file = './t_dyn.dat',
+      open ( unit = 112, file = './data/t_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 113, file = './data/P_3D_Ctrl.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-
+      open ( unit = 114, file = '../cfram20200917/partial_T_SR.grd',
+     & form='unformatted', access='direct',recl = xt*yt )
+    
       irec = 1 
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
@@ -83,7 +87,7 @@ c     &       925.,950.,1000./)
 
       irec=1 
       do k = 1,z1,1
-        read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
+        read(112,rec=irec)((tem_ax(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
       
@@ -92,6 +96,14 @@ c     &       925.,950.,1000./)
         read(113,rec=irec)((plev(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
+      
+      irec=1 
+      do l = 1,14,1
+        do k = 1,z18,1
+            read(114,rec=irec)((par_t(i,j,k,l),i=1,xt),j=1,yt)
+            irec=irec+1
+        enddo
+      end do
 
       print*,"end of input"
       close(11)
@@ -107,7 +119,20 @@ c     &       925.,950.,1000./)
       close(111)
       close(112)
       close(113)
+      close(114)
 
+      do k = 1,z1,1
+        do i = 1,xt,1
+            do j = 1,yt,1
+            tem_a(i,j,k) = tem_ax(i,j,k) + par_t(i,j,k,10)
+c            print*,i,j,k,tem_a
+            end do
+        end do
+      end do
+      
+c      tem_a(:,:,:) = tem_ax(:,:,:)+par_t(:,:,:,2)
+      print*,tem_a 
+      
       n1=xt
       n2=yt
       n3=z1
@@ -223,7 +248,7 @@ c      enddo
           do j = 1, iy
              if(swdn_sfc(i,j) .eq. 0.)then
                 albedo(i,j)=0.0
-                print*,i,j,swup_sfc(i,j)
+c                print*,i,j,swup_sfc(i,j)
              else
                 albedo(i,j)=swup_sfc(i,j)/swdn_sfc(i,j)
              endif

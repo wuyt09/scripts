@@ -1,117 +1,116 @@
 
 begin
 
-  ; lonstr = 60 ;10
-  ; lonend = 110 ;150
-  ; latstr = 20 ;-10
-  ; latend = 50 ;70
+  lonstr = 60 ;10
+  lonend = 110 ;150
+  latstr = 20 ;-10
+  latend = 50 ;70
 
+yrStrt = 198102
+yrLast = 200601
 
-nvname = (/"albedo","wv","cloud","cloud_sw","cloud_lw","co2","o3","solar",\
-           "dyn","atm_dyn","ocean_dyn","shflx","lhflx","error"/)  ; ,"error"
-
-; ;================read metadata=============================================
-; diri  = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_Ctrl_FAMIP/a20191206/" 
-; file1 = "Ctrl_FAMIP.cam.h0.T.NoInterpolation.1979-2005.nc"
-; f1 = addfile(diri+file1,"r")
-; lon = tofloat(f1->lon)
-; lat = tofloat(f1->lat)
-; level = tofloat(f1->lev)
-
-; nlat = dimsizes(lat)
-; nlon = dimsizes(lon)
-nlat = 96
-nlon = 144
-nlev = 27
+nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
 nvars = dimsizes(nvname)
-; delete(f1)
+
+;================read metadata=============================================
+
+casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
+
+ncase = dimsizes(casename)
+season = "DJF"
+
+ssrd = new((/ncase,96,144/), float)
+
+do i = 0, ncase-1
+    diri = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
+    fili = casename(i)+".cam.h0.FLDS.1979-2005.nc"
+    f = addfile(diri+fili, "r")
+
+    TIME = f->time
+    YYYY = cd_calendar(TIME, -1)
+    iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+
+    SSRD = f->FLDS(iYYYY,:,:)
+    ssrdx = month_to_season(SSRD, season)
+    ssrd(i,:,:) = dim_avg_n_Wrap(ssrdx, 0)
+end do
+printVarSummary(ssrd)
+
+lon = tofloat(ssrd&lon)
+lat = tofloat(ssrd&lat)
+
+nlat = dimsizes(lat)
+nlon = dimsizes(lon)
+delete(f)
+
 ;===========================================================================
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/"
-; file2 = diri2+"forcing_SR.grd"
-file2 = diri2+"partial_T_SR.grd"
-file3 = diri2+"data/t2m_warm.dat"
-file4 = diri2+"data/t2m_base.dat"
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram_decomposeT/" ;cfram20200805
+fili2 = diri2+"baseline_radsfc_ranc_1.grd"
+fili3 = diri2+"t_cloud_radsfc_ranc_1.grd"
+fili4 = diri2+"t_wv_radsfc_ranc_1.grd"
+fili5 = diri2+"t_dyn_radsfc_ranc_1.grd"
+; fili6 = diri2+"warm_radsfc_ranc_1.grd"
 
-
-; lev = new(nlev,float,"No_FillValue")
-; lev(0:nlev-2) = level
-; lev(nlev-1) = 1001
-
-; setfileoption("bin","ReadByteOrder","BigEndian")
 
 UNDEF = -999.
-x = new((/nvars,nlev,nlat,nlon/),float,UNDEF)
-; x!0 = "var"
-; x!1 = "lev"
-; x!2 = "lat"
-; x!3 = "lon"
-; x&var = nvname
-; x&lat = lat
-; x&lon = lon
-; x&lev = lev
-; x&lat@units = "degrees_north"
-; x&lon@units = "degrees_east"
-; x&lev@units = "hPa"
-; x@long_name = "forcing"
-; x@units     = "W/m2"
+x = new((/nvars,nlat,nlon/),float,UNDEF)
+x!0 = "var"
+x!1 = "lat"
+x!2 = "lon"
+x&var = nvname
+x&lat = lat
+x&lon = lon
+x&lat@units = "degrees_north"
+x&lon@units = "degrees_east"
+x@long_name = "forcing"
+x@units     = "W/m2"
+
+cld = x
+wv = x
+dyn = x
+; y = x
 
 do nv = 0,nvars-1
-   do nl = 0,nlev-1
-      x(nv,nl,:,:) = fbindirread(file2,nv*nlev+nl,(/nlat,nlon/),"float")
-   end do
+    x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
+    cld(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
+    wv(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
+    dyn(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
+    ; y(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
 end do
 
-if (any(isnan_ieee(x))) then   ; if x got a element is Not A Number, then the Fill_value
-  value = -999.
-  replace_ieeenan (x,value,0)
-  x@_FillValue = value
-end if
+; if (any(isnan_ieee(x))) then   ; if x got a element is Not A Number, then the Fill_value
+;   value = -999.
+;   replace_ieeenan (x,value,0)
+;   x@_FillValue = value
+; end if
 printVarSummary(x)
-printMinMax(x(0,:,:,:),1)
+printMinMax(x(0,:,:),1)
 
 
-; ;===============================================================================================
-obs = new((/2,nlat,nlon/),float,UNDEF)
-obs(0,:,:) = fbindirread(file3,0,(/nlat,nlon/),"float")
-obs(1,:,:) = fbindirread(file4,0,(/nlat,nlon/),"float")
-copy_VarMeta(x(0,0,:,:),obs(0,:,:))
-printVarSummary(obs)
-print("end of data read")
+nx = 2
+title = (/"(a) Cloud","(b) WV","(c) Dyn","(d) a+b+c"/)
+x_diff = new((/dimsizes(title),nlat,nlon/), float)
+x_diff!0 = "term"
+x_diff&term = title
+
+x_diff(0,:,:) = cld(nx,:,:) - x(nx,:,:)
+x_diff(1,:,:) = wv(nx,:,:) - x(nx,:,:)
+x_diff(2,:,:) = dyn(nx,:,:) - x(nx,:,:)
+x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+; x_diff(4,:,:) = ssrd(1,:,:) - ssrd(0,:,:) ;y(nx,:,:) - x(nx,:,:)
+; x_diff(5,:,:) = x_diff(4,:,:) - x_diff(3,:,:)
+copy_VarCoords(x(0,:,:), x_diff(0,:,:))
+printVarSummary(x_diff)
 
 
-
-title = (/"t_wv","t_cloud","t_dyn"/)
-tx = new((/3,nlat,nlon/), float)
-tx(0,:,:) = x(1,nlev-1,:,:) + obs(1,:,:)
-tx(1,:,:) = x(2,nlev-1,:,:) + obs(1,:,:)
-tx(2,:,:) = x(9,nlev-1,:,:) + obs(1,:,:)
-tx!0 = "var"
-tx&var = title
-; copy_VarCoords(x(0,nlev-1,:,:), tx(0,:,:))
-printVarSummary(tx)
-
-; t_wv = x(1,nlev-1,:,:) + obs(1,:,:)
-
-outpath = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram_decomposeT/"
-; outname = "t_wv.dat"
-; system("rm -f "+outpath+outname)
-; fbindirwrite(outpath+outname, t_wv)
-; i = 0
- ; setfileoption ("bin", "WriteByteOrder", "BigEndian")
-do i = 0, dimsizes(title)-1
-  outname = title(i)+".dat"
-  system("rm -f "+outpath+outname)
-  fbindirwrite(outpath+outname, tx(i,:,:))
-end do
-exit
 ;==========================================================
 ;****************************************************
 ; plot
 ;****************************************************
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/" ;diri2
-figname = "write_t_cloud-wv-dyn"
+figname = "decompose_Temp"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
@@ -186,7 +185,7 @@ res@tmYROn = False
 ;res@gsnLeftStringFontHeightF  = 0.02
 ;res@gsnRightStringFontHeightF  = 0.02
 res@gsnStringFontHeightF = 0.035
-res@gsnRightString = "K"
+res@gsnRightString = "W/m~S~2~N~"
 
 ;-------------------------------------------------------
 
@@ -195,13 +194,13 @@ res@gsnRightString = "K"
 ; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMaxLevelValF = 260
-res@cnMinLevelValF = 250
+res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -10
 res@cnLevelSpacingF = 1
 
 do i = 0, dimsizes(title)-1
     res@gsnLeftString = title(i)
-    plot(i) = gsn_csm_contour_map(wks, tx(i,:,:), res)
+    plot(i) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 end do
@@ -222,6 +221,6 @@ pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
 
-gsn_panel(wks,plot,(/1,3/),pres)
+gsn_panel(wks,plot,(/2,2/),pres)
 
 end 

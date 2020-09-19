@@ -26,14 +26,8 @@ nvars = dimsizes(nvname)
 delete(f1)
 ;===========================================================================
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/"
-; file2 = diri2+"forcing_SR.grd"
-file2 = diri2+"partial_T_SR.grd"
-file3 = diri2+"data/t2m_warm.dat"
-file4 = diri2+"data/t2m_base.dat"
 
-
-lev = new(nlev,float,"No_FillValue")
+lev = new(nlev,integer,"No_FillValue")
 lev(0:nlev-2) = level
 lev(nlev-1) = 1001
 
