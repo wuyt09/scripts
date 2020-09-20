@@ -50,7 +50,9 @@ fili2 = diri2+"baseline_radsfc_ranc_1.grd"
 fili3 = diri2+"t_cloud_radsfc_ranc_1.grd"
 fili4 = diri2+"t_wv_radsfc_ranc_1.grd"
 fili5 = diri2+"t_dyn_radsfc_ranc_1.grd"
-; fili6 = diri2+"warm_radsfc_ranc_1.grd"
+
+diri3 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/"
+fili6 = diri3+"t_radsfc_ranc_1.grd"
 
 
 UNDEF = -999.
@@ -69,14 +71,14 @@ x@units     = "W/m2"
 cld = x
 wv = x
 dyn = x
-; y = x
+y = x
 
 do nv = 0,nvars-1
     x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
     cld(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
     wv(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
     dyn(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
-    ; y(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
+    y(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
 end do
 
 ; if (any(isnan_ieee(x))) then   ; if x got a element is Not A Number, then the Fill_value
@@ -89,7 +91,7 @@ printMinMax(x(0,:,:),1)
 
 
 nx = 2
-title = (/"(a) Cloud","(b) WV","(c) Dyn","(d) a+b+c"/)
+title = (/"(a) Cloud","(b) WV","(c) Dyn","(d) a+b+c","(e) total by Air Temp.","(f) error: e-d"/)
 x_diff = new((/dimsizes(title),nlat,nlon/), float)
 x_diff!0 = "term"
 x_diff&term = title
@@ -98,8 +100,8 @@ x_diff(0,:,:) = cld(nx,:,:) - x(nx,:,:)
 x_diff(1,:,:) = wv(nx,:,:) - x(nx,:,:)
 x_diff(2,:,:) = dyn(nx,:,:) - x(nx,:,:)
 x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
-; x_diff(4,:,:) = ssrd(1,:,:) - ssrd(0,:,:) ;y(nx,:,:) - x(nx,:,:)
-; x_diff(5,:,:) = x_diff(4,:,:) - x_diff(3,:,:)
+x_diff(4,:,:) = y(nx,:,:) - x(nx,:,:)
+x_diff(5,:,:) = x_diff(4,:,:) - x_diff(3,:,:)
 copy_VarCoords(x(0,:,:), x_diff(0,:,:))
 printVarSummary(x_diff)
 
@@ -221,6 +223,6 @@ pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
 
-gsn_panel(wks,plot,(/2,2/),pres)
+gsn_panel(wks,plot,(/2,3/),pres)
 
 end 
