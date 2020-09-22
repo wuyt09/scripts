@@ -210,7 +210,7 @@ cnres@cnInfoLabelOn = True
 cnres@cnInfoLabelOrthogonalPosF = -0.65
 cnres@cnInfoLabelFontHeightF = 0.02
 cnres@cnLabelDrawOrder = "PostDraw"
-cnres@gsnContourNegLineDashPattern = 2
+cnres@gsnContourNegLineDashPattern = 16
 cnres@gsnContourPosLineDashPattern = 0
 ;====================================================================================
 

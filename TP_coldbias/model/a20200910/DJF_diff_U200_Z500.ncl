@@ -24,14 +24,17 @@ z = new((/ncase,nyear,nlat,nlon/), float)
 z!0 = "case"
 z&case = casename
 v = z
+u = z
 
 do i = 0, ncase-1
     diri = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
 
     fili1 = casename(i)+".cam.h0.Z3.1979-2005.nc"
     fili2 = casename(i)+".cam.h0.U.1979-2005.nc"
+    fili3 = casename(i)+".cam.h0.V.1979-2005.nc"
     f1 = addfile(diri+fili1, "r")
     f2 = addfile(diri+fili2, "r")
+    f3 = addfile(diri+fili3, "r")
 
     TIME = f1->time
     YYYY = cd_calendar(TIME, -1)
@@ -42,9 +45,11 @@ do i = 0, ncase-1
     Z = ZX - conform_dims(dimsizes(ZX), Z_zonal, (/0,1/))
     copy_VarCoords(ZX, Z)
 
-    V = f2->U(iYYYY,{200},:,:)
+    U = f2->U(iYYYY,{200},:,:)
+    V = f3->V(iYYYY,{200},:,:)
 
     z(i,:,:,:) = month_to_season(Z, season)
+    u(i,:,:,:) = month_to_season(U, season)
     v(i,:,:,:) = month_to_season(V, season)
 end do
 
@@ -56,11 +61,17 @@ printVarSummary(z)
 z_ave = dim_avg_n_Wrap(z, 1)
 z_var = dim_variance_n_Wrap(z, 1)
 
+u_ave = dim_avg_n_Wrap(u, 1)
+u_var = dim_variance_n_Wrap(u, 1)
+
 v_ave = dim_avg_n_Wrap(v, 1)
 v_var = dim_variance_n_Wrap(v, 1)
 
 probz = z_ave(0,:,:)
 probz = ttest(z_ave(0,:,:), z_var(0,:,:), nyear, z_ave(1,:,:), z_var(1,:,:), nyear, False, False)
+
+probu = u_ave(0,:,:)
+probu = ttest(u_ave(0,:,:), u_var(0,:,:), nyear, u_ave(1,:,:), u_var(1,:,:), nyear, False, False)
 
 probv = v_ave(0,:,:)
 probv = ttest(v_ave(0,:,:), v_var(0,:,:), nyear, v_ave(1,:,:), v_var(1,:,:), nyear, False, False)
@@ -68,6 +79,8 @@ printVarSummary(probv)
 
 diff_z = z_ave(0,:,:)
 diff_z = z_ave(1,:,:) - z_ave(0,:,:)
+diff_u = u_ave(0,:,:)
+diff_u = u_ave(1,:,:) - u_ave(0,:,:)
 diff_v = v_ave(0,:,:)
 diff_v = v_ave(1,:,:) - v_ave(0,:,:)
 ;=========================================================
@@ -85,7 +98,7 @@ figname = season+"_diff_U200_Z500"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)
-plot = new(6, graphic)
+plot = new(9, graphic)
 plotc = plot
 plot_topo = plot
 
@@ -149,17 +162,17 @@ res@gsnStringFontHeightF = 0.035
 
 ; res@gsnRightString = ""
 res@gsnLeftString = "(a) Ctrl run: U200"
-res@cnFillPalette = "WhiteBlueGreenYellowRed"
+res@cnFillPalette = "WhiteBlueGreenYellowRed" ;
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = 30
 res@cnMaxLevelValF = 60
 res@cnLevelSpacingF = 10.
-plot(0) = gsn_csm_contour_map(wks, v_ave(0,:,:), res)
+plot(0) = gsn_csm_contour_map(wks, u_ave(0,:,:), res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
 res@gsnLeftString = "(b) SST bias run: U200"
-plot(1) = gsn_csm_contour_map(wks, v_ave(1,:,:), res)
+plot(1) = gsn_csm_contour_map(wks, u_ave(1,:,:), res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
 
@@ -169,40 +182,65 @@ res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -5
 res@cnMaxLevelValF = 5
 res@cnLevelSpacingF = 0.5
-plot(2) = gsn_csm_contour_map(wks, diff_v, res)
+plot(2) = gsn_csm_contour_map(wks, diff_u, res)
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2), plot_topo(2))
 
-res@gsnRightString = "gpm"
-res@gsnLeftString = "(d) Ctrl run: H300"
+res@gsnLeftString = "(d) Ctrl run: V200"
+res@cnFillPalette = "temp_diff_18lev" ;WhiteBlueGreenYellowRed
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMinLevelValF = -10 ;30
+res@cnMaxLevelValF = 10 ;60
+res@cnLevelSpacingF = 2. ;10.
+plot(3) = gsn_csm_contour_map(wks, v_ave(0,:,:), res)
+plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(3), plot_topo(3))
+
+res@gsnLeftString = "(e) SST bias run: V200"
+plot(4) = gsn_csm_contour_map(wks, v_ave(1,:,:), res)
+plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(4), plot_topo(4))
+
+res@gsnLeftString = "(f) e-d"
+res@cnFillPalette = "temp_diff_18lev"
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMinLevelValF = -3
+res@cnMaxLevelValF = 3
+res@cnLevelSpacingF = 0.3
+plot(5) = gsn_csm_contour_map(wks, diff_v, res)
+plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(5), plot_topo(5))
+
+res@gsnRightString = " "
+res@gsnLeftString = "(g) Ctrl run: H300"
 res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -300
 res@cnMaxLevelValF = 300
 res@cnLevelSpacingF = 30.
-plot(3) = gsn_csm_contour_map(wks, z_ave(0,:,:), res)
-plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(3), plot_topo(3))
+plot(6) = gsn_csm_contour_map(wks, z_ave(0,:,:), res)
+plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(6), plot_topo(6))
 
-res@gsnLeftString = "(e) SST bias run: H300"
-plot(4) = gsn_csm_contour_map(wks, z_ave(1,:,:), res)
-plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(4), plot_topo(4))
+res@gsnLeftString = "(h) SST bias run: H300"
+plot(7) = gsn_csm_contour_map(wks, z_ave(1,:,:), res)
+plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(7), plot_topo(7))
 
-res@gsnLeftString = "(f) e-d"
+res@gsnLeftString = "(i) g-h"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -30
 res@cnMaxLevelValF = 30
 res@cnLevelSpacingF = 3.
-plot(5) = gsn_csm_contour_map(wks, diff_z, res)
-plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(5), plot_topo(5))
+plot(8) = gsn_csm_contour_map(wks, diff_z, res)
+plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(8), plot_topo(8))
 
 pres = True
 pres@gsnMaximize = True
 ;pres@gsnPanelLabelBar = True
 ; pres@gsnPanelMainString = season+" mean heat flux: "+LEV+" hPa "
 
-gsn_panel(wks, plot, (/2,3/), pres)
+gsn_panel(wks, plot, (/3,3/), pres)
 
 end

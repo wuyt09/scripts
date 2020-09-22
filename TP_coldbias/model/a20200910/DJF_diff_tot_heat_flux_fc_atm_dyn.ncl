@@ -11,7 +11,7 @@ yrStrt = 198102
 yrLast = 200601
 
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
+casename = (/"Ctrl_FAMIP","Hist_PO"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 ncase = dimsizes(casename)
 
 season = "DJF"
@@ -222,6 +222,6 @@ pres@pmLabelBarOrthogonalPosF = -0.02
 pres@lbLabelFontHeightF = 0.015
 ; pres@gsnPanelMainString = season+" mean "
 
-gsn_panel(wks, plot, (/2,1/), pres)
+gsn_panel(wks, plot, (/1,2/), pres)
 
 end
