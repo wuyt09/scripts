@@ -138,6 +138,33 @@ diff_dyn = x(0,:,:)
 diff_dyn = dyn(nx,:,:)-x(nx,:,:)
 printVarSummary(diff_dyn)
 
+
+;===========================================================================
+
+yrStrt = 1979
+yrLast = 2005
+
+TS = new((/2,324,nlat,nlon/), float)
+
+dirisst = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/data/"
+fsst1 = "sst_HadOIBl_bc_1.9x2.5_1850_2012_c130411.nc"
+; fsst2 = "Hist_bias_sst_cmip5_bc_1.9x2.5_c20191204.nc"
+fsst2 = "PO_sst_cmip5_bc_1.9x2.5_c20191204.nc"
+fs1 = addfile(dirisst+fsst1, "r")
+fs2 = addfile(dirisst+fsst2, "r")
+
+TIMEs = fs1->time
+YYYYs = cd_calendar(TIMEs, -1)/100
+iYYYYs = ind(YYYYs.ge.yrStrt .and. YYYYs.le.yrLast)
+
+TS(0,:,:,:) = fs1->SST_cpl(iYYYYs,:,:)
+TS(1,:,:,:) = fs2->SST_cpl(iYYYYs,:,:)
+sst_diff = TS(1,:,:,:) - TS(0,:,:,:)
+copy_VarCoords(TS(0,:,:,:), sst_diff)
+sst_DJFx = month_to_season(sst_diff, season)
+sst_DJF = dim_avg_n_Wrap(sst_DJFx, 0)
+printVarSummary(sst_DJF)
+
 ;=========================================================
 ; outline of tp
 ;=========================================================
@@ -193,6 +220,33 @@ res@tmXBLabelFontHeightF = 0.025
 res@tmYLLabelFontHeightF = 0.025
 res@gsnStringFontHeightF = 0.025
 
+;====================================================================================
+cnres = True
+cnres@gsnDraw  = False
+cnres@gsnFrame = False
+
+cnres@cnFillOn = False
+cnres@cnLinesOn = True
+cnres@cnLineLabelsOn = False
+cnres@cnLineLabelFontColor = "red"
+cnres@cnLineColor = "dodgerblue"
+cnres@cnLineThicknessF = 2
+cnres@cnInfoLabelOn = True
+cnres@cnInfoLabelOrthogonalPosF = -0.65
+cnres@cnInfoLabelFontHeightF = 0.02
+cnres@cnLabelDrawOrder = "PostDraw"
+cnres@gsnContourNegLineDashPattern = 16
+cnres@gsnContourPosLineDashPattern = 0
+
+; cnres@cnLevelSelectionMode = "ManualLevels"
+; cnres@cnMinLevelValF = -5.
+; cnres@cnMaxLevelValF = 5.
+; cnres@cnLevelSpacingF = 0.5
+cnres@cnLevelSelectionMode = "ExplicitLevels"
+cnres@cnLevels = (/-5,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,5/)
+; cnres@cnLineColors = (/5,6,7,8,9,10,11,12,13,14,15,16,17/)
+;====================================================================================
+
 res@gsnRightString = "*10~S~-3~N~"
 res@gsnLeftString = "(a) Diff: -{d[<V>*<T>]/dy + d[<U>*<T>]/dy}"
 res@cnFillPalette = "temp_diff_18lev"
@@ -201,6 +255,8 @@ res@cnMinLevelValF = -0.5
 res@cnMaxLevelValF = 0.5
 res@cnLevelSpacingF = 0.05
 plot(0) = gsn_csm_contour_map(wks, dbar_tot, res)
+plotc(0) = gsn_csm_contour(wks, sst_DJF, cnres)
+overlay(plot(0), plotc(0))
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
