@@ -25,6 +25,7 @@ z!0 = "case"
 z&case = casename
 v = z
 u = z
+h = z
 
 do i = 0, ncase-1
     diri = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
@@ -47,10 +48,12 @@ do i = 0, ncase-1
 
     U = f2->U(iYYYY,{200},:,:)
     V = f3->V(iYYYY,{200},:,:)
+    H = f1->Z3(iYYYY,{500},:,:)
 
     z(i,:,:,:) = month_to_season(Z, season)
     u(i,:,:,:) = month_to_season(U, season)
     v(i,:,:,:) = month_to_season(V, season)
+    h(i,:,:,:) = month_to_season(H, season)
 end do
 
 printVarSummary(z)
@@ -66,6 +69,9 @@ u_var = dim_variance_n_Wrap(u, 1)
 
 v_ave = dim_avg_n_Wrap(v, 1)
 v_var = dim_variance_n_Wrap(v, 1)
+
+h_ave = dim_avg_n_Wrap(h, 1)
+; h_var = dim_variance_n_Wrap(h, 1)
 
 probz = z_ave(0,:,:)
 probz = ttest(z_ave(0,:,:), z_var(0,:,:), nyear, z_ave(1,:,:), z_var(1,:,:), nyear, False, False)
@@ -83,6 +89,9 @@ diff_u = u_ave(0,:,:)
 diff_u = u_ave(1,:,:) - u_ave(0,:,:)
 diff_v = v_ave(0,:,:)
 diff_v = v_ave(1,:,:) - v_ave(0,:,:)
+
+diff_h = h_ave(0,:,:)
+diff_h = h_ave(1,:,:) - h_ave(0,:,:)
 ;=========================================================
 ; outline of tp
 ;=========================================================
@@ -140,24 +149,24 @@ res@tmYLLabelFontHeightF = 0.025
 res@gsnStringFontHeightF = 0.035
 
 ; ====================================================================================
-; cnres = True
-; cnres@gsnDraw  = False
-; cnres@gsnFrame = False
+cnres = True
+cnres@gsnDraw  = False
+cnres@gsnFrame = False
 
-; cnres@cnFillOn = False
-; cnres@cnLinesOn = True
-; cnres@cnLineLabelsOn = False
-; cnres@cnLineLabelFontColor = "red"
-; cnres@cnLineColor = "purple"
-; cnres@cnLineThicknessF = 4
-; cnres@cnInfoLabelOn = True
-; cnres@cnInfoLabelOrthogonalPosF = -0.65
-; cnres@cnInfoLabelFontHeightF = 0.02
-; cnres@cnLabelDrawOrder = "PostDraw"
-; cnres@gsnContourNegLineDashPattern = 2
-; cnres@gsnContourPosLineDashPattern = 0
-; cnres@gsnLeftString = ""
-; cnres@gsnRightString = ""
+cnres@cnFillOn = False
+cnres@cnLinesOn = True
+cnres@cnLineLabelsOn = False
+cnres@cnLineLabelFontColor = "red"
+cnres@cnLineColor = "purple"
+cnres@cnLineThicknessF = 4
+cnres@cnInfoLabelOn = True
+cnres@cnInfoLabelOrthogonalPosF = -0.65
+cnres@cnInfoLabelFontHeightF = 0.02
+cnres@cnLabelDrawOrder = "PostDraw"
+cnres@gsnContourNegLineDashPattern = 2
+cnres@gsnContourPosLineDashPattern = 0
+cnres@gsnLeftString = ""
+cnres@gsnRightString = ""
 ;====================================================================================
 
 ; res@gsnRightString = ""
@@ -222,19 +231,39 @@ plot(6) = gsn_csm_contour_map(wks, z_ave(0,:,:), res)
 plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(6), plot_topo(6))
 
+cnres@cnLevelSelectionMode = "ManualLevels"
+cnres@cnMinLevelValF = 5200
+cnres@cnMaxLevelValF = 5800
+cnres@cnLevelSpacingF = 100
+plotc(6) = gsn_csm_contour(wks, h_ave(0,:,:), cnres)
+overlay(plot(6), plotc(6))
+
 res@gsnLeftString = "(h) SST bias run: H300"
 plot(7) = gsn_csm_contour_map(wks, z_ave(1,:,:), res)
 plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(7), plot_topo(7))
+plotc(7) = gsn_csm_contour(wks, h_ave(1,:,:), cnres)
+overlay(plot(7), plotc(7))
+
 
 res@gsnLeftString = "(i) g-h"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -30
-res@cnMaxLevelValF = 30
-res@cnLevelSpacingF = 3.
+res@cnMinLevelValF = -50
+res@cnMaxLevelValF = 50
+res@cnLevelSpacingF = 5.
 plot(8) = gsn_csm_contour_map(wks, diff_z, res)
 plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(8), plot_topo(8))
+
+cnres@gsnContourNegLineDashPattern = 16
+cnres@gsnContourPosLineDashPattern = 0
+cnres@cnLevelSelectionMode = "ManualLevels"
+cnres@cnMinLevelValF = -50
+cnres@cnMaxLevelValF = 50
+cnres@cnLevelSpacingF = 10
+plotc(8) = gsn_csm_contour(wks, diff_h, cnres)
+overlay(plot(8), plotc(8))
+
 
 pres = True
 pres@gsnMaximize = True

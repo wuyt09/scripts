@@ -103,6 +103,9 @@ x_diff(5,:,:) = x_diff(4,:,:) - x_diff(3,:,:)
 copy_VarCoords(x(0,:,:), x_diff(0,:,:))
 printVarSummary(x_diff)
 
+
+
+
 ;=======================================
 ; this is for outline of TP
 ;=======================================
@@ -118,23 +121,31 @@ topo!1 = "lsmlon"
 topo&lsmlat = mlat
 topo&lsmlon = mlon
 
-; TOPO = linint2_Wrap(mlon, mlat, topo, True, lon, lat, 0)
+TOPO = linint2_Wrap(mlon, mlat, topo, True, lon, lat, 0)
 
-; ; p_cloud = x_diff(0,{latstr:latend},{lonstr:lonend})
-; ; p_error = x_diff(5,{latstr:latend},{lonstr:lonend})
-; ; p_cloud = mask(p_cloud, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
-; ; p_error = mask(p_error, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
-; p_cloud = x_diff(0,:,:)
-; p_error = x_diff(5,:,:)
-; p_cloud = mask(p_cloud, TOPO.ge.1500, True)
-; p_error = mask(p_error, TOPO.ge.1500, True)
-; pa_corr = pattern_cor(p_cloud({latstr:latend},{lonstr:lonend}), p_error({latstr:latend},{lonstr:lonend}), 1., 1)
-; print(pa_corr)
+;===================================================================================
+; correction
+;===================================================================================
 
-; x_med = x_diff(0,:,:)
-; x_diff(0,:,:) = (1+pa_corr)*x_med
-; x_diff(5,:,:) = x_diff(5,:,:) - pa_corr*x_med
-; x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+clat = cos(0.01745329*lat)
+error = x_diff(5,:,:)
+cld_corr = x_diff(0,:,:)
+error = mask(error, TOPO.ge.1500, True)
+cld_corr = mask(cld_corr, TOPO.ge.1500, True)
+
+; error = x_diff(5,{latstr:latend},{lonstr:lonend})
+; cld_corr = x_diff(0,{latstr:latend},{lonstr:lonend})
+
+upper_term = error*cld_corr
+uterm = wgt_areaave_Wrap(upper_term, 1.0, 1.0, 0)
+lower_term = cld_corr*cld_corr
+lterm = wgt_areaave_Wrap(lower_term, 1.0, 1.0, 0)
+alpha = uterm/lterm
+print("alpha = "+alpha)
+
+x_diff(0,:,:) = x_diff(0,:,:)*(1+alpha)
+x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
 
 ;==========================================================
 ;****************************************************
@@ -142,7 +153,7 @@ topo&lsmlon = mlon
 ;****************************************************
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/" ;diri2
-figname = "decompose_downR"
+figname = "decompose_downR_pattern_corr_correct"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
@@ -223,6 +234,8 @@ do i = 0, dimsizes(title)-1
     overlay(plot(i), plot_topo(i))
 end do
 
+; plot(0) = gsn_csm_contour_map(wks, error, res)
+; plot(1) = gsn_csm_contour_map(wks, cld_corr, res)
 ; i = dimsizes(title)-1
 ; res@gsnLeftString = title(i)
 ; plot(i) = gsn_csm_contour_map(wks, x_diff(i,:,:), res)

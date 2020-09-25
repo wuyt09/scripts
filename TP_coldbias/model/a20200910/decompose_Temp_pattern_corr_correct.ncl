@@ -45,12 +45,14 @@ delete(f)
 
 ;===========================================================================
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/" ;cfram20200805
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram_decomposeT/" ;cfram20200805
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
-fili3 = diri2+"cloud_radsfc_ranc_1.grd"
-fili4 = diri2+"wv_radsfc_ranc_1.grd"
-fili5 = diri2+"t_radsfc_ranc_1.grd"
-fili6 = diri2+"warm_radsfc_ranc_1.grd"
+fili3 = diri2+"t_cloud_radsfc_ranc_1.grd"
+fili4 = diri2+"t_wv_radsfc_ranc_1.grd"
+fili5 = diri2+"t_dyn_radsfc_ranc_1.grd"
+
+diri3 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/"
+fili6 = diri3+"t_radsfc_ranc_1.grd"
 
 
 UNDEF = -999.
@@ -68,14 +70,14 @@ x@units     = "W/m2"
 
 cld = x
 wv = x
-t = x
+dyn = x
 y = x
 
 do nv = 0,nvars-1
     x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
     cld(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
     wv(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
-    t(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
+    dyn(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
     y(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
 end do
 
@@ -89,16 +91,16 @@ printMinMax(x(0,:,:),1)
 
 
 nx = 2
-title = (/"(a) Cloud","(b) WV","(c) Temp","(d) a+b+c","(e) model total","(f) error: e-d"/)
+title = (/"(a) Cloud","(b) WV","(c) Dyn","(d) a+b+c","(e) total by Air Temp.","(f) error: e-d"/)
 x_diff = new((/dimsizes(title),nlat,nlon/), float)
 x_diff!0 = "term"
 x_diff&term = title
 
 x_diff(0,:,:) = cld(nx,:,:) - x(nx,:,:)
 x_diff(1,:,:) = wv(nx,:,:) - x(nx,:,:)
-x_diff(2,:,:) = t(nx,:,:) - x(nx,:,:)
+x_diff(2,:,:) = dyn(nx,:,:) - x(nx,:,:)
 x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
-x_diff(4,:,:) = ssrd(1,:,:) - ssrd(0,:,:) ;y(nx,:,:) - x(nx,:,:)
+x_diff(4,:,:) = y(nx,:,:) - x(nx,:,:)
 x_diff(5,:,:) = x_diff(4,:,:) - x_diff(3,:,:)
 copy_VarCoords(x(0,:,:), x_diff(0,:,:))
 printVarSummary(x_diff)
@@ -118,37 +120,45 @@ topo!1 = "lsmlon"
 topo&lsmlat = mlat
 topo&lsmlon = mlon
 
-; TOPO = linint2_Wrap(mlon, mlat, topo, True, lon, lat, 0)
+TOPO = linint2_Wrap(mlon, mlat, topo, True, lon, lat, 0)
 
-; ; p_cloud = x_diff(0,{latstr:latend},{lonstr:lonend})
-; ; p_error = x_diff(5,{latstr:latend},{lonstr:lonend})
-; ; p_cloud = mask(p_cloud, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
-; ; p_error = mask(p_error, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
-; p_cloud = x_diff(0,:,:)
-; p_error = x_diff(5,:,:)
-; p_cloud = mask(p_cloud, TOPO.ge.1500, True)
-; p_error = mask(p_error, TOPO.ge.1500, True)
-; pa_corr = pattern_cor(p_cloud({latstr:latend},{lonstr:lonend}), p_error({latstr:latend},{lonstr:lonend}), 1., 1)
-; print(pa_corr)
+;===================================================================================
+; correction
+;===================================================================================
 
-; x_med = x_diff(0,:,:)
-; x_diff(0,:,:) = (1+pa_corr)*x_med
-; x_diff(5,:,:) = x_diff(5,:,:) - pa_corr*x_med
-; x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+clat = cos(0.01745329*lat)
+error = x_diff(5,:,:)
+cld_corr = x_diff(2,:,:)
+error = mask(error, TOPO.ge.1500, True)
+cld_corr = mask(cld_corr, TOPO.ge.1500, True)
 
+; error = x_diff(5,{latstr:latend},{lonstr:lonend})
+; cld_corr = x_diff(0,{latstr:latend},{lonstr:lonend})
+
+upper_term = error*cld_corr
+uterm = wgt_areaave_Wrap(upper_term, 1.0, 1.0, 0)
+lower_term = cld_corr*cld_corr
+lterm = wgt_areaave_Wrap(lower_term, 1.0, 1.0, 0)
+alpha = uterm/lterm
+print("alpha = "+alpha)
+
+x_diff(2,:,:) = x_diff(2,:,:)*(1+alpha)
+x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
 ;==========================================================
 ;****************************************************
 ; plot
 ;****************************************************
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/" ;diri2
-figname = "decompose_downR"
+figname = "decompose_Temp_pattern_corr_correct"
 wks  = gsn_open_wks("pdf",figpath+figname)
 gsn_define_colormap(wks,"temp_diff_18lev")
 
 nplot = dimsizes(title)
 plot = new(nplot, graphic)
 plot_topo = plot
+
 
 ;----------------------
 res_topo            = True

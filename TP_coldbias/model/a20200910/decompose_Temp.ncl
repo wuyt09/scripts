@@ -120,23 +120,23 @@ topo!1 = "lsmlon"
 topo&lsmlat = mlat
 topo&lsmlon = mlon
 
-TOPO = linint2_Wrap(mlon, mlat, topo, True, lon, lat, 0)
+; TOPO = linint2_Wrap(mlon, mlat, topo, True, lon, lat, 0)
 
-; p_cloud = x_diff(0,{latstr:latend},{lonstr:lonend})
-; p_error = x_diff(5,{latstr:latend},{lonstr:lonend})
-; p_cloud = mask(p_cloud, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
-; p_error = mask(p_error, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
-p_cloud = x_diff(2,:,:)
-p_error = x_diff(5,:,:)
-p_cloud = mask(p_cloud, TOPO.ge.1500, True)
-p_error = mask(p_error, TOPO.ge.1500, True)
-pa_corr = pattern_cor(p_cloud({latstr:latend},{lonstr:lonend}), p_error({latstr:latend},{lonstr:lonend}), 1., 1)
-print(pa_corr)
+; ; p_cloud = x_diff(0,{latstr:latend},{lonstr:lonend})
+; ; p_error = x_diff(5,{latstr:latend},{lonstr:lonend})
+; ; p_cloud = mask(p_cloud, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
+; ; p_error = mask(p_error, TOPO({latstr:latend},{lonstr:lonend}).ge.1500, True)
+; p_cloud = x_diff(2,:,:)
+; p_error = x_diff(5,:,:)
+; p_cloud = mask(p_cloud, TOPO.ge.1500, True)
+; p_error = mask(p_error, TOPO.ge.1500, True)
+; pa_corr = pattern_cor(p_cloud({latstr:latend},{lonstr:lonend}), p_error({latstr:latend},{lonstr:lonend}), 1., 1)
+; print(pa_corr)
 
-x_med = x_diff(2,:,:)
-x_diff(2,:,:) = (1+pa_corr)*x_med
-x_diff(5,:,:) = x_diff(5,:,:) - pa_corr*x_med
-x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+; x_med = x_diff(2,:,:)
+; x_diff(2,:,:) = (1+pa_corr)*x_med
+; x_diff(5,:,:) = x_diff(5,:,:) - pa_corr*x_med
+; x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
 ;==========================================================
 ;****************************************************
 ; plot

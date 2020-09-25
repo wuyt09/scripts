@@ -73,7 +73,7 @@ res@cnInfoLabelOn         = False
 res@cnLineLabelsOn        = False
 
 res@mpMinLatF            = -30      ; range to zoom in on
-res@mpMaxLatF            =  60.
+res@mpMaxLatF            =  30.
 ;res@mpMinLonF            =  30.
 ;res@mpMaxLonF            = 120.
 res@mpCenterLonF         = 180.
@@ -98,17 +98,19 @@ end do
 ; res@cnMinLevelValF = 25
 ; res@cnMaxLevelValF = 30
 ; res@cnLevelSpacingF = 0.5
+res@lbLabelBarOn = True
+res@pmLabelBarOrthogonalPosF = 0.4
+res@gsnLeftString = "All Basin"
+res@gsnRightString = "K"
+plot(0) = gsn_csm_contour_map(wks, tdiff(0,:,:), res)
 
-; res@gsnLeftString = "Ctrl"
-; plot(7) = gsn_csm_contour_map(wks, ts(0,:,:), res)
+; pres = True
+; pres@gsnMaximize = True
+; pres@gsnPanelLabelBar = True
+; pres@pmLabelBarOrthogonalPosF = -0.01
+; pres@gsnPanelMainString = "SST difference"
 
-pres = True
-pres@gsnMaximize = True
-pres@gsnPanelLabelBar = True
-pres@pmLabelBarOrthogonalPosF = -0.01
-pres@gsnPanelMainString = "SST difference"
-
-gsn_panel(wks, plot, (/4,2/), pres)
+; gsn_panel(wks, plot, (/2,1/), pres)
 
 draw(plot(0))
 frame(wks)
