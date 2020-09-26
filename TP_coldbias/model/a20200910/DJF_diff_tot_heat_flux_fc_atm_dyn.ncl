@@ -11,7 +11,7 @@ yrStrt = 198102
 yrLast = 200601
 
 
-casename = (/"Ctrl_FAMIP","Hist_PO"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
+casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 ncase = dimsizes(casename)
 
 season = "DJF"
@@ -63,11 +63,12 @@ end do
 
 printVarSummary(VT_bar)
 
-diff_vt_bar = VT_bar(0,:,:)
-diff_vt_bar = VT_bar(1,:,:) - VT_bar(0,:,:)
-
-diff_ut_bar = UT_bar(0,:,:)
-diff_ut_bar = UT_bar(1,:,:) - UT_bar(0,:,:)
+diff_vt_bar = VT_bar(0:ncase-2,:,:)
+diff_ut_bar = UT_bar(0:ncase-2,:,:)
+do i = 0, ncase-2
+    diff_vt_bar(i,:,:) = VT_bar(i+1,:,:) - VT_bar(0,:,:)
+    diff_ut_bar(i,:,:) = UT_bar(i+1,:,:) - UT_bar(0,:,:)
+end do
 ;==========================================================================
 ; -d（VT）/dy; -d（UT）/dx
 ;==========================================================================
@@ -77,14 +78,14 @@ nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
 utbar_dx = VT_bar
-dutbar_dx = VT_bar(0,:,:)
+dutbar_dx = VT_bar(0:ncase-2,:,:)
 vtbar_dy = VT_bar
 dvtbar_dy = dutbar_dx
 
 dlon = (lon(2)-lon(1))*0.0174533
 do i=0,nlat-1
     dx = 6378388.*cos(0.0174533*lat(i))*dlon
-    dutbar_dx(i,:) = center_finite_diff_n (diff_ut_bar(i,:), dx, True, 0, 0)
+    dutbar_dx(:,i,:) = center_finite_diff_n (diff_ut_bar(:,i,:), dx, True, 0, 1)
     ; do ll = 0, 1
     ;     utbar_dx(ll,i,:) = center_finite_diff_n(UT_bar(ll,i,:), dx, True, 0, 0)  
     ; end do
@@ -94,7 +95,7 @@ dutbar_dx = dutbar_dx*(-1000.); magnify 1000 times
 
 dlat = (lat(2)-lat(1))*0.0174533
 dy   = 6378388.*dlat
-dvtbar_dy = center_finite_diff_n (diff_vt_bar, dy, False, 0, 0)
+dvtbar_dy = center_finite_diff_n (diff_vt_bar, dy, False, 0, 1)
 dvtbar_dy = dvtbar_dy*(-1000.)
 ; print(dvtano_dy({30:40},{80:90}))
 ; print(dutano_dx({30:40},{80:90}))
@@ -208,7 +209,7 @@ res@cnLinesOn             = False    ; turn of contour lines
 res@cnLineLabelsOn        = False
 res@cnInfoLabelOn         = False
 res@cnFillPalette         = "temp_diff_18lev"
-; res@lbLabelBarOn          = False
+res@lbLabelBarOn          = False
 res@pmLabelBarOrthogonalPosF = 0.2
 
 res@mpMinLatF            = latstr      ; range to zoom in on
@@ -232,7 +233,7 @@ cnres@cnLineLabelFontColor = "red"
 cnres@cnLineColor = "dodgerblue"
 cnres@cnLineThicknessF = 2
 cnres@cnInfoLabelOn = True
-cnres@cnInfoLabelOrthogonalPosF = -0.65
+cnres@cnInfoLabelOrthogonalPosF = -0.15
 cnres@cnInfoLabelFontHeightF = 0.02
 cnres@cnLabelDrawOrder = "PostDraw"
 cnres@gsnContourNegLineDashPattern = 16
@@ -248,32 +249,40 @@ cnres@cnLevels = (/-5,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,5/)
 ;====================================================================================
 
 res@gsnRightString = "*10~S~-3~N~"
-res@gsnLeftString = "(a) Diff: -{d[<V>*<T>]/dy + d[<U>*<T>]/dy}"
+; res@gsnLeftString = "(a) Diff: -{d[<V>*<T>]/dy + d[<U>*<T>]/dy}"
+res@gsnLeftString = "(a) All basin - Ctrl"
 res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -0.5
 res@cnMaxLevelValF = 0.5
 res@cnLevelSpacingF = 0.05
-plot(0) = gsn_csm_contour_map(wks, dbar_tot, res)
+plot(0) = gsn_csm_contour_map(wks, dbar_tot(0,:,:), res)
 plotc(0) = gsn_csm_contour(wks, sst_DJF, cnres)
 overlay(plot(0), plotc(0))
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@gsnLeftString = "(b) fc_atm_dyn"
-res@gsnRightString = "W/m~S~2~N~"
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1
-plot(1) = gsn_csm_contour_map(wks, diff_dyn, res)
+res@gsnLeftString = "(b) Pacific basin - Ctrl"
+plot(1) = gsn_csm_contour_map(wks, dbar_tot(1,:,:), res)
+plotc(1) = gsn_csm_contour(wks, sst_DJF, cnres)
+overlay(plot(1), plotc(1))
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
+
+; res@gsnLeftString = "(b) fc_atm_dyn"
+; res@gsnRightString = "W/m~S~2~N~"
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMinLevelValF = -10
+; res@cnMaxLevelValF = 10
+; res@cnLevelSpacingF = 1
+; plot(1) = gsn_csm_contour_map(wks, diff_dyn, res)
+; plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(1), plot_topo(1))
 
 
 pres = True
 pres@gsnMaximize = True
-; pres@gsnPanelLabelBar = True
+pres@gsnPanelLabelBar = True
 pres@pmLabelBarOrthogonalPosF = -0.02
 pres@lbLabelFontHeightF = 0.015
 ; pres@gsnPanelMainString = season+" mean "
