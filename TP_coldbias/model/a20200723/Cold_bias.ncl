@@ -102,8 +102,8 @@ res@mpCenterLonF         = 180.
 res@tmXBLabelFontHeightF = 0.025
 res@tmYLLabelFontHeightF = 0.025
 
-res@gsnStringFontHeightF = 0.035
-;res@gsnRightString       = "K"
+res@gsnStringFontHeightF = 0.045
+res@gsnRightString       = "K"
 
 res@pmLabelBarOrthogonalPosF = 0.12
 res@pmLabelBarWidthF = 0.7
@@ -156,7 +156,7 @@ pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.013
-pres@gsnPanelMainString = "Cold bias: sst bias run - Ctrl run"
+; pres@gsnPanelMainString = "Cold bias: sst bias run - Ctrl run"
 gsn_panel(wks, plot, (/3,4/), pres)
 
 end

@@ -114,7 +114,7 @@ title = (/"All Basin", "Pacific Basin" /)
     res@tmYLLabelFontHeightF = 0.02
 
     res@pmLabelBarOrthogonalPosF = -0.06
-    res@lbLabelBarOn = False
+    ; res@lbLabelBarOn = False
     ;res@lbLabelFontHeightF = 0.02
     res@tiYAxisString = ""
 
@@ -163,20 +163,26 @@ res@cnMaxLevelValF = 2.
 res@cnMinLevelValF = -2.
 res@cnFillPalette = "temp_diff_18lev" ; "MPL_RdBu"
 
-do i = 0, 1
-    res@gsnLeftString = title(i)+" run - Ctrl run"
-    plot(i) = gsn_csm_pres_hgt(wks, t_diff(i,:,{lonstr:lonend}), res)
-    plot_prob(i) = gsn_csm_contour(wks,prob(i,:,{lonstr:lonend}),res3)
-    plot_prob(i) = ShadeLtContour(plot_prob(i),0.055,17)
-    overlay(plot(i), plot_prob(i))
-end do
+; do i = 0, 1
+;     res@gsnLeftString = title(i)+" run - Ctrl run"
+;     plot(i) = gsn_csm_pres_hgt(wks, t_diff(i,:,{lonstr:lonend}), res)
+;     plot_prob(i) = gsn_csm_contour(wks,prob(i,:,{lonstr:lonend}),res3)
+;     plot_prob(i) = ShadeLtContour(plot_prob(i),0.055,17)
+;     overlay(plot(i), plot_prob(i))
+; end do
 
-pres = True
-pres@gsnMaximize = True
-pres@gsnPanelLabelBar  = True
-pres@gsnPanelMainString = season+" mean: T profiles over "+LAT+"~S~o~N~N"
-gsn_panel(wks, plot, (/1,2/), pres)
+; pres = True
+; pres@gsnMaximize = True
+; pres@gsnPanelLabelBar  = True
+; pres@gsnPanelMainString = season+" mean: T profiles over "+LAT+"~S~o~N~N"
+; gsn_panel(wks, plot, (/1,2/), pres)
 
- 
+res@gsnLeftString = "Air Temp. diff"
+res@gsnRightString = "lat: "+LAT+"~S~o~N~N"
+plot(0) = gsn_csm_pres_hgt(wks, t_diff(0,:,{lonstr:lonend}), res)
+plot_prob(0) = gsn_csm_contour(wks,prob(0,:,{lonstr:lonend}),res3)
+plot_prob(0) = ShadeLtContour(plot_prob(0),0.055,17)
+overlay(plot(0), plot_prob(0))
+draw(plot(0))
 
 end
