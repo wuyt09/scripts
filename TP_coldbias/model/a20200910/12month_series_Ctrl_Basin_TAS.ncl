@@ -43,7 +43,8 @@ printVarSummary(ts)
 
 tdiff = wgt_areaave_Wrap(ts(:,:,{25:40},{75:105}), 1, 1, 0)
 printVarSummary(tdiff)
-
+t_ave = (tdiff(0,0) + tdiff(0,1) + tdiff(0,11))/3
+print(t_ave)
 ;===================================================================
 ; Plot
 ;===================================================================
@@ -92,7 +93,8 @@ res@xyLineThicknesses = Thick
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
-res@gsnLeftString = "TAS: SEN - CTRL"
+res@gsnLeftString = "Diff with Ctrl run"
+res@gsnStringFontHeightF = 0.025
 
 plot(0) = gsn_csm_xy(wks, Month, tdiff, res)
 

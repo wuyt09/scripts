@@ -72,11 +72,10 @@ TS_obs = mask(TS_obs, topox2.ge.1500, True)
 TP_obs = wgt_areaave_Wrap(TS_obs(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
 printVarSummary(TS_obs)
 
-
 ;===================================================================
-; GCM 24 data
+; GCM 20 data
 ;===================================================================
-dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/tas/"
+dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/"
 
 models = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
         "CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\
@@ -84,33 +83,93 @@ models = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","C
         "IPSL-CM5B-LR","MIROC5","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
 
 nm = dimsizes(models)
-TS_GCM = new((/nm,12,181,360/), float)
-TS_GCM!0 = "model"
-TS_GCM&model = models
+TP_GCM5 = new((/nm,12/), float)
+TP_GCM5!0 = "model"
+TP_GCM5&model = models
 do i = 0, nm-1
-    filigcm = systemfunc("ls "+dirigcm+"tas_mon_"+models(i)+"_historical_r1i1p1_195101-200012.nc")
+    filigcm = systemfunc("ls "+dirigcm+models(i)+"/tas_Amon_"+models(i)+"_historical_r1i1p1_18*01-20*12.nc")
+    print(filigcm)
     fgcm = addfile(filigcm, "r")
-    TS_GCMs = fgcm->tas
+    TIME := fgcm->time
+    YYYY := cd_calendar(TIME, -1)/100
+    iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.2005)
+    TS_GCMs := fgcm->tas(iYYYY,:,:)
+    TS_GCMs!1 = "lat"
+    TS_GCMs!2 = "lon"
+    TS_GCMs = TS_GCMs - 273.15
     TS_GCMs = dtrend_msg_n(TS_GCMs&time, TS_GCMs, False, False, 0)
-    TS_GCM(i,:,:,:) = clmMonTLL(TS_GCMs)
+    TS_GCM := clmMonTLL(TS_GCMs)
+    TOPO := linint2_Wrap(topo&lon, topo&lat, topo, True, TS_GCM&lon, TS_GCM&lat, 0)
+    TS_GCM = mask(TS_GCM, TOPO.ge.1500, True)
+    TP_GCM5(i,:) = wgt_areaave_Wrap(TS_GCM(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+    print("end of "+models(i))
 end do
-printVarSummary(TS_GCM)
+printVarSummary(TP_GCM5)
 
-TS_GCM = TS_GCM - 273.15
-TS_GCM = mask(TS_GCM, topo.ge.1500, True)
-TP_GCM = wgt_areaave_Wrap(TS_GCM(:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
-TP_GCMA = dim_avg_n_Wrap(TP_GCM, 0)
-printVarSummary(TP_GCMA)
+; TS_GCM = TS_GCM - 273.15
+; TS_GCM = mask(TS_GCM, topo.ge.1500, True)
+; TP_GCM = wgt_areaave_Wrap(TS_GCM(:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+TP_GCMA5 = dim_avg_n_Wrap(TP_GCM5, 0)
+printVarSummary(TP_GCMA5)
 
-print(TP_GCMA)
+print(TP_GCMA5)
+
+
+;===================================================================
+; GCM 20 data
+;===================================================================
+dirigcm = "/home/yangsong3/data-model/wuyt/CMIP6/"
+
+models := (/"BCC-CSM2-MR","BCC-ESM1","CanESM5","CAS-ESM2-0","CESM2","CESM2-FV2","CESM2-WACCM",\
+          "CESM2-WACCM-FV2","CIESM","E3SM-1-0","E3SM-1-1","E3SM-1-1-ECA","FGOALS-f3-L",\
+          "FGOALS-g3","KIOST-ESM","MCM-UA-1-0","MIROC6","MRI-ESM2-0","NESM3","SAM0-UNICON"/)
+
+nm := dimsizes(models)
+TP_GCM6 = new((/nm,12/), float)
+TP_GCM6!0 = "model"
+TP_GCM6&model = models
+do i = 0, nm-1
+    filigcm = systemfunc("ls "+dirigcm+"tas_Amon_"+models(i)+"_historical_r1i1p1f1_g*_185001-201*12.nc")
+    fgcm = addfile(filigcm, "r")
+    TIME := fgcm->time
+    YYYY := cd_calendar(TIME, -1)/100
+    iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.2005)
+    TS_GCMs := fgcm->tas(iYYYY,:,:)
+    TS_GCMs!1 = "lat"
+    TS_GCMs!2 = "lon"
+    TS_GCMs = TS_GCMs - 273.15
+    TS_GCMs = dtrend_msg_n(TS_GCMs&time, TS_GCMs, False, False, 0)
+    TS_GCM := clmMonTLL(TS_GCMs)
+    TOPO := linint2_Wrap(topo&lon, topo&lat, topo, True, TS_GCM&lon, TS_GCM&lat, 0)
+    TS_GCM = mask(TS_GCM, TOPO.ge.1500, True)
+    TP_GCM6(i,:) = wgt_areaave_Wrap(TS_GCM(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+    print("end of "+models(i))
+end do
+printVarSummary(TP_GCM6)
+
+; TS_GCM = TS_GCM - 273.15
+; TS_GCM = mask(TS_GCM, topo.ge.1500, True)
+; TP_GCM = wgt_areaave_Wrap(TS_GCM(:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+TP_GCMA6 = dim_avg_n_Wrap(TP_GCM6, 0)
+printVarSummary(TP_GCMA6)
+
+; print(TP_GCMA6)
+;===================================================================
+diff5 = TP_GCMA5 - TP_obs
+diff6 = TP_GCMA6 - TP_obs
+ave5  = (diff5(0)+diff5(1)+diff5(11))/3
+ave6  = (diff6(0)+diff6(1)+diff6(11))/3
+print(ave5)
+print(ave6)
 
 ;===================================================================
 ; Plot
 ;===================================================================
 
-Solid = new((/2,12/), float)
+Solid = new((/3,12/), float)
 Solid(0,:) = (/TP_obs/)
-Solid(1,:) = (/TP_GCMA/)
+Solid(1,:) = (/TP_GCMA5/)
+Solid(2,:) = (/TP_GCMA6/)
 
 
 Month = ispan(1, 12, 1)
@@ -132,7 +191,7 @@ res@trXMinF = 1
 res@trXMaxF = 12
 res@tmXBMode = "Explicit"
 res@tmXBValues = Month
-res@tmXBLabels = Month
+res@tmXBLabels = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 res@tmXTOn = False
 res@tiXAxisString = "Month"
 
@@ -146,9 +205,9 @@ res@tiYAxisString = "Temperature (~S~o~N~C)"
 ;res@gsnLeftString = "Tas: grid2station"
 
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
-Colors = (/"black","forestgreen"/)
+Colors = (/"black","red","forestgreen"/)
 Patterns = (/0,0,0/)
-res@xyLineThicknessF = 8
+res@xyLineThicknessF = 10
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
@@ -161,7 +220,7 @@ res@xyLineThicknessF = 3
 gsn_define_colormap(wks, "WhiteYellowOrangeRed")
 res@xyLineColors = ispan(25, 25+28*8, 8)
 res@xyDashPattern = 16
-plot(1) = gsn_csm_xy(wks, Month, TP_GCM, res)
+plot(1) = gsn_csm_xy(wks, Month, TP_GCM5, res)
 overlay(plot(1), plot(0))
 
 
@@ -174,15 +233,15 @@ overlay(plot(1), plot(0))
     res_text@txFontHeightF      = 0.018                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = (/"OBS","GCM-MME"/)
+    Texts  = (/"OBS","CMIP5-MME","CMIP6-MME"/)
 
 ;============================================================
     gx = (/1.5,2.2/)
     text_pos = 2.3
     gy1 = (/18,18/)
     gy2 = (/15,15/)
-    ;gy3 = (/12,12/)
-    gy4 = (/12,12/)
+    gy3 = (/12,12/)
+    gy4 = (/9,9/)
     ; gy5 = (/10,10/)
     ; gy6 = (/8,8/)
 
@@ -194,15 +253,15 @@ overlay(plot(1), plot(0))
     res_lines@gsLineDashPattern = Patterns(1)
     dum21 = gsn_add_polyline(wks, plot(1), gx, gy2, res_lines)
     dum22 = gsn_add_text(wks, plot(1), Texts(1), text_pos, gy2, res_text)
-    ; res_lines@gsLineColor = Colors(2)
-    ; res_lines@gsLineDashPattern = Patterns(2)
-    ; dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
-    ; dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
+    res_lines@gsLineColor = Colors(2)
+    res_lines@gsLineDashPattern = Patterns(2)
+    dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
+    dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
 
     res_lines@gsLineColor = "red3"
     res_lines@gsLineDashPattern = 16
     dum41 = gsn_add_polyline(wks, plot(1), gx, gy4, res_lines)
-    dum42 = gsn_add_text(wks, plot(1), "GCMs", text_pos, gy4, res_text)
+    dum42 = gsn_add_text(wks, plot(1), "CMIP5 GCMs", text_pos, gy4, res_text)
 
 
 draw(plot(1))
