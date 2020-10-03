@@ -255,8 +255,8 @@ overlay(plot(1), plot(0))
     dum22 = gsn_add_text(wks, plot(1), Texts(1), text_pos, gy2, res_text)
     res_lines@gsLineColor = Colors(2)
     res_lines@gsLineDashPattern = Patterns(2)
-    dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
-    dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
+    dum31 = gsn_add_polyline(wks, plot(1), gx, gy3, res_lines)
+    dum32 = gsn_add_text(wks, plot(1), Texts(2), text_pos, gy3, res_text)
 
     res_lines@gsLineColor = "red3"
     res_lines@gsLineDashPattern = 16
