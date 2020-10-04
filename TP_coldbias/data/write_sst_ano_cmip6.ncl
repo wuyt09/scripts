@@ -25,31 +25,33 @@ printVarSummary(landsea)
 ; sst = mask(sst, landsea.eq.0, True)
 
 ;=======================================================
-; read hist bias
+;read hist bias
 ;=======================================================
-dirisst = "/home/yangsong3/huxm/ENSO_decadal/"
-filisst = "cmip5_hist_sst_mn_clm_bias_mme.dat"
-setfileoption("bin", "ReadByteOrder", "Native")
+dirisst = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/"
+filisst = "cmip6_hist_sst_bias_1950_1999_mn_mme.dat"
+; setfileoption("bin", "ReadByteOrder", "Native")
 
-sst_ano = new((/12,91,180/), float)
-lato = fspan(-90, 90, 91)
+sst_A = new((/600,89,180/), float)
+lato = fspan(-88, 88, 89)
 lono = fspan(0, 358, 180)
 lato@units = "degrees_north"
 lono@units = "degrees_east"
-do i = 0, 11
-    sst_ano(i,:,:) = fbindirread(dirisst+filisst, i, (/91,180/), "float")
+do i = 0, 599
+    sst_A(i,:,:) = fbindirread(dirisst+filisst, i, (/89,180/), "float")
 end do
-sst_ano!0 = "month"
-sst_ano!1 = "lat"
-sst_ano!2 = "lon"
-sst_ano&lat = lato
-sst_ano&lon = lono
-sst_ano@_FillValue = 1e+20
-printVarSummary(sst_ano)
+sst_A!0 = "month"
+sst_A!1 = "lat"
+sst_A!2 = "lon"
+sst_A&lat = lato
+sst_A&lon = lono
+sst_A@_FillValue = 9.96921e+36
+printVarSummary(sst_A)
 
-if(any(ismissing(sst_ano))) then
+if(any(ismissing(sst_A))) then
     print("Your data contains some missing values. Beware.")
 end if
+sst_ano = clmMonTLL(sst_A)
+;=======================================================
 
 ;=======================================================
 ; add bias to original sst
@@ -96,17 +98,17 @@ print(avg(ssta30))
 ;=======================================================
 ; write new sst files
 ;=======================================================
-; date = systemfunc("date +%Y%m%d")
-; Hist_fili = "Hist_bias_sst_cmip5_bc_1.9x2.5_c"+date+".nc"
-; system("rm "+Hist_fili)
-; system("cp "+fili_ctrl+" "+Hist_fili)
-; f_hist = addfile(Hist_fili, "w")
-; f_hist->SST_cpl = hist_sst
+date = systemfunc("date +%Y%m%d")
+Hist_fili = "Hist_bias_sst_cmip6_bc_1.9x2.5_c"+date+".nc"
+system("rm "+Hist_fili)
+system("cp "+fili_ctrl+" "+Hist_fili)
+f_hist = addfile(Hist_fili, "w")
+f_hist->SST_cpl = hist_sst
 
 ;=======================================================
 ; plot 
 ;=======================================================
-wks = gsn_open_wks("pdf", "write_sst_ano")
+wks = gsn_open_wks("pdf", "write_sst_ano_cmip6")
 plot = new(3, graphic)
 
 res = True

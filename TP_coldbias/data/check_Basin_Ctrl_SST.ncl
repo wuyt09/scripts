@@ -12,7 +12,8 @@ ncase = dimsizes(casename)
 TS = new((/ncase,324,96,144/), float)
 
 filictrl = "./sst_HadOIBl_bc_1.9x2.5_1850_2012_c130411.nc"
-filihist = "./Hist_bias_sst_cmip5_bc_1.9x2.5_c20191204.nc"
+; filihist = "./Hist_bias_sst_cmip5_bc_1.9x2.5_c20191204.nc"
+filihist = "./Hist_bias_sst_cmip6_bc_1.9x2.5_c20201004.nc"
 filiio   = "./IO_sst_cmip5_bc_1.9x2.5_c20191204.nc"
 filipo   = "./PO_sst_cmip5_bc_1.9x2.5_c20191204.nc"
 filiao   = "./AO_sst_cmip5_bc_1.9x2.5_c20191204.nc"

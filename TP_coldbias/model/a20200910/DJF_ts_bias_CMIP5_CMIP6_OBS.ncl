@@ -37,13 +37,10 @@ season = "DJF"
 ;===================================================================
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/"
 
-; models = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
-;         "CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\ ;
-;         "GISS-E2-H","GISS-E2-R","HadGEM2-CC","HadGEM2-ES","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
-;         "IPSL-CM5B-LR","MIROC5","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
-
-;"inmcm4",
-models = (/"CanESM2","CSIRO-Mk3-6-0","GISS-E2-H","GISS-E2-R","HadGEM2-CC","HadGEM2-ES"/)
+models = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
+        "CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\
+        "GISS-E2-H","GISS-E2-R","HadGEM2-CC","HadGEM2-ES","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
+        "IPSL-CM5B-LR","MIROC5","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
 
 nm = dimsizes(models)
 bias_sst5 = new((/nm,600,nlat,nlon/), float)
@@ -68,6 +65,7 @@ end do
 copy_VarCoords(sstobs, bias_sst5(0,:,:,:))
 bias_sst5A = dim_avg_n_Wrap(bias_sst5, 0)
 printVarSummary(bias_sst5A)
+
 ;===================================================================
 ; CMIP6 20 GCMs sst data
 ;===================================================================
@@ -102,6 +100,18 @@ end do
 copy_VarCoords(sstobs, bias_sst6(0,:,:,:))
 bias_sst6A = dim_avg_n_Wrap(bias_sst6, 0)
 printVarSummary(bias_sst6A)
+
+;==================================================================
+; write bias data to .dat file
+;==================================================================
+
+outpath = "./"
+outname5 = "cmip5_hist_sst_1950_1999_mn_mme.dat"
+outname6 = "cmip6_hist_sst_1950_1999_mn_mme.dat"
+system("rm -f "+outpath+outname5)
+system("rm -f "+outpath+outname6)
+fbindirwrite(outpath+outname5, bias_sst5A)
+fbindirwrite(outpath+outname6, bias_sst6A)
 
 ;==================================================================
 ; DJF map
@@ -293,7 +303,7 @@ line6(6,:) = wgt_areaave(bias_sst6_iao(:,{-30:30},:), 1., 1., 0)
 ; plot 
 ;=========================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/"
-figname = season+"_sst_bias_CMIP5_CMIP6_OBS"
+figname = season+"_ts_bias_CMIP5_CMIP6_OBS"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(5, graphic)

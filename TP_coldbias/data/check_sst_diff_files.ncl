@@ -15,7 +15,8 @@ year = ispan(yrStrt, yrLast, 1)
 
 ;fili_ctrl = "sst_HadOIBl_bc_1.9x2.5_1850_2013_c140701.nc"
 fili_ctrl = "sst_HadOIBl_bc_1.9x2.5_1850_2012_c130411.nc"
-fili_hist = "Hist_bias_sst_cmip5_bc_1.9x2.5_c20191204.nc"
+; fili_hist = "Hist_bias_sst_cmip5_bc_1.9x2.5_c20191204.nc"
+fili_hist = "Hist_bias_sst_cmip6_bc_1.9x2.5_c20201004.nc"
 
 f_ctrl = addfile(fili_ctrl, "r")
 f_hist = addfile(fili_hist, "r")

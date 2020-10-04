@@ -119,10 +119,10 @@ title = (/"All Basin", "Pacific Basin" /)
     res@tiYAxisString = ""
 
     res@tmYLMode      = "Explicit"
-    res@tmYLValues    = (/"1000","850","750","500","300","200","100"/)
-    res@tmYLLabels    = (/"1000","850","750","500","300","200","100"/)
+    res@tmYLValues    = (/"1000","850","750","500","300","250"/) ;,"150"
+    res@tmYLLabels    = (/"1000","850","750","500","300","250"/) ;,"150"
 
-    res@trYMinF   = 100
+    res@trYMinF   = 250
     res@trYMaxF   = 1000
     res@gsnPresHgtHeightLabelOn = False
     res@tmYROn = False
