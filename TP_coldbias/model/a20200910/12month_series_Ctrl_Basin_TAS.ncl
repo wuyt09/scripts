@@ -7,7 +7,7 @@ latend = 40 ;54 ; 40
 yrStrt = 198102
 yrLast = 200601
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"/)
+casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_FAMIP_CMIP6","Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"/)
 
 ncase = dimsizes(casename)
 
@@ -86,9 +86,9 @@ res@gsnYRefLineDashPattern = 16
 res@gsnYRefLineColor = "gray20"
 res@gsnYRefLineThicknessF = 5
 
-Colors = (/"black","red","blue","forestgreen","purple","goldenrod3","lightblue"/)
-Patterns = (/0,0,0,0,16,16,16/)
-Thick = (/10,4,10,4,10,10,4/)
+Colors = (/"black","red","blue","forestgreen","purple","chocolate1","goldenrod3","lightblue"/)
+Patterns = (/0,0,0,0,0,16,16,16/)
+Thick = (/10,10,4,10,4,10,10,4/)
 res@xyLineThicknesses = Thick
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
@@ -108,7 +108,7 @@ plot(0) = gsn_csm_xy(wks, Month, tdiff, res)
     res_text@txFontHeightF      = 0.018                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = (/"All Basin","IndianOnly","PacificOnly","AtlanticOnly",\
+    Texts  = (/"All Basin","All Basin CMIP6","IndianOnly","PacificOnly","AtlanticOnly",\
            "Pacific&Indian","Pacific&Atlantic","Indian&Atlantic"/)
 
 ; ;============================================================
@@ -122,6 +122,7 @@ plot(0) = gsn_csm_xy(wks, Month, tdiff, res)
     gy5 = gy1 ;gy4-interval
     gy6 = gy2 ;gy5-interval
     gy7 = gy3 ;gy6-interval
+    gy8 = gy4
     print(gy1)
 
     res_lines@gsLineColor = Colors(0)
@@ -162,6 +163,11 @@ plot(0) = gsn_csm_xy(wks, Month, tdiff, res)
     res_lines@xyLineThicknessF = Thick(6)
     dum71 = gsn_add_polyline(wks, plot(0), gx, gy7, res_lines)
     dum72 = gsn_add_text(wks, plot(0), Texts(6), text_pos, gy7, res_text)
+    res_lines@gsLineColor = Colors(7)
+    res_lines@gsLineDashPattern = Patterns(7)
+    res_lines@xyLineThicknessF = Thick(7)
+    dum81 = gsn_add_polyline(wks, plot(0), gx, gy8, res_lines)
+    dum82 = gsn_add_text(wks, plot(0), Texts(7), text_pos, gy8, res_text)
 
     ; dum1 = new(7, graphic)
     ; dum2 = dum1

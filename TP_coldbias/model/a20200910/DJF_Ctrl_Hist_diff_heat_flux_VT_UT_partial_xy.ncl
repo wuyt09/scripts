@@ -11,7 +11,7 @@ yrStrt = 198102
 yrLast = 200601
 
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
+casename = (/"Ctrl_FAMIP","Hist_FAMIP_CMIP6"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 ncase = dimsizes(casename)
 
 season = "DJF"
@@ -151,7 +151,7 @@ topo = ftopo->topo(::-1,:)
 ;=========================================================
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200910/"
-figname = season+"_Ctrl_Hist_diff_heat_flux_VT_UT_partial_xy"
+figname = season+"_Ctrl_Hist_CMIP6_diff_heat_flux_VT_UT_partial_xy"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)

@@ -11,7 +11,7 @@ yrStrt = 198102
 yrLast = 200601
 
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
+casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_FAMIP_CMIP6"/) ;"Hist_PO","Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 ncase = dimsizes(casename)
 
 season = "DJF"
@@ -250,7 +250,7 @@ cnres@cnLevels = (/-5,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,5/)
 
 res@gsnRightString = "*10~S~-3~N~"
 ; res@gsnLeftString = "(a) Diff: -{d[<V>*<T>]/dy + d[<U>*<T>]/dy}"
-res@gsnLeftString = "(a) All basin - Ctrl"
+res@gsnLeftString = "(a) All basin - Ctrl: CMIP5"
 res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -0.5
@@ -262,7 +262,7 @@ overlay(plot(0), plotc(0))
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@gsnLeftString = "(b) Pacific basin - Ctrl"
+res@gsnLeftString = "(b) All basin - Ctrl: CMIP6"
 plot(1) = gsn_csm_contour_map(wks, dbar_tot(1,:,:), res)
 plotc(1) = gsn_csm_contour(wks, sst_DJF, cnres)
 overlay(plot(1), plotc(1))
