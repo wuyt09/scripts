@@ -90,6 +90,14 @@ t_std = dim_standardize_n_Wrap(t_dtr, 1, 1)
 
 printVarSummary(t_std)
 
+do i = 0, 2
+    id_hig := ind(t_std(i,:).ge.1)
+    id_low := ind(t_std(i,:).le.-1)
+    print("High years "+year(id_hig))
+    print("Low years "+year(id_low))
+end do
+exit
+
 ; write_table("Q1_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt", "w", [/"MAM","JJA","SON"/], "%10s %10s %10s")
 ; write_table("Q1_TP_dtrend_standardize_Mar_Apr_May_ERAI.txt", "a", [/t_std(0,:),t_std(1,:),t_std(2,:)/], "%10.2f %10.2f %10.2f")
 corr_34 = escorc(t_std(0,:), t_std(1,:))
