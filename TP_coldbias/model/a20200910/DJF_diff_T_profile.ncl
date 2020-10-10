@@ -11,7 +11,7 @@ yrStrt = 198102
 yrLast = 200601
 nyear = 25
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
+casename = (/"Ctrl_FAMIP","Hist_FAMIP_CMIP6","Hist_PO"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 ncase = dimsizes(casename)
 
 season = "DJF"
