@@ -8,7 +8,7 @@ latend = 40
 yrStrt = 198102
 yrLast = 200601
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/)
+casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_FAMIP_CMIP6","Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"/)
 ncase = dimsizes(casename)
 
 nyear = 25
@@ -240,7 +240,7 @@ res@gsnYRefLineThicknessF = 5
 
 Colors = (/"black","red","blue","forestgreen","purple","chocolate1","goldenrod3","lightblue"/)
 Patterns = (/0,0,0,0,0,16,16,16/)
-Thick = (/10,10,4,10,4,10,10,4/)
+Thick = (/12,12,4,12,4,12,12,4/)
 res@xyLineThicknesses = Thick
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
@@ -249,8 +249,79 @@ res@gsnLeftString = "(m) Areal average TP surf temp change"
 res@gsnStringFontHeightF = 0.025
 res@gsnRightString = "K"
 
-plotx(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
-frame(wks)
-draw(plotx)
+plot(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
+;==================================================================================
+    res_lines                   = True                  ; polyline mods desired
+    res_lines@gsLineThicknessF  = 5                     ; line thicker
+    
+
+    res_text                    = True                  ; text mods desired
+    res_text@txFontHeightF      = 0.018                 ; change text size
+    res_text@txJust             = "CenterLeft"          ; text justification
+
+    Texts  = (/"All Basin","All Basin CMIP6","IndianOnly","PacificOnly","AtlanticOnly",\
+           "Pacific&Indian","Pacific&Atlantic","Indian&Atlantic"/)
+
+; ;============================================================
+    interval = 0.2
+    gx = (/1.5,2.2/)
+    text_pos = 2.3
+    gy1 = (/0.8,0.8/)
+    gy2 = gy1-interval ;(/15,15/)
+    gy3 = gy2-interval
+    gy4 = gy3-interval
+    gy5 = gy1 ;gy4-interval
+    gy6 = gy2 ;gy5-interval
+    gy7 = gy3 ;gy6-interval
+    gy8 = gy4
+    print(gy1)
+
+    res_lines@gsLineColor = Colors(0)
+    res_lines@gsLineDashPattern = Patterns(0)
+    res_lines@xyLineThicknessF = Thick(0)
+    dum11 = gsn_add_polyline(wks, plot(0), gx, gy1, res_lines)
+    dum12 = gsn_add_text(wks, plot(0), Texts(0), text_pos, gy1, res_text)
+    res_lines@gsLineColor = Colors(1)
+    res_lines@gsLineDashPattern = Patterns(1)
+    res_lines@xyLineThicknessF = Thick(1)
+    dum21 = gsn_add_polyline(wks, plot(0), gx, gy2, res_lines)
+    dum22 = gsn_add_text(wks, plot(0), Texts(1), text_pos, gy2, res_text)
+    res_lines@gsLineColor = Colors(2)
+    res_lines@gsLineDashPattern = Patterns(2)
+    res_lines@xyLineThicknessF = Thick(2)
+    dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
+    dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
+    res_lines@gsLineColor = Colors(3)
+    res_lines@gsLineDashPattern = Patterns(3)
+    res_lines@xyLineThicknessF = Thick(3)
+    dum41 = gsn_add_polyline(wks, plot(0), gx, gy4, res_lines)
+    dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos, gy4, res_text)
+
+    text_pos = 5.8
+    gx = (/5,5.7/)    
+    res_lines@gsLineColor = Colors(4)
+    res_lines@gsLineDashPattern = Patterns(4)
+    res_lines@xyLineThicknessF = Thick(4)
+    dum51 = gsn_add_polyline(wks, plot(0), gx, gy5, res_lines)
+    dum52 = gsn_add_text(wks, plot(0), Texts(4), text_pos, gy5, res_text)
+    res_lines@gsLineColor = Colors(5)
+    res_lines@gsLineDashPattern = Patterns(5)
+    res_lines@xyLineThicknessF = Thick(5)
+    dum61 = gsn_add_polyline(wks, plot(0), gx, gy6, res_lines)
+    dum62 = gsn_add_text(wks, plot(0), Texts(5), text_pos, gy6, res_text)
+    res_lines@gsLineColor = Colors(6)
+    res_lines@gsLineDashPattern = Patterns(6)
+    res_lines@xyLineThicknessF = Thick(6)
+    dum71 = gsn_add_polyline(wks, plot(0), gx, gy7, res_lines)
+    dum72 = gsn_add_text(wks, plot(0), Texts(6), text_pos, gy7, res_text)
+    res_lines@gsLineColor = Colors(7)
+    res_lines@gsLineDashPattern = Patterns(7)
+    res_lines@xyLineThicknessF = Thick(7)
+    dum81 = gsn_add_polyline(wks, plot(0), gx, gy8, res_lines)
+    dum82 = gsn_add_text(wks, plot(0), Texts(7), text_pos, gy8, res_text)
+
+
+; frame(wks)
+draw(plot(0))
 
 end
