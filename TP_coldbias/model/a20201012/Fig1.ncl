@@ -175,7 +175,10 @@ Solid(2,:) = (/TP_GCMA6/)
 Month = ispan(1, 12, 1)
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20201012/"
 figname = "Fig1"
-wks = gsn_open_wks("pdf", figpath+figname)
+pwks = "png"
+pwks@wkHeight              = 3048
+pwks@wkWidth               = 6048
+wks = gsn_open_wks(pwks, figpath+figname)
 
 plot = new(2, graphic)
 
@@ -207,7 +210,7 @@ res@tiYAxisString = "Temperature (~S~o~N~C)"
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
 Colors = (/"black","red","forestgreen"/)
 Patterns = (/0,0,0/)
-res@xyLineThicknessF = 10
+res@xyLineThicknessF = 50
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
@@ -215,7 +218,7 @@ plot(0) = gsn_csm_xy(wks, Month, Solid, res)
 
 delete(res@xyLineColors)
 delete(res@xyDashPatterns)
-res@xyLineThicknessF = 3
+res@xyLineThicknessF = 15
 
 gsn_define_colormap(wks, "WhiteYellowOrangeRed")
 res@xyLineColors = ispan(25, 25+28*8, 8)
@@ -245,6 +248,7 @@ overlay(plot(1), plot(0))
     ; gy5 = (/10,10/)
     ; gy6 = (/8,8/)
 
+    res_lines@gsLineThicknessF = 25
     res_lines@gsLineColor = Colors(0)
     res_lines@gsLineDashPattern = Patterns(0)
     dum11 = gsn_add_polyline(wks, plot(1), gx, gy1, res_lines)
