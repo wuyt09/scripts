@@ -161,7 +161,7 @@ res@lbLabelBarOn = False
  res3@cnFillScaleF  = 1.2
  ;----------------------------------------------
  ;----------------------------------------------
-do i = 0, 9
+do i = 0, 11
     res@gsnLeftString = Num(i)+" "+Month(i)
     plot(i) = gsn_csm_contour_map(wks, diff(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
@@ -171,20 +171,20 @@ do i = 0, 9
     overlay(plot(i), plot_prob(i))
 end do
 
-do i = 10, 11
-    res@gsnLeftString = Num(i)+" "+Month(i)
-    plot(i+2) = gsn_csm_contour_map(wks, diff(i,:,:), res)
-    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plot(i+2), plot_topo(i))
-    plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
-    plot_prob(i) = ShadeLtContour(plot_prob(i),0.055,17)
-    overlay(plot(i+2), plot_prob(i))
-end do
+; do i = 10, 11
+;     res@gsnLeftString = Num(i)+" "+Month(i)
+;     plot(i+2) = gsn_csm_contour_map(wks, diff(i,:,:), res)
+;     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+;     overlay(plot(i+2), plot_topo(i))
+;     plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
+;     plot_prob(i) = ShadeLtContour(plot_prob(i),0.055,17)
+;     overlay(plot(i+2), plot_prob(i))
+; end do
 
 pres = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-gsn_panel(wks, plot, (/4,4/), pres)
+gsn_panel(wks, plot, (/3,4/), pres)
 
 ; pres = True
 ; ; pres@gsnMaximize = True
@@ -245,7 +245,7 @@ res@xyLineThicknesses = Thick
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
-res@gsnLeftString = "(m) Areal average TP surf temp change"
+res@gsnLeftString = "(m) Areal averaged TP surf temp change"
 res@gsnStringFontHeightF = 0.025
 res@gsnRightString = "K"
 

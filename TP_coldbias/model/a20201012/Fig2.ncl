@@ -278,7 +278,7 @@ pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
 ; pres@gsnPanelMainString = "Correlation coefficient of "+season+"ual mean: model Ts & model SST "
-gsn_panel(wks, plot, (/1, 2/), pres)
+gsn_panel(wks, plot, (/2, 1/), pres)
 
 
 ; res@gsnLeftString = "MME"
