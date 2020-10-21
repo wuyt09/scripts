@@ -118,9 +118,9 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 1.5
-res@cnMaxLevelValF = 15
-res@cnMinLevelValF = -15
+res@cnLevelSpacingF = 1.
+res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -10
 res@cnFillPalette = "CBR_drywet"
 res@gsnRightString = "mm/day"
 
