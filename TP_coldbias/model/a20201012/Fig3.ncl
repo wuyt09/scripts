@@ -163,21 +163,21 @@ res3@cnMinLevelValF = 0.00
 res3@cnMaxLevelValF = 0.10
 res3@cnLevelSpacingF = 0.01
 
-;res3@cnFillPattern = 17 ;(/17/)
+res3@cnFillPattern = 17 ;(/17/)
 res3@cnFillColor  =  "black" ;"green4"
 res3@gsnLeftString = ""
 res3@cnFillDotSizeF = 0.003
 res3@cnFillScaleF  = 1 ;1.2
 
 sig = 0.95
-res@gsnRightString = sig*100+"%"
+res@gsnRightString = "K" ;sig*100+"%"
 
 
 do i = 0, 11
     res@gsnLeftString =  Num(i)+" "+Month(i)
     plot(i) = gsn_csm_contour_map(wks, bias_clm(i,:,:), res)
     plot_prob(i) = gsn_csm_contour(wks, prob(i,:,:), res3)
-    plot_prob(i) = ShadeLtContour(plot_prob(i),(1-sig),6)
+    plot_prob(i) = ShadeLtContour(plot_prob(i),(1-sig),17)
     overlay(plot(i), plot_prob(i))
 end do
 
