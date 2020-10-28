@@ -109,18 +109,12 @@ printVarSummary(x_diff)
 ; this is for outline of TP
 ;=======================================
 
-ff = "~/wuyt/data/TOPO_1500.nc"
-topo_in = addfile(ff,"r")
-topo = topo_in ->TP
+ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
+topo = ftopo->topo(::-1,:)
 
-mlat = topo_in->LATIXY(:,0)
-mlon = topo_in->LONGXY(0,:)
-topo!0 = "lsmlat"
-topo!1 = "lsmlon"
-topo&lsmlat = mlat
-topo&lsmlon = mlon
+TOPO = linint2_Wrap(topo&lon, topo&lat, topo, True, lon, lat, 0)
 
-TOPO = linint2_Wrap(mlon, mlat, topo, True, lon, lat, 0)
+topo = smth9_Wrap(topo, 0.5, 0.25, True)
 
 ;===================================================================================
 ; correction
@@ -167,12 +161,14 @@ res_topo@cnLinesOn  = True
 res_topo@gsnFrame   = False
 res_topo@gsnDraw    = False
 res_topo@cnLineLabelsOn         = False
-res_topo@cnLineThicknessF       = 2
-res_topo@cnLineColor            = "grey32"
+res_topo@cnLineThicknessF       = 3
+res_topo@cnLineColor            = "grey40"
 ;res_topo@cnLineDashPattern      = "1"
 res_topo@cnInfoLabelOn          = False
 res_topo@cnLevelSelectionMode   ="ExplicitLevels"
 res_topo@cnLevels               = (/1500/)
+res_topo@gsnLeftString = ""
+res_topo@gsnRightString = ""
 ;==========================================================
 
 res = True

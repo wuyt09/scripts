@@ -62,6 +62,7 @@ Num = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)"/
 ;===================================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
+topo = smth9_Wrap(topo, 0.5, 0.25, True)
 
 TS = t_ave
 TOPO = linint2_Wrap(topo&lon, topo&lat, topo, True, TS&lon, TS&lat, 0)
@@ -85,7 +86,7 @@ pwks@wkHeight              = 3048
 pwks@wkWidth               = 6048
 
 wks = gsn_open_wks("pdf", figpath+figname) ;
-plot = new(16, graphic)
+plot = new(12, graphic)
 plot_topo = plot
 plot_prob = plot
 
@@ -106,6 +107,9 @@ plot_prob = plot
 res                       = True     ; plot mods desired
 res@gsnDraw               = False
 res@gsnFrame              = False
+
+res@vpXF = 0.1
+res@vpYF = 0.8
 
 res@gsnMaximize           = True     ; Make plot fit the frame
 res@cnFillOn              = True     ; turn on color fill
@@ -156,7 +160,7 @@ res@lbLabelBarOn = False
  res3@cnLevelSpacingF = 0.01
 
  ; res3@cnFillPattern = 17 ;(/17/)
- res3@cnFillColor  =  "red"
+ res3@cnFillColor  =  "black"
  res3@gsnLeftString = ""
  res3@cnFillDotSizeF = 0.003
  res3@cnFillScaleF  = 1.2
@@ -168,7 +172,7 @@ do i = 0, 11
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
     plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
-    plot_prob(i) = ShadeLtContour(plot_prob(i),0.055,17)
+    plot_prob(i) = ShadeLtContour(plot_prob(i),0.055,6)
     overlay(plot(i), plot_prob(i))
 end do
 
@@ -183,41 +187,30 @@ end do
 ; end do
 
 pres = True
+; pres@gsnDraw = False
+pres@gsnFrame = False
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-gsn_panel(wks, plot, (/3,4/), pres)
-
-; pres = True
-; ; pres@gsnMaximize = True
-; pres@gsnDraw  = False
-; pres@gsnFrame = False
-
-; height = 0.3
-; pres@gsnDraw = True
-; pres@gsnPanelTop = 0.8
-; pres@gsnPanelBottom = pres@gsnPanelTop - height
-; gsn_panel(wks, plot(0:7), (/2,4/), pres)
-
-; pres@gsnPanelTop = pres@gsnPanelBottom
-; pres@gsnPanelBottom = pres@gsnPanelTop - 0.33
-; pres@gsnPanelLabelBar = True
-; pres@lbLabelFontHeightF = 0.012
-; gsn_panel(wks, plot(8:15), (/2,4/), pres)
-
-; exit
+pres@gsnPanelRowSpec = True
+pres@gsnPanelCenter = False
+gsn_panel(wks, plot, (/4,4,2,2/), pres)
 
 ;================================================================
 ; annual cycle
 ;================================================================
-plotx = new(1, graphic)
+delete(plot)
+plot = new(1, graphic)
 delete(res)
 res = True
 res@gsnDraw  = False
 res@gsnFrame = False
-res@gsnMaximize = True
+; res@gsnMaximize = True
 
-res@vpWidthF = 0.7
-res@vpHeightF = 0.4
+res@vpWidthF = 0.38
+res@vpHeightF = 0.2
+
+res@vpXF = 0.6
+res@vpYF = 0.48
 
 res@trXMinF = 1
 res@trXMaxF = 12
@@ -233,7 +226,7 @@ res@trYMaxF = 1
 ; res@tmYLValues = ispan(-, 0, 1)
 ; res@tmYLLabels = ispan(-5, 0, 1)
 res@tmYROn = False
-res@tiYAxisString = "Temperature (~S~o~N~C)"
+res@tiYAxisString = "Temperature (K)" ;(~S~o~N~C)
 res@gsnYRefLine = 0
 res@gsnYRefLineDashPattern = 16
 res@gsnYRefLineColor = "gray20"
@@ -247,7 +240,7 @@ res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
 res@gsnLeftString = "(m) Areal averaged TP surf temp change"
-res@gsnStringFontHeightF = 0.025
+res@gsnStringFontHeightF = 0.012
 res@gsnRightString = "K"
 
 plot(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
@@ -257,10 +250,10 @@ plot(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
     
 
     res_text                    = True                  ; text mods desired
-    res_text@txFontHeightF      = 0.018                 ; change text size
+    res_text@txFontHeightF      = 0.008                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = (/"All Basin","All Basin CMIP6","IndianOnly","PacificOnly","AtlanticOnly",\
+    Texts  = (/"All Basin","All Basin CMIP6","Indian Only","Pacific Only","Atlantic Only",\
            "Pacific&Indian","Pacific&Atlantic","Indian&Atlantic"/)
 
 ; ;============================================================
@@ -268,13 +261,10 @@ plot(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
     gx = (/1.5,2.2/)
     text_pos = 2.3
     gy1 = (/0.8,0.8/)
-    gy2 = gy1-interval ;(/15,15/)
-    gy3 = gy2-interval
-    gy4 = gy3-interval
-    gy5 = gy1 ;gy4-interval
-    gy6 = gy2 ;gy5-interval
-    gy7 = gy3 ;gy6-interval
-    gy8 = gy4
+    gy2 = gy1 - interval ;(/15,15/)
+    gy3 = gy1
+    gy4 = gy2
+    gy5 = gy4 - interval
     print(gy1)
 
     res_lines@gsLineColor = Colors(0)
@@ -291,38 +281,22 @@ plot(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
 
     text_pos = 5.8
     gx = (/5,5.7/)    
-    res_lines@gsLineColor = Colors(2)
-    res_lines@gsLineDashPattern = Patterns(2)
-    res_lines@xyLineThicknessF = Thick(2)
-    dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
-    dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
     res_lines@gsLineColor = Colors(3)
     res_lines@gsLineDashPattern = Patterns(3)
     res_lines@xyLineThicknessF = Thick(3)
+    dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
+    dum32 = gsn_add_text(wks, plot(0), Texts(3), text_pos, gy3, res_text)
+    res_lines@gsLineColor = Colors(2)
+    res_lines@gsLineDashPattern = Patterns(2)
+    res_lines@xyLineThicknessF = Thick(2)
     dum41 = gsn_add_polyline(wks, plot(0), gx, gy4, res_lines)
-    dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos, gy4, res_text)
+    dum42 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy4, res_text)
 
     res_lines@gsLineColor = Colors(4)
     res_lines@gsLineDashPattern = Patterns(4)
     res_lines@xyLineThicknessF = Thick(4)
     dum51 = gsn_add_polyline(wks, plot(0), gx, gy5, res_lines)
     dum52 = gsn_add_text(wks, plot(0), Texts(4), text_pos, gy5, res_text)
-    ; res_lines@gsLineColor = Colors(5)
-    ; res_lines@gsLineDashPattern = Patterns(5)
-    ; res_lines@xyLineThicknessF = Thick(5)
-    ; dum61 = gsn_add_polyline(wks, plot(0), gx, gy6, res_lines)
-    ; dum62 = gsn_add_text(wks, plot(0), Texts(5), text_pos, gy6, res_text)
-    ; res_lines@gsLineColor = Colors(6)
-    ; res_lines@gsLineDashPattern = Patterns(6)
-    ; res_lines@xyLineThicknessF = Thick(6)
-    ; dum71 = gsn_add_polyline(wks, plot(0), gx, gy7, res_lines)
-    ; dum72 = gsn_add_text(wks, plot(0), Texts(6), text_pos, gy7, res_text)
-    ; res_lines@gsLineColor = Colors(7)
-    ; res_lines@gsLineDashPattern = Patterns(7)
-    ; res_lines@xyLineThicknessF = Thick(7)
-    ; dum81 = gsn_add_polyline(wks, plot(0), gx, gy8, res_lines)
-    ; dum82 = gsn_add_text(wks, plot(0), Texts(7), text_pos, gy8, res_text)
-
 
 ; frame(wks)
 draw(plot(0))

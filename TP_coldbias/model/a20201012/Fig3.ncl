@@ -177,7 +177,7 @@ do i = 0, 11
     res@gsnLeftString =  Num(i)+" "+Month(i)
     plot(i) = gsn_csm_contour_map(wks, bias_clm(i,:,:), res)
     plot_prob(i) = gsn_csm_contour(wks, prob(i,:,:), res3)
-    plot_prob(i) = ShadeLtContour(plot_prob(i),(1-sig),17)
+    plot_prob(i) = ShadeLtContour(plot_prob(i),(1-sig),6)
     overlay(plot(i), plot_prob(i))
 end do
 

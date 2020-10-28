@@ -178,7 +178,7 @@ figname = "Fig1"
 pwks = "png"
 pwks@wkHeight              = 3048
 pwks@wkWidth               = 6048
-wks = gsn_open_wks(pwks, figpath+figname)
+wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(2, graphic)
 
@@ -196,7 +196,7 @@ res@tmXBMode = "Explicit"
 res@tmXBValues = Month
 res@tmXBLabels = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 res@tmXTOn = False
-res@tiXAxisString = "Month"
+; res@tiXAxisString = "Month"
 
 res@trYMinF = -20
 res@trYMaxF = 20
@@ -210,7 +210,7 @@ res@tiYAxisString = "Temperature (~S~o~N~C)"
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
 Colors = (/"black","red","forestgreen"/)
 Patterns = (/0,0,0/)
-res@xyLineThicknessF = 50
+res@xyLineThicknessF = 15
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
@@ -218,7 +218,7 @@ plot(0) = gsn_csm_xy(wks, Month, Solid, res)
 
 delete(res@xyLineColors)
 delete(res@xyDashPatterns)
-res@xyLineThicknessF = 15
+res@xyLineThicknessF = 7
 
 gsn_define_colormap(wks, "WhiteYellowOrangeRed")
 res@xyLineColors = ispan(25, 25+28*8, 8)
@@ -248,7 +248,7 @@ overlay(plot(1), plot(0))
     ; gy5 = (/10,10/)
     ; gy6 = (/8,8/)
 
-    res_lines@gsLineThicknessF = 25
+    res_lines@gsLineThicknessF = 15
     res_lines@gsLineColor = Colors(0)
     res_lines@gsLineDashPattern = Patterns(0)
     dum11 = gsn_add_polyline(wks, plot(1), gx, gy1, res_lines)
@@ -263,6 +263,7 @@ overlay(plot(1), plot(0))
     dum32 = gsn_add_text(wks, plot(1), Texts(2), text_pos, gy3, res_text)
 
     res_lines@gsLineColor = "red3"
+    res_lines@gsLineThicknessF = 7
     res_lines@gsLineDashPattern = 16
     dum41 = gsn_add_polyline(wks, plot(1), gx, gy4, res_lines)
     dum42 = gsn_add_text(wks, plot(1), "CMIP5 GCMs", text_pos, gy4, res_text)
