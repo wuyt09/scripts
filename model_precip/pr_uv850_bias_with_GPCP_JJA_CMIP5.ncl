@@ -62,7 +62,7 @@ dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP5/"
 
 ; models = (/"ACCESS1-0","bcc-csm1-1"/)
 
-models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CCSM4","CESM1-BGC",\ ;"CanESM2",
+models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CanESM2","CCSM4","CESM1-BGC",\ ;
           "CESM1-CAM5","CESM1-FASTCHEM","CESM1-WACCM","CNRM-CM5",\
           "FIO-ESM","GFDL-CM2p1","GFDL-ESM2M","GISS-E2-H","GISS-E2-R-CC",\
           "GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5B-LR",\
@@ -96,7 +96,7 @@ do i = 0, nm-1
     prob_pr(i,:,:) = ttest(pr_obs_ave, pr_obs_var, nyro, pr_gcm_ave, pr_gcm_var, nyr, False, False)
     diff_pr(i,:,:) = pr_gcm_ave - pr_obs_ave
     copy_VarCoords(pr_obs_ave, diff_pr(i,:,:))
-    diff_pr(i,:,:) = mask(diff_pr(i,:,:), prob_pr(i,:,:).le.0.05, True)
+    ; diff_pr(i,:,:) = mask(diff_pr(i,:,:), prob_pr(i,:,:).le.0.05, True)
 
     delete([/PR_GCMs,PR_GCMx,pr_gcm,pr_gcm_ave,pr_gcm_var/])
 
@@ -128,8 +128,8 @@ do i = 0, nm-1
     copy_VarCoords(v_obs_ave, diff_v(i,:,:))
     ; prob_uv(i,:,:) = mask(prob_u, (prob_u.le.sig) .and. (prob_v.le.sig), True)
 
-    diff_u(i,:,:) = mask(diff_u(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
-    diff_v(i,:,:) = mask(diff_v(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; diff_u(i,:,:) = mask(diff_u(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; diff_v(i,:,:) = mask(diff_v(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
 
     delete([/U_GCMs,U_GCMx,u_gcm,u_gcm_ave,u_gcm_var,prob_u/])
     delete([/V_GCMs,V_GCMx,v_gcm,v_gcm_ave,v_gcm_var,prob_v/])
@@ -275,6 +275,15 @@ diffpr_mme = dim_avg_n_Wrap(diff_pr, 0)
 diffu_mme = dim_avg_n_Wrap(diff_u, 0)
 diffv_mme = dim_avg_n_Wrap(diff_v, 0)
 res@gsnLeftString = "MME"
+
+gres = True
+gres@gsLineColor = "red"
+gres@gsLineThicknessF = 3.0
+glat1 = (/40,40,28,28,40/)
+glon1 = (/85,105,105,85,85/)
+glat2 = (/28,28,18,18,28/)
+glon2 = (/72,85,85,72,72/)
+
 plot(nm) = gsn_csm_contour_map(wks, diffpr_mme, res)
 plot_topo(nm) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(nm), plot_topo(nm))
@@ -282,13 +291,16 @@ overlay(plot(nm), plot_topo(nm))
 plotv(nm) = gsn_csm_vector(wks, diffu_mme, diffv_mme, vecres)
 overlay(plot(nm), plotv(nm))
 
+dum1 = gsn_add_polyline(wks,plot(nm),glon1,glat1,gres)
+dum2 = gsn_add_polyline(wks,plot(nm),glon2,glat2,gres)
+
 pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-gsn_panel(wks, plot(0:14), (/5, 3/), pres)
+gsn_panel(wks, plot(0:14), (/3, 5/), pres)
 
-gsn_panel(wks, plot(15:nm), (/5, 3/), pres)
+gsn_panel(wks, plot(15:nm), (/3,5/), pres)
 
 
 end
