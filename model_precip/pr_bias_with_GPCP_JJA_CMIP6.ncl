@@ -26,7 +26,9 @@ printVarSummary(pr_obs)
 ;===================================================================
 ; GCM 19 data
 ;===================================================================
-dirigcm = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/CMIP6/"
+yrStrt = 1951
+yrLast = 2014
+dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/"
 
 models = (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
            "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
@@ -111,9 +113,9 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 1.5
-res@cnMaxLevelValF = 15
-res@cnMinLevelValF = -15
+res@cnLevelSpacingF = 1
+res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -10
 res@cnFillPalette = "CBR_drywet"
 res@gsnRightString = "mm/day"
 
