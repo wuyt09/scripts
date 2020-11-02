@@ -19,6 +19,7 @@ TIME = fobs->time
 YYYYo = cd_calendar(TIME, -1)/100
 iYYYYo = ind(YYYYo.ge.yrStrt .and. YYYYo.le.yrLast)
 PR_OBS = fobs->precip(iYYYYo,:,:)
+PR_OBS = lonFlip(PR_OBS)
 PR_OBSx = month_to_season(PR_OBS, season)
 pr_obs = dim_avg_n_Wrap(PR_OBSx, 0)
 printVarSummary(pr_obs)
@@ -28,7 +29,7 @@ printVarSummary(pr_obs)
 ;===================================================================
 yrStrt = 1951
 yrLast = 2014
-dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/"
+dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/pr2.5/"
 
 models = (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
            "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
@@ -48,6 +49,7 @@ do i = 0, nm-1
     PR_GCMs = PR_GCMs * 86400
     PR_GCMs_jja = month_to_season(PR_GCMs, season)
     printVarSummary(PR_GCMs_jja)
+    print("=============================================")
     PR_GCM6 = dim_avg_n_Wrap(PR_GCMs_jja, 0)
     diff(i,:,:) = PR_GCM6 - pr_obs
     copy_VarCoords(PR_GCM6, diff(i,:,:))

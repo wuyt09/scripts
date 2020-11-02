@@ -60,14 +60,14 @@ sig = 0.05
 
 dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP5/"
 
-; models = (/"ACCESS1-0","bcc-csm1-1"/)
+models = (/"ACCESS1-0","bcc-csm1-1","CanCM4"/)
 
-models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CanESM2","CCSM4","CESM1-BGC",\ ;
-          "CESM1-CAM5","CESM1-FASTCHEM","CESM1-WACCM","CNRM-CM5",\
-          "FIO-ESM","GFDL-CM2p1","GFDL-ESM2M","GISS-E2-H","GISS-E2-R-CC",\
-          "GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5B-LR",\
-          "MIROC4h","MIROC5","MIROC-ESM-CHEM","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR",\
-          "MPI-ESM-P","MRI-CGCM3","NorESM1-M"/)
+; models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CanESM2","CCSM4","CESM1-BGC",\ ;
+;           "CESM1-CAM5","CESM1-FASTCHEM","CESM1-WACCM","CNRM-CM5",\
+;           "FIO-ESM","GFDL-CM2p1","GFDL-ESM2M","GISS-E2-H","GISS-E2-R-CC",\
+;           "GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5B-LR",\
+;           "MIROC4h","MIROC5","MIROC-ESM-CHEM","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR",\
+;           "MPI-ESM-P","MRI-CGCM3","NorESM1-M"/)
 
 nm = dimsizes(models)
 diff_pr5 = new((/nm,72,144/), float)
@@ -149,10 +149,10 @@ nyr6 = dimsizes(year6)
 
 dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/"
 
-models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
-           "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
-           "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
-; models = (/"CAMS-CSM1-0","CanESM5"/)
+; models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
+;            "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
+;            "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
+models := (/"CAMS-CSM1-0","CanESM5"/)
 
 nm := dimsizes(models)
 do i = 0, nm-1
@@ -164,7 +164,7 @@ do i = 0, nm-1
     PR_GCMs = fgcm->pr(iYYYY,:,:)
     PR_GCMs = PR_GCMs * 86400
     PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, plon, plat, 0)
-    pr_gcm = month_to_season(PR_GCMx, season)
+    pr_gcm = month_to_season(PR_GCMx, season) ;PR_GCMx
     pr_gcm_ave = dim_avg_n_Wrap(pr_gcm, 0)
     ; pr_gcm_var = dim_variance_n_Wrap(pr_gcm, 0)
 

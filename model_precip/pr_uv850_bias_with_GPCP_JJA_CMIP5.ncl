@@ -26,11 +26,16 @@ printVarSummary(pr_obs)
 
 plat = pr_obs&lat
 plon = pr_obs&lon
+nlat = dimsizes(plat)
+nlon = dimsizes(plon)
 pr_obs_ave = dim_avg_n_Wrap(pr_obs, 0)
 pr_obs_var = dim_variance_n_Wrap(pr_obs, 0)
 
 
-diriobs = "/home/yangsong3/data-observation/NCEP_DOE/monthly/"
+; diriobs = "/home/yangsong3/data-observation/NCEP_DOE/monthly/"
+; ufili = "uwnd.mon.mean.nc"
+; vfili = "vwnd.mon.mean.nc"
+diriobs = "/home/yangsong3/data-observation/ERA-interim/monthly/"
 ufili = "uwnd.mon.mean.nc"
 vfili = "vwnd.mon.mean.nc"
 fuobs = addfile(diriobs+ufili, "r")
@@ -38,13 +43,15 @@ fvobs = addfile(diriobs+vfili, "r")
 TIME := fuobs->time
 YYYYo := cd_calendar(TIME, -1)/100
 iYYYYo := ind(YYYYo.ge.yrStrt .and. YYYYo.le.yrLast)
-U_OBS = short2flt(fuobs->uwnd(iYYYYo,{LEV},::-1,:))
-V_OBS = short2flt(fvobs->vwnd(iYYYYo,{LEV},::-1,:))
+U_OBS = short2flt(fuobs->u(iYYYYo,{LEV},::-1,:)) ;wnd
+V_OBS = short2flt(fvobs->v(iYYYYo,{LEV},::-1,:)) ;wnd
 u_obs = month_to_season(U_OBS, season)
 v_obs = month_to_season(V_OBS, season)
 printVarSummary(u_obs)
-ulat = u_obs&lat
-ulon = u_obs&lon
+ulat = u_obs&latitude
+ulon = u_obs&longitude
+nlat2 = dimsizes(ulat)
+nlon2 = dimsizes(ulon)
 u_obs_ave = dim_avg_n_Wrap(u_obs, 0)
 u_obs_var = dim_variance_n_Wrap(u_obs, 0)
 v_obs_ave = dim_avg_n_Wrap(v_obs, 0)
@@ -60,22 +67,22 @@ sig = 0.05
 
 dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP5/"
 
-; models = (/"ACCESS1-0","bcc-csm1-1"/)
+models = (/"ACCESS1-0","bcc-csm1-1"/)
 
-models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CanESM2","CCSM4","CESM1-BGC",\ ;
-          "CESM1-CAM5","CESM1-FASTCHEM","CESM1-WACCM","CNRM-CM5",\
-          "FIO-ESM","GFDL-CM2p1","GFDL-ESM2M","GISS-E2-H","GISS-E2-R-CC",\
-          "GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5B-LR",\
-          "MIROC4h","MIROC5","MIROC-ESM-CHEM","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR",\
-          "MPI-ESM-P","MRI-CGCM3","NorESM1-M"/)
+; models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CanESM2","CCSM4","CESM1-BGC",\ ;
+;           "CESM1-CAM5","CESM1-FASTCHEM","CESM1-WACCM","CNRM-CM5",\
+;           "FIO-ESM","GFDL-CM2p1","GFDL-ESM2M","GISS-E2-H","GISS-E2-R-CC",\
+;           "GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5B-LR",\
+;           "MIROC4h","MIROC5","MIROC-ESM-CHEM","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR",\
+;           "MPI-ESM-P","MRI-CGCM3","NorESM1-M"/)
 
 nm = dimsizes(models)
-diff_pr = new((/nm,72,144/), float)
+diff_pr = new((/nm,nlat,nlon/), float)
 diff_pr!0 = "model"
 diff_pr&model = models
 prob_pr = diff_pr
 
-diff_u = new((/nm,73,144/), float)
+diff_u = new((/nm,nlat2,nlon2/), float)
 diff_u!0 = "model"
 diff_u&model = models
 diff_v = diff_u
@@ -298,9 +305,10 @@ pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-gsn_panel(wks, plot(0:14), (/3, 5/), pres)
+gsn_panel(wks, plot, (/3,1/), pres)
+; gsn_panel(wks, plot(0:14), (/3, 5/), pres)
 
-gsn_panel(wks, plot(15:nm), (/3,5/), pres)
+; gsn_panel(wks, plot(15:nm), (/3,5/), pres)
 
 
 end
