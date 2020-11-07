@@ -18,7 +18,7 @@ season = "DJF"
 nlat = 96
 nlon = 144
 
-LEV = 300
+LEV = 400
 
 VT_bar = new((/ncase,nlat,nlon/), float)
 VT_bar!0 = "case"
@@ -161,7 +161,7 @@ topo = smth9_Wrap(topo, 0.5, 0.25, True)
 ;=========================================================
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20201012/"
-figname = "Fig8"
+figname = "Fig8_"+LEV+"hPa"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)
