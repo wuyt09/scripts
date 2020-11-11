@@ -111,8 +111,8 @@ res@tmYLLabelFontHeightF = 0.02
 res@gsnStringFontHeightF = 0.025
 ; res@gsnRightString       = "K"
 
-; res@pmLabelBarOrthogonalPosF = 0.12
-; res@pmLabelBarWidthF = 0.7
+res@pmLabelBarOrthogonalPosF = 0.2
+res@pmLabelBarWidthF = 0.7
 res@lbLabelFontHeightF = 0.015
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"

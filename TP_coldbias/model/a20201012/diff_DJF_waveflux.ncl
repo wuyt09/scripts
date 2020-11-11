@@ -8,7 +8,7 @@ begin
 
 casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_FAMIP_CMIP6"/) ;,"Hist_IO","Hist_PO","Hist_AO"
 ncase = dimsizes(casename)
-LEV = 300
+LEV = 500
 season = "DJF"
 
 nlat = 96
@@ -42,7 +42,7 @@ do i = 0, ncase-1
 
 end do
 printVarSummary(u)
-
+z = z * 1.e-6
 ;=======================================================================
 ; ttest
 ;=======================================================================
@@ -72,7 +72,10 @@ diffz = z_ave(0,:,:)
 diffz = z_ave(1,:,:) - z_ave(0,:,:)
 printVarSummary(diffu)
 
+sig = 0.05
 
+; diffu = mask(diffu, probu.le.sig .and. probv.le.sig, diffu@_FillValue)
+; diffv = mask(diffv, probu.le.sig .and. probv.le.sig, diffv@_FillValue)
 
 ;===================================================================
 ; topo data
@@ -92,9 +95,10 @@ pwks@wkHeight              = 3048
 pwks@wkWidth               = 6048
 
 wks = gsn_open_wks("pdf", figpath+figname) ;
-plot = new(1, graphic)
+plot = new(3, graphic)
 plot_topo = plot
 plot_prob = plot
+plotv = plot
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -133,14 +137,14 @@ res@tmYLLabelFontHeightF = 0.02
 res@gsnStringFontHeightF = 0.025
 ; res@gsnRightString       = "K"
 
-; res@pmLabelBarOrthogonalPosF = 0.12
-; res@pmLabelBarWidthF = 0.7
+res@pmLabelBarOrthogonalPosF = 0.25
+res@pmLabelBarWidthF = 0.7
 res@lbLabelFontHeightF = 0.015
-res@cnFillPalette = "CBR_coldhot"
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMaxLevelValF = 30
-; res@cnMinLevelValF = -30
-; res@cnLevelSpacingF = 5
+res@cnFillPalette = "BlueWhiteOrangeRed"
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -10
+res@cnLevelSpacingF = 1.
 ; res@lbLabelBarOn = False
 
 ;----------------------------------------------
@@ -169,27 +173,83 @@ res@cnFillPalette = "CBR_coldhot"
  res3@cnFillDotSizeF = 0.003
  res3@cnFillScaleF  = 1.2
  ;----------------------------------------------
+ ;------------------------------------------
+
+  vcres                         = True             ; plot mods desired
+  vcres@gsnFrame                = False            ; so we can draw time stamp
+  vcres@gsnDraw                 = False
+  vcres@vcRefAnnoOrthogonalPosF = -1.0    ; -0.35          ; move ref vector up
+
+  vcres@vcGlyphStyle            = "LineArrow"  ;"LineArrow"    ; turn on curly vectors
+  ;vcres@vcMinDistanceF          = 0.017
+  ;vcres@vcGlyphStyle            = "LineArrow"
+  vcres@vcMinDistanceF          = 0.03
+  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+  
+  vcres@vcLineArrowThicknessF   = 3.0
+  ;vecres@vcLineArrowHeadMinSizeF = 0.008
+  ;vecres@vcLineArrowHeadMaxSizeF = 0.3
+
+  vcres@vcRefAnnoString2On = False
+  vcres@vcRefAnnoFontHeightF = 0.012
+  vcres@gsnLeftString = ""
+  vcres@gsnRightString = ""
+;------------------------------------------
  ;----------------------------------------------
 
+
+; vcres@vcRefMagnitudeF         = 3.0 
 ; res@gsnLeftString = "diff stream function at "+LEV+" hPa"
-plot(0) = gsn_csm_contour_map(wks, diffz, res)
-plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(0), plot_topo(0))
-plot_prob(0) = gsn_csm_contour(wks,probz,res3)
-plot_prob(0) = ShadeLtContour(plot_prob(0),0.055,6)
-overlay(plot(0), plot_prob(0))
+; plot(0) = gsn_csm_contour_map(wks, diffz, res)
+; plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(0), plot_topo(0))
+; plotv(0) = gsn_csm_vector(wks, diffu, diffv, vcres)
+; overlay(plot(0), plotv(0))
 
-draw(plot(0))
+; plot_prob(0) = gsn_csm_contour(wks,probz,res3)
+; plot_prob(0) = ShadeLtContour(plot_prob(0),sig,6)
+; overlay(plot(0), plot_prob(0))
 
-; pres = True
-; pres@gsnMaximize = True
-; pres@gsnFrame    = True
-; pres@gsnDraw     = True
+
+vcres@vcRefMagnitudeF         = 20.0 
+do i = 0,1
+plot(i) = gsn_csm_contour_map(wks, z_ave(i,:,:), res)
+plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(i), plot_topo(i))
+plotv(i) = gsn_csm_vector(wks, u_ave(i,:,:), v_ave(i,:,:), vcres)
+overlay(plot(i), plotv(i))
+end do
+; plot_prob(0) = gsn_csm_contour(wks,probz,res3)
+; plot_prob(0) = ShadeLtContour(plot_prob(0),sig,6)
+; overlay(plot(0), plot_prob(0))
+
+
+vcres@vcRefMagnitudeF         = 3.0 
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMaxLevelValF = 2
+res@cnMinLevelValF = -2
+res@cnLevelSpacingF = 0.2
+; res@gsnLeftString = "diff stream function at "+LEV+" hPa"
+plot(2) = gsn_csm_contour_map(wks, diffz, res)
+plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(2), plot_topo(2))
+plotv(2) = gsn_csm_vector(wks, diffu, diffv, vcres)
+overlay(plot(2), plotv(2))
+
+plot_prob(2) = gsn_csm_contour(wks,probz,res3)
+plot_prob(2) = ShadeLtContour(plot_prob(2),sig,6)
+overlay(plot(2), plot_prob(2))
+
+
+pres = True
+pres@gsnMaximize = True
+pres@gsnFrame    = True
+pres@gsnDraw     = True
 ; pres@gsnPanelLabelBar = True
 
 ; pres@lbLabelFontHeightF = 0.015
 ; pres@pmLabelBarWidthF = 0.8    ;plot manager 
 ; pres@pmLabelBarHeightF = 0.06
-
+gsn_panel(wks, plot, (/3,1/), pres)
 
 end
