@@ -165,19 +165,19 @@ do i = 0, nyear-1
     wyi(i,:) = wyix - u_wgt_May30
     copy_VarCoords(u_wgt(:,0), wyi(i,:))
 
-    ;===============================================================
-    ; HOWI
-    ;===============================================================
-    qudp = q*u*dp
-    copy_VarCoords(q, qudp)
-    qdp = dim_sum_n_Wrap(qudp(:,{1000:300},:,:), 1)
-    qdp_wgt = wgt_areaave_Wrap(qdp(:,{5:20},{45:80}), 1, 1, 0)
+    ; ;===============================================================
+    ; ; HOWI
+    ; ;===============================================================
+    ; qudp = q*u*dp
+    ; copy_VarCoords(q, qudp)
+    ; qdp = dim_sum_n_Wrap(qudp(:,{1000:300},:,:), 1)
+    ; qdp_wgt = wgt_areaave_Wrap(qdp(:,{5:20},{45:80}), 1, 1, 0)
 
-    qdpmax = max(qdp_wgt)
-    qdpmin = min(qdp_wgt)
+    ; qdpmax = max(qdp_wgt)
+    ; qdpmin = min(qdp_wgt)
 
-    howi(i,:) = 2*((qdp_wgt - qdpmin)/(qdpmax - qdpmin))-1
-    copy_VarCoords(qdp_wgt, howi(i,:))
+    ; howi(i,:) = 2*((qdp_wgt - qdpmin)/(qdpmax - qdpmin))-1
+    ; copy_VarCoords(qdp_wgt, howi(i,:))
 
     ;===============================================================
     ; WFI
@@ -191,13 +191,13 @@ print("end of "+year(i))
 end do
 printVarSummary(wyi)
 
-inx_name = (/"TP_t2m","TTGI","WYI","HOWI","WFI"/)
-pp = new((/5,nyear,73/), float)
+inx_name = (/"TP_t2m","TTGI","WYI","WFI"/) ;,"HOWI"
+pp = new((/4,nyear,73/), float)
 pp(0,:,:) = ts
 pp(1,:,:) = ttgi
 pp(2,:,:) = wyi
-pp(3,:,:) = howi
-pp(4,:,:) = wfi
+; pp(3,:,:) = howi
+pp(3,:,:) = wfi
 pp!0 = "index"
 pp&index = inx_name
 pp!1 = "year"
@@ -206,16 +206,16 @@ pp!2 = "pentad"
 pp&pentad = ispan(1, 73, 1)
 
 
-ptime = new((/5,nyear/), integer)
+ptime = new((/4,nyear/), integer)
 
 diff = pp
 do i = 1, 72
     diff(:,:,i) = pp(:,:,i)*pp(:,:,i-1)    
 end do
 
-do ll = 1,4
+do ll = 1,3
     do mm = 0, nyear-1
-        a = ind((diff(ll,mm,:).le.0) .and. (pp(ll,mm,:).ge.0))
+        a = ind((diff(ll,mm,:).le.0) .and. (pp(ll,mm,:).gt.0))
         print(ll+", "+mm+", "+a)
         ptime(ll,mm) = (/a(0)/)
         delete(a)
@@ -223,8 +223,18 @@ do ll = 1,4
 end do
 copy_VarCoords(pp(:,:,0), ptime)
 
-ts_spr = dim_avg_n_Wrap(ts(:,12:29), 1)
+ts_spr = dim_avg_n_Wrap(ts(:,12:29), 1) ; spring
 copy_VarCoords(ts(:,0), ts_spr)
+
+;===============================================================================
+; wtite data to txt file
+;===============================================================================
+filipath = "./"
+filiname = "ISM_onset_pentad.txt"
+
+write_table(filipath+filiname, "w", [/"TP_t2m","TTGI","WYI","WFI"/], "%10s %10s %10s %10s")
+write_table(filipath+filiname, "a", [/ts_spr, ptime(:,1),ptime(:,2),ptime(:,3)/], "%10.2f %10.2f %10.2f %10.2f")
+
 ;=============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201116/"
 figname = "time_series_ISM_onset_Pentad_TP_surf_T"
@@ -253,14 +263,14 @@ res@trXMaxF = yrLast
 res@trYMinF = 22
 res@trYMaxF = 36
 res@tmYLMode = "Explicit"
-res@tmYLValues = ispan(24, 36, 1)
+res@tmYLValues = ispan(22, 36, 1)
 res@tmYLLabels = "P"+res@tmYLValues
 ; res@tmYROn = False
 ; res@tiYAxisString = "Temperature (~S~o~N~C)"
 
-;Colors = (/"black","deeppink2",  "green4", "black" /);
-Colors = (/"red","blue","forestgreen","orange2","purple"/)
-Patterns = (/0,0,0,0,0/)
+;Colors = (/"black","deeppink2", "orange2", "green4", "black" /);
+Colors = (/"red","blue","forestgreen","purple"/)
+Patterns = (/0,0,0,0/)
 res@xyLineThicknessF = 10
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
@@ -279,10 +289,10 @@ res2@trXMinF = yrStrt
 res2@trXMaxF = yrLast
 
 res2@xyLineThicknessF = 10
-res@xyLineColor = "black"
-res@xyDashPattern = 0
+res2@xyLineColor = "black"
+res2@xyDashPattern = 0
 
-plot(0) = gsn_csm_xy2(wks, year, ptime, ts_spr, res, res2)
+plot(0) = gsn_csm_xy2(wks, year, ptime(1:3,:), ts_spr, res, res2)
 
 ;==================================================================================
     res_lines                   = True                  ; polyline mods desired
@@ -293,18 +303,21 @@ plot(0) = gsn_csm_xy2(wks, year, ptime, ts_spr, res, res2)
     res_text@txFontHeightF      = 0.018                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = inx_name(1:5)
+    Texts  = inx_name(1:dimsizes(inx_name)-1)
 
 ;============================================================
-    gx = (/1980,1982/)
-    text_pos = 1983
+    gx = (/1983,1985/)
+    text_pos = 1985.5
 
     interval = 1
     gy1 = (/35,35/)
     gy2 = gy1 - interval
     gy3 = gy2 - interval
-    gy4 = gy3 - interval
-    gy5 = gy4 - interval
+    ; gy4 = gy3 - interval
+
+    gx2 = (/1991,1993/)
+    text_pos2 = 1993.5
+    gy5 = gy1
     ; gy6 = (/8,8/)
 
     res_lines@gsLineColor = Colors(0)
@@ -319,14 +332,14 @@ plot(0) = gsn_csm_xy2(wks, year, ptime, ts_spr, res, res2)
     res_lines@gsLineDashPattern = Patterns(2)
     dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
     dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
-    res_lines@gsLineColor = Colors(3)
-    res_lines@gsLineDashPattern = Patterns(3)
-    dum41 = gsn_add_polyline(wks, plot(0), gx, gy4, res_lines)
-    dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos, gy4, res_text)
-    res_lines@gsLineColor = Colors(4)
-    res_lines@gsLineDashPattern = Patterns(4)
+    ; res_lines@gsLineColor = Colors(3)
+    ; res_lines@gsLineDashPattern = Patterns(3)
+    ; dum41 = gsn_add_polyline(wks, plot(0), gx, gy4, res_lines)
+    ; dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos, gy4, res_text)
+    res_lines@gsLineColor = "black"
+    res_lines@gsLineDashPattern = 0
     dum51 = gsn_add_polyline(wks, plot(0), gx, gy5, res_lines)
-    dum52 = gsn_add_text(wks, plot(0), Texts(4), text_pos, gy5, res_text)
+    dum52 = gsn_add_text(wks, plot(0), "TP_t2m", text_pos, gy5, res_text)
 
     draw(plot(0))
 end
