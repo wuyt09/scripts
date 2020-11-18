@@ -233,8 +233,14 @@ filipath = "./"
 filiname = "ISM_onset_pentad.txt"
 
 write_table(filipath+filiname, "w", [/"TP_t2m","TTGI","WYI","WFI"/], "%10s %10s %10s %10s")
-write_table(filipath+filiname, "a", [/ts_spr, ptime(:,1),ptime(:,2),ptime(:,3)/], "%10.2f %10.2f %10.2f %10.2f")
+write_table(filipath+filiname, "a", [/ts_spr, ptime(1,:),ptime(2,:),ptime(3,:)/], "%10.2f %0.4i %0.4i %0.4i")
 
+corr = new(3, float)
+
+do kk = 1,3
+    corr(kk-1) = escorc(ts_spr, ptime(kk,:))
+end do
+print(corr)
 ;=============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201116/"
 figname = "time_series_ISM_onset_Pentad_TP_surf_T"
@@ -338,8 +344,8 @@ plot(0) = gsn_csm_xy2(wks, year, ptime(1:3,:), ts_spr, res, res2)
     ; dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos, gy4, res_text)
     res_lines@gsLineColor = "black"
     res_lines@gsLineDashPattern = 0
-    dum51 = gsn_add_polyline(wks, plot(0), gx, gy5, res_lines)
-    dum52 = gsn_add_text(wks, plot(0), "TP_t2m", text_pos, gy5, res_text)
+    dum51 = gsn_add_polyline(wks, plot(0), gx2, gy5, res_lines)
+    dum52 = gsn_add_text(wks, plot(0), "TP_t2m", text_pos2, gy5, res_text)
 
     draw(plot(0))
 end
