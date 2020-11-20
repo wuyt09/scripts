@@ -31,16 +31,16 @@ nyr = dimsizes(year)
 
 dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/"
 
-; models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
-;            "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
-;            "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
-models = (/"CAMS-CSM1-0","CanESM5"/)
+models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
+           "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
+           "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
+; models = (/"CAMS-CSM1-0","CanESM5"/)
 
 nm := dimsizes(models)
-pr_tp = new((/nm,nyr/), float)
-pr_tp!0 = "model"
-pr_tp&model = models
-pr_is = pr_tp
+pr_TP = new((/nm,nyr/), float)
+pr_TP!0 = "model"
+pr_TP&model = models
+pr_IS = pr_TP
 
 do i = 0, nm-1
     filigcm = systemfunc("ls "+dirigcm+"pr_Amon_"+models(i)+"_historical_r1i1p1f*_*.nc")
@@ -52,8 +52,8 @@ do i = 0, nm-1
     PR_GCMs = PR_GCMs * 86400
     ; PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
     pr_gcm = month_to_season(PR_GCMs, season)
-    pr_tp(i,:) = wgt_areaave_Wrap(pr_gcm(:,{28:40},{85:105}), 1., 1., 0)
-    pr_is(i,:) = wgt_areaave_Wrap(pr_gcm(:,{18:28},{72:85}), 1., 1., 0)
+    pr_TP(i,:) = wgt_areaave_Wrap(pr_gcm(:,{28:40},{85:105}), 1., 1., 0)
+    pr_IS(i,:) = wgt_areaave_Wrap(pr_gcm(:,{18:28},{72:85}), 1., 1., 0)
     ; diff_pr6(i,:,:,:) = pr_gcm - pr_obs
     ; copy_VarCoords(pr_obs, diff_pr6(i,:,:,:))
     ; diff_pr(i,:,:) = mask(diff_pr(i,:,:), prob_pr(i,:,:).le.0.05, True)
@@ -61,6 +61,8 @@ do i = 0, nm-1
     delete([/PR_GCMs,pr_gcm/]) ;
     print("end of "+models(i))
 end do
+pr_tp = dim_avg_n_Wrap(pr_TP, 0)
+pr_is = dim_avg_n_Wrap(pr_IS, 0)
 printVarSummary(pr_tp)
 
 std_tp = dim_standardize_Wrap(pr_tp, 1)
@@ -121,14 +123,14 @@ res@gsnYRefLineThicknessF = 8
 res@trYMinF = -3
 res@trYMaxF = 3
 ; res@tmYROn = False
-res@tiYAxisString = "Precipitation diff (mm/day)"
-res@gsnLeftString = "CMIP6: "+sprintf("%4.2f", corr6)
-res@gsnRightString = "Sig: CMIP6 "+sprintf("%4.0f", 100*(1-p6))+"%"
+res@tiYAxisString = "Precip std(mm/day)"
+res@gsnLeftString = "Corr: "+sprintf("%4.2f", corr6)
+res@gsnRightString = "Sig: "+sprintf("%4.0f", 100*(1-p6))+"%"
 res@gsnStringFontHeightF = 0.015
 
 Colors = (/"black","red","black","red"/)
 Patterns = (/0,0,16,16/)
-res@xyLineThicknessF = 10
+res@xyLineThicknessF = 5
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
@@ -143,13 +145,13 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
     res_text@txFontHeightF      = 0.018                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = (/"CMIP5: CE-TP","CMIP5: North-India","CMIP6: CE-TP","CMIP6: North-India"/)
+    Texts  = (/"CE-TP","North-India"/)
 
 ;============================================================
-    gx = (/1980,1982/)
-    text_pos = 1983
+    gx = (/1930,1940/)
+    text_pos = 1942
     interval = 0.5
-    gy1 = (/2.5,2.5/)
+    gy1 = (/2.7,2.7/)
     gy2 = gy1 - interval
 
     gx2 = (/1990,1992/)
@@ -166,14 +168,14 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
     res_lines@gsLineDashPattern = Patterns(1)
     dum21 = gsn_add_polyline(wks, plot(0), gx, gy2, res_lines)
     dum22 = gsn_add_text(wks, plot(0), Texts(1), text_pos, gy2, res_text)
-    res_lines@gsLineColor = Colors(2)
-    res_lines@gsLineDashPattern = Patterns(2)
-    dum31 = gsn_add_polyline(wks, plot(0), gx2, gy3, res_lines)
-    dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos2, gy3, res_text)
-    res_lines@gsLineColor = Colors(3)
-    res_lines@gsLineDashPattern = Patterns(3)
-    dum41 = gsn_add_polyline(wks, plot(0), gx2, gy4, res_lines)
-    dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos2, gy4, res_text)
+    ; res_lines@gsLineColor = Colors(2)
+    ; res_lines@gsLineDashPattern = Patterns(2)
+    ; dum31 = gsn_add_polyline(wks, plot(0), gx2, gy3, res_lines)
+    ; dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos2, gy3, res_text)
+    ; res_lines@gsLineColor = Colors(3)
+    ; res_lines@gsLineDashPattern = Patterns(3)
+    ; dum41 = gsn_add_polyline(wks, plot(0), gx2, gy4, res_lines)
+    ; dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos2, gy4, res_text)
 
 draw(plot(0))
 
