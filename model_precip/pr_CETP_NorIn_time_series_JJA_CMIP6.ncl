@@ -65,11 +65,12 @@ pr_tp = dim_avg_n_Wrap(pr_TP, 0)
 pr_is = dim_avg_n_Wrap(pr_IS, 0)
 printVarSummary(pr_tp)
 
-std_tp = dim_standardize_Wrap(pr_tp, 1)
-std_is = dim_standardize_Wrap(pr_is, 1)
-corr6 = escorc(std_tp, std_is)
-printVarSummary(std_tp)
+; std_tp = dim_standardize_Wrap(pr_tp, 1)
+; std_is = dim_standardize_Wrap(pr_is, 1)
+; corr6 = escorc(std_tp, std_is)
+; printVarSummary(std_tp)
 
+corr6 = escorc(pr_tp, pr_is)
 n = nyr
 df = n-2
 t6 = corr6*sqrt((n-2)/(1-corr6^2))
@@ -80,9 +81,9 @@ print(sprintf("%4.2f", p6))
 pp = new((/2,nyr/), float)
 ; pp(0,:) = diff5_std_tp
 ; pp(1,:) = diff5_std_is
-pp(0,:) = std_tp
-pp(1,:) = std_is
-copy_VarCoords(std_tp, pp(0,:))
+pp(0,:) = pr_tp
+pp(1,:) = pr_is
+copy_VarCoords(pr_tp, pp(0,:))
 printVarSummary(pp)
 
 ;===================================================================
@@ -120,8 +121,8 @@ res@gsnYRefLine = 0
 res@gsnYRefLineColor = "grey40"
 res@gsnYRefLineDashPattern = 16
 res@gsnYRefLineThicknessF = 8
-res@trYMinF = -3
-res@trYMaxF = 3
+; res@trYMinF = -3
+; res@trYMaxF = 3
 ; res@tmYROn = False
 res@tiYAxisString = "Precip std(mm/day)"
 res@gsnLeftString = "Corr: "+sprintf("%4.2f", corr6)
@@ -130,7 +131,7 @@ res@gsnStringFontHeightF = 0.015
 
 Colors = (/"black","red","black","red"/)
 Patterns = (/0,0,16,16/)
-res@xyLineThicknessF = 5
+res@xyLineThicknessF = 8
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
