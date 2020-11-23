@@ -65,8 +65,8 @@ pr_tp = dim_avg_n_Wrap(pr_TP, 0)
 pr_is = dim_avg_n_Wrap(pr_IS, 0)
 printVarSummary(pr_tp)
 
-; std_tp = dim_standardize_Wrap(pr_tp, 1)
-; std_is = dim_standardize_Wrap(pr_is, 1)
+std_tp = dim_standardize_Wrap(pr_tp, 1)
+std_is = dim_standardize_Wrap(pr_is, 1)
 ; corr6 = escorc(std_tp, std_is)
 ; printVarSummary(std_tp)
 
@@ -81,8 +81,8 @@ print(sprintf("%4.2f", p6))
 pp = new((/2,nyr/), float)
 ; pp(0,:) = diff5_std_tp
 ; pp(1,:) = diff5_std_is
-pp(0,:) = pr_tp
-pp(1,:) = pr_is
+pp(0,:) = std_tp
+pp(1,:) = std_is
 copy_VarCoords(pr_tp, pp(0,:))
 printVarSummary(pp)
 

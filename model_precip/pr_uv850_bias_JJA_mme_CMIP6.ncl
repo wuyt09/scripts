@@ -30,8 +30,8 @@ pr_obs_ave = dim_avg_n_Wrap(pr_obs, 0)
 pr_obs_var = dim_variance_n_Wrap(pr_obs, 0)
 
 
-; diriobs = "/home/yangsong3/data-observation/NCEP_DOE/monthly/"
-diriobs = "/home/yangsong3/data-observation/ERA-interim/monthly/"
+diriobs = "/home/yangsong3/data-observation/NCEP_DOE/monthly/"
+; diriobs = "/home/yangsong3/data-observation/ERA-interim/monthly/"
 ufili = "uwnd.mon.mean.nc"
 vfili = "vwnd.mon.mean.nc"
 fuobs = addfile(diriobs+ufili, "r")
@@ -39,17 +39,17 @@ fvobs = addfile(diriobs+vfili, "r")
 TIME := fuobs->time
 YYYYo := cd_calendar(TIME, -1)/100
 iYYYYo := ind(YYYYo.ge.yrStrt .and. YYYYo.le.yrLast)
-; U_OBS = short2flt(fuobs->uwnd(iYYYYo,{LEV},::-1,:))
-; V_OBS = short2flt(fvobs->vwnd(iYYYYo,{LEV},::-1,:))
-U_OBS = short2flt(fuobs->u(iYYYYo,{LEV},::-1,:))
-V_OBS = short2flt(fvobs->v(iYYYYo,{LEV},::-1,:))
+U_OBS = short2flt(fuobs->uwnd(iYYYYo,{LEV},::-1,:))
+V_OBS = short2flt(fvobs->vwnd(iYYYYo,{LEV},::-1,:))
+; U_OBS = short2flt(fuobs->u(iYYYYo,{LEV},::-1,:))
+; V_OBS = short2flt(fvobs->v(iYYYYo,{LEV},::-1,:))
 u_obs = month_to_season(U_OBS, season)
 v_obs = month_to_season(V_OBS, season)
 printVarSummary(u_obs)
-; ulat = u_obs&lat
-; ulon = u_obs&lon
-ulat = u_obs&latitude
-ulon = u_obs&longitude
+ulat = u_obs&lat
+ulon = u_obs&lon
+; ulat = u_obs&latitude
+; ulon = u_obs&longitude
 u_obs_ave = dim_avg_n_Wrap(u_obs, 0)
 u_obs_var = dim_variance_n_Wrap(u_obs, 0)
 v_obs_ave = dim_avg_n_Wrap(v_obs, 0)
@@ -73,8 +73,8 @@ diff_pr6 = new((/nm,72,144/), float)
 diff_pr6!0 = "model"
 diff_pr6&model = models
 
-; diff_u6 = new((/nm,73,144/), float)
-diff_u6 = new((/nm,181,360/), float)
+diff_u6 = new((/nm,73,144/), float)
+; diff_u6 = new((/nm,181,360/), float)
 diff_u6!0 = "model"
 diff_u6&model = models
 diff_v6 = diff_u6
@@ -109,7 +109,7 @@ do i = 0, nm-1
     U_GCMs := fu->ua(iYYYY,{85000},:,:)
     U_GCMx = linint2_Wrap(U_GCMs&lon, U_GCMs&lat, U_GCMs, True, ulon, ulat, 0)
     V_GCMs := fv->va(iYYYY,{85000},:,:)
-    V_GCMx = linint2_Wrap(V_GCMs&lon, V_GCMs&lat, U_GCMs, True, ulon, ulat, 0)
+    V_GCMx = linint2_Wrap(V_GCMs&lon, V_GCMs&lat, V_GCMs, True, ulon, ulat, 0)
 
     u_gcm = month_to_season(U_GCMx, season)
     u_gcm_ave = dim_avg_n_Wrap(u_gcm, 0)
@@ -165,7 +165,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "pr_uv850_bias_JJA_multi_model_CMIP6_ERAI"
+filiname = "pr_uv850_bias_JJA_multi_model_CMIP6"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(nm+1, graphic)
 plot_topo = plot
@@ -198,7 +198,7 @@ res@gsnStringFontHeightF = 0.02
 res@tmXBLabelFontHeightF = 0.018
 res@tmYLLabelFontHeightF = 0.018
 
-res@lbLabelBarOn = False
+; res@lbLabelBarOn = False
 res@pmLabelBarOrthogonalPosF = 0.2
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 1.
@@ -232,7 +232,7 @@ res@gsnRightString = "mm/day"
  
  ; vecres@vcLineArrowColor = "gray52"
  vecres@vcRefAnnoFontHeightF = 0.01
- vecres@vcRefMagnitudeF  = 20.             ; define vector ref mag
+ vecres@vcRefMagnitudeF  = 5.             ; define vector ref mag
  ; vecres@vcRefAnnoString1  = "3 Kg/m/s"
 
 
@@ -244,34 +244,34 @@ res@gsnRightString = "mm/day"
 ; glat2 = (/28,28,18,18,28/)
 ; glon2 = (/72,85,85,72,72/)
 
-; res@gsnLeftString = "CMIP6 MME bias (GPCP & NCEP_DOE)"
-; plot(0) = gsn_csm_contour_map(wks, diff_pr6_mme, res)
-; plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
-; overlay(plot(0), plot_topo(0))
-; plotv(0) = gsn_csm_vector(wks, diff_u6_mme, diff_v6_mme, vecres)
-; overlay(plot(0), plotv(0))
-; ; dum1 = gsn_add_polyline(wks,plot(0),glon1,glat1,gres)
-; ; dum2 = gsn_add_polyline(wks,plot(0),glon2,glat2,gres)
-; draw(plot(0))
+res@gsnLeftString = "CMIP6 MME bias (GPCP & NCEP_DOE)"
+plot(0) = gsn_csm_contour_map(wks, diff_pr6_mme, res)
+plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(0), plot_topo(0))
+plotv(0) = gsn_csm_vector(wks, diff_u6_mme, diff_v6_mme, vecres)
+overlay(plot(0), plotv(0))
+; dum1 = gsn_add_polyline(wks,plot(0),glon1,glat1,gres)
+; dum2 = gsn_add_polyline(wks,plot(0),glon2,glat2,gres)
+draw(plot(0))
 
 
-do i = 0, nm-1
-    res@gsnLeftString = models(i)
-    plot(i) = gsn_csm_contour_map(wks, diff_pr6(i,:,:), res)
-    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plot(i), plot_topo(i))
-    plotv(i) = gsn_csm_vector(wks, diff_u6(i,:,:), diff_v6(i,:,:), vecres)
-    overlay(plot(i), plotv(i))
-end do
+; do i = 0, nm-1
+;     res@gsnLeftString = models(i)
+;     plot(i) = gsn_csm_contour_map(wks, diff_pr6(i,:,:), res)
+;     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+;     overlay(plot(i), plot_topo(i))
+;     plotv(i) = gsn_csm_vector(wks, diff_u6(i,:,:), diff_v6(i,:,:), vecres)
+;     overlay(plot(i), plotv(i))
+; end do
 
-pres = True
-pres@gsnMaximize = True
-pres@gsnPanelLabelBar = True
-pres@lbLabelFontHeightF = 0.012
-gsn_panel(wks, plot(0:3), (/2, 2/), pres)
-gsn_panel(wks, plot(4:7), (/2, 2/), pres)
-gsn_panel(wks, plot(8:11), (/2, 2/), pres)
-gsn_panel(wks, plot(12:15), (/2, 2/), pres)
-gsn_panel(wks, plot(16:19), (/2, 2/), pres)
+; pres = True
+; pres@gsnMaximize = True
+; pres@gsnPanelLabelBar = True
+; pres@lbLabelFontHeightF = 0.012
+; gsn_panel(wks, plot(0:3), (/2, 2/), pres)
+; gsn_panel(wks, plot(4:7), (/2, 2/), pres)
+; gsn_panel(wks, plot(8:11), (/2, 2/), pres)
+; gsn_panel(wks, plot(12:15), (/2, 2/), pres)
+; gsn_panel(wks, plot(16:19), (/2, 2/), pres)
 
 end
