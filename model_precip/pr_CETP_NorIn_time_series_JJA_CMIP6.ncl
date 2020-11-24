@@ -149,8 +149,8 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
     Texts  = (/"CE-TP","North-India"/)
 
 ;============================================================
-    gx = (/1930,1940/)
-    text_pos = 1942
+    gx = (/1950,1960/)
+    text_pos = 1962
     interval = 0.5
     gy1 = (/2.7,2.7/)
     gy2 = gy1 - interval

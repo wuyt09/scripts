@@ -283,7 +283,7 @@ res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 1.
 res@cnMaxLevelValF = 10
 res@cnMinLevelValF = -10
-res@cnFillPalette = "CBR_drywet"
+res@cnFillPalette = "MPL_BrBG"
 res@gsnRightString = "mm/day"
 
 ;===========================================================
@@ -311,7 +311,7 @@ res@gsnRightString = "mm/day"
  
  ; vecres@vcLineArrowColor = "gray52"
  vecres@vcRefAnnoFontHeightF = 0.02
- vecres@vcRefMagnitudeF  = 8.             ; define vector ref mag
+ vecres@vcRefMagnitudeF  = 2.             ; define vector ref mag
  ; vecres@vcRefAnnoString1  = "3 Kg/m/s"
 
 
