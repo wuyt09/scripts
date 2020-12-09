@@ -159,8 +159,13 @@ diff5 = TP_GCMA5 - TP_obs
 diff6 = TP_GCMA6 - TP_obs
 ave5  = (diff5(0)+diff5(1)+diff5(11))/3
 ave6  = (diff6(0)+diff6(1)+diff6(11))/3
+
+ave5_s  = (diff5(5)+diff5(6)+diff5(7))/3
+ave6_s  = (diff6(5)+diff6(6)+diff6(7))/3
 print(ave5)
 print(ave6)
+print(ave5_s)
+print(ave6_s)
 
 ;===================================================================
 ; Plot
