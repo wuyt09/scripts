@@ -75,6 +75,13 @@ printVarSummary(ts)
 
 tdiff = wgt_areaave_Wrap(ts(:,:,{25:40},{75:105}), 1, 1, 0)
 printVarSummary(tdiff)
+
+ave5_w  = (tdiff(:,0)+tdiff(:,1)+tdiff(:,11))/3
+
+ave5_s  = (tdiff(:,5)+tdiff(:,6)+tdiff(:,7))/3
+print(sprintf("%4.2f", ave5_w))
+print(sprintf("%4.2f", ave5_s))
+exit
 ;=========================================================
 ; plot 
 ;=========================================================
