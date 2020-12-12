@@ -91,7 +91,7 @@ printMinMax(x(0,:,:),1)
 
 
 nx = 2
-title = (/"(a) Cloud","(b) WV","(c) Atm dyn","(d) a+b+c","(e) total by Air Temp.","(f) error: e-d"/)
+title = (/"(a) Cloud","(b) WV","(c) Atm. dyn.","(d) a+b+c","(e) total by Air Temp.","(f) error: e-d"/)
 x_diff = new((/dimsizes(title),nlat,nlon/), float)
 x_diff!0 = "term"
 x_diff&term = title

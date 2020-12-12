@@ -281,7 +281,7 @@ cnres@gsnRightString = ""
 
 res@gsnRightString = "*10~S~-3~N~"
 ; res@gsnLeftString = "(a) Diff: -{d[<V>*<T>]/dy + d[<U>*<T>]/dy}"
-res@gsnLeftString = "(b) All basin - Ctrl"
+res@gsnLeftString = "(b) SEN-ALL - CTRL"
 res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -0.5
@@ -293,21 +293,21 @@ plot(1) = gsn_csm_contour_map(wks, dtot(0,:,:), res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
 
-res@gsnLeftString = "(d) All basin - Ctrl: CMIP6"
+res@gsnLeftString = "(d) SEN-ALL6 - CTRL"
 plot(3) = gsn_csm_contour_map(wks, dtot(1,:,:), res)
 ; plotc(3) = gsn_csm_contour(wks, sst_DJF(1,:,:), cnres)
 ; overlay(plot(3), plotc(3))
 plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(3), plot_topo(3))
 
-res@gsnLeftString = "(c) Pacific basin only- Ctrl"
+res@gsnLeftString = "(c) SEN-PAC - CTRL"
 plot(2) = gsn_csm_contour_map(wks, dtot(2,:,:), res)
 ; plotc(2) = gsn_csm_contour(wks, sst_DJF(2,:,:), cnres)
 ; overlay(plot(2), plotc(2))
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2), plot_topo(2))
 
-res@gsnLeftString = "(a) Atm dyn"
+res@gsnLeftString = "(a) Atm. dyn."
 res@gsnRightString = "W/m~S~2~N~"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -10

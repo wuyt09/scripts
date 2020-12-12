@@ -170,7 +170,7 @@ cnres@gsnRightString = ""
 ;====================================================================================
 
 ; res@gsnRightString = ""
-res@gsnLeftString = "(a) Ctrl run: U200"
+res@gsnLeftString = "(a) CTRL: U200"
 res@cnFillPalette = "WhiteBlueGreenYellowRed" ;
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = 30
@@ -180,7 +180,7 @@ plot(0) = gsn_csm_contour_map(wks, u_ave(0,:,:), res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@gsnLeftString = "(b) SST bias run: U200"
+res@gsnLeftString = "(b) SEN-ALL: U200"
 plot(1) = gsn_csm_contour_map(wks, u_ave(1,:,:), res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
@@ -195,7 +195,7 @@ plot(2) = gsn_csm_contour_map(wks, diff_u, res)
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2), plot_topo(2))
 
-res@gsnLeftString = "(d) Ctrl run: V200"
+res@gsnLeftString = "(d) CTRL: V200"
 res@cnFillPalette = "temp_diff_18lev" ;WhiteBlueGreenYellowRed
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -10 ;30
@@ -205,7 +205,7 @@ plot(3) = gsn_csm_contour_map(wks, v_ave(0,:,:), res)
 plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(3), plot_topo(3))
 
-res@gsnLeftString = "(e) SST bias run: V200"
+res@gsnLeftString = "(e) SEN-ALL: V200"
 plot(4) = gsn_csm_contour_map(wks, v_ave(1,:,:), res)
 plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(4), plot_topo(4))
@@ -221,7 +221,7 @@ plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(5), plot_topo(5))
 
 res@gsnRightString = "gpm"
-res@gsnLeftString = "(g) Ctrl run: H300"
+res@gsnLeftString = "(g) CTRL: H300"
 res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -300
@@ -238,7 +238,7 @@ cnres@cnLevelSpacingF = 100
 plotc(6) = gsn_csm_contour(wks, h_ave(0,:,:), cnres)
 overlay(plot(6), plotc(6))
 
-res@gsnLeftString = "(h) SST bias run: H300"
+res@gsnLeftString = "(h) SEN-ALL: H300"
 plot(7) = gsn_csm_contour_map(wks, z_ave(1,:,:), res)
 plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(7), plot_topo(7))

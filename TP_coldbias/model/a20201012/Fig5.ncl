@@ -20,7 +20,7 @@ casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_P
 ncase = dimsizes(casename)
 season = "DJF"
 ; season = "JJA"
-var = (/"DownS","UpS","netS","DownR","UpR","netR","SH","LH","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
+var = (/"UpR","DownR","netR","DownS","UpS","netS","SH","LH","G0"/) ;"G0=netS-netR-LH-SH" "DownL"
 nvar = dimsizes(var)
 
 TS = new((/ncase,nvar,nyear,nlat,nlon/), float) ;, "1e+36"
@@ -69,12 +69,12 @@ do i = 0, ncase-1
     ; x6 = -1.*x6
     ; x4 = -1.*x4
 
-    TS(i,0,:,:,:) = month_to_season(x1, season)
-    TS(i,1,:,:,:) = month_to_season(us, season)
-    TS(i,2,:,:,:) = month_to_season(x2, season)
-    TS(i,3,:,:,:) = month_to_season(x3, season)
-    TS(i,4,:,:,:) = month_to_season(ur, season)
-    TS(i,5,:,:,:) = month_to_season(x4, season)
+    TS(i,0,:,:,:) = month_to_season(ur, season)
+    TS(i,1,:,:,:) = month_to_season(x3, season)
+    TS(i,2,:,:,:) = month_to_season(x4, season)
+    TS(i,3,:,:,:) = month_to_season(x1, season)
+    TS(i,4,:,:,:) = month_to_season(us, season)
+    TS(i,5,:,:,:) = month_to_season(x2, season)
     TS(i,6,:,:,:) = month_to_season(x5, season)
     TS(i,7,:,:,:) = month_to_season(x6, season)
     TS(i,8,:,:,:) = month_to_season(x7, season)
