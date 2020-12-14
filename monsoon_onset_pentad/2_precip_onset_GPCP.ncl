@@ -112,4 +112,39 @@ setfileoption(fout, "DefineMode", True)
 
 fout->prec_peak = peak
 
+
+;================================================================
+; plot
+;================================================================
+peak_clm = dim_avg_n_Wrap(peak, 0)
+figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
+figname = "2_precip_onset"
+wks = gsn_open_wks("pdf", figpath+figname)
+plot = new(1, graphic)
+
+
+res = True
+res@gsnDraw = False
+res@gsnFrame = False
+res@gsnMaximize = True
+
+res@mpOutlineOn = True
+res@mpFillOn = True
+res@mpGeophysicalLineThicknessF = 2
+res@mpGeophysicalLineColor = "grey25" ;"red" 
+; res@mpFillDrawOrder = "PostDraw"
+res@mpCenterLonF = 180
+
+res@cnFillOn = True
+res@cnLinesOn = False
+res@cnLineLabelsOn = False
+res@cnInfoLabelOn = False
+
+res@gsnStringFontHeightF = 0.025
+res@tmXBLabelFontHeightF = 0.02
+res@tmYLLabelFontHeightF = 0.02
+
+plot(0) = gsn_csm_contour_map(wks, peak_clm, res)
+draw(plot)
+
 end

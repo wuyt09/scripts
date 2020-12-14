@@ -1,7 +1,7 @@
 begin
 
 yrStrt = 1979
-yrLast = 2018
+yrLast = 2015
 mnStrt = 1
 mnLast = 12
 
@@ -12,19 +12,26 @@ nyear = dimsizes(year)
 nmonth = dimsizes(month)
 npenta = dimsizes(penta)
 
-nlat = 181
-nlon = 360
-nlev = 19
+nlat = 121
+nlon = 240
+nlev = 37
 
-mdiri = "/home/yangsong3/data-observation/ERA5-daily/Multi-levels/temp/"
+
+f3  = addfile("/home/yangsong3/data-observation/wuyt/ERAI/monthly/1.5x1.5/sp_era_mn_197901_201507.nc","r")
+PS0 = short2flt(f3->sp(0:431,:,:))
+
+ps0 = clmMonTLL(PS0)
+
+
+mdiri = "/home/yangsong3/data-observation/ERA-interim/pressure/air/"
 
 t = new((/npenta,nlev,nlat,nlon/), float)
 mtg = new((/nyear,npenta,nlat,nlon/), float)
 
 do i = 0, 1 ;nyear-1
-    filit = systemfunc("ls "+mdiri+"temp."+year(i)+"*.daily.nc")
-    ft = addfiles(filit, "r")    
-    TX = short2flt(ft[:]->t(:,:,::-1,:))
+    filit = "air.interim."+year(i)+".nc"
+    ft = addfile(mdiri+filit, "r")    
+    TX = short2flt(ft->air(:,::-1,::-1,:))
 
     if (dimsizes(TX&time).eq.366) then
         T = TX(0:364,:,:,:)
@@ -42,11 +49,12 @@ do i = 0, 1 ;nyear-1
     copy_VarCoords(T(0,:,:,:), t(0,:,:,:))
     t!0 = "pentad"
     t&pentad = penta
+    copy_VarCoords(t(:,0,:,:), mtg(0,:,:,:))
     ;-------------------------------------------------------------------
     ; partial T / partial y
     rearth = 6371229.0 ; meters
 
-    lon = ft[0]->longitude
+    lon = ft->lon
     dlon = (lon(2) - lon(1))*0.0174533
     dY = tofloat(rearth*dlon) 
     ;dX = cos(lat*0.0174533)*dlon
@@ -55,20 +63,34 @@ do i = 0, 1 ;nyear-1
     MTG = t
     MTG = center_finite_diff_n(t, dY, True, 0, 2)
 
+
     lev = tofloat(t&level)
     plev = lev*100
     plev@units = "Pa"
     psfc = max(plev)
     ptop = min(plev)
 
-    dP = dpres_plevel(plev, psfc, ptop, 0)
-    dP!0 = "lev"
-    dP&lev = lev
-    dp = conform_dims(dimsizes(MTG), dP, 1)
-    mtgdp = MTG*dp
-    copy_VarCoords(MTG, mtgdp)
-    mtg(i,:,:,:) = dim_sum_n_Wrap(mtgdp(:,{500:200},:,:), 1)/sum(dP({500:200}))
-    copy_VarCoords(mtgdp(:,0,:,:), mtg(i,:,:,:))
+    ; dP = dpres_plevel(plev, psfc, ptop, 0)
+    ; dP!0 = "lev"
+    ; dP&lev = lev
+    ; dp = conform_dims(dimsizes(MTG), dP, 1)
+    ; mtgdp = MTG*dp
+    ; copy_VarCoords(MTG, mtgdp)
+    ; mtg(i,:,:,:) = dim_sum_n_Wrap(mtgdp(:,{500:200},:,:), 1)/sum(dP({500:200}))
+    ; copy_VarCoords(mtgdp(:,0,:,:), mtg(i,:,:,:))
+    linlog =1
+    pbot   =50000
+    ptop   =20000
+
+    ppppp = ps0(6,:,:)
+    do n=0, npenta-1
+        kkkkk=MTG(pentad|n,lat|:,lon|:,level|:)
+        ;ppppp=p_ClmPnt(26,:,:)
+;       printVarSummary(kkkkk)
+;       printVarSummary(ppppp)
+        mtg(i,n,:,:) = vibeta(plev,kkkkk,linlog,ppppp,pbot,ptop)
+    end do
+
 end do
 mtg!0 = "year"
 mtg&year = year
@@ -78,8 +100,8 @@ printVarSummary(mtg)
 
 
 
-outpath = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
-outname = "1_MTG_pentad_ERA5_1979_2017.nc"
+outpath = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/ERAI/"
+outname = "1_MTG_pentad_ERAI_1979_2015.nc"
 
 system("rm -rf "+outpath+outname)
 
@@ -119,7 +141,7 @@ x(3,:) = dim_avg_n_Wrap(mtg_bob, 0)
 x(4,:) = dim_avg_n_Wrap(mtg_scs, 0)
 x(5,:) = dim_avg_n_Wrap(mtg_ism, 0)
 
-figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
+figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/ERAI/"
 figname = "1_calc_MTG_pentad"
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)

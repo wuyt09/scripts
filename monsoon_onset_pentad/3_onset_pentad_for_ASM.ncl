@@ -36,7 +36,7 @@ nlev = 19
 diri = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
 filiu = "2_U850_onset_pentad.nc"
 filim = "2_MTG_onset_pentad.nc"
-filip = "2_prec_onset_pentad_GPCP.nc"
+filip = "2_precip_onset_pentad_GPCP.nc"
 
 fu = addfile(diri+filiu, "r")
 fm = addfile(diri+filim, "r")
