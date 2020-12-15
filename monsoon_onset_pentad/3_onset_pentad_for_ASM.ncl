@@ -34,41 +34,73 @@ nlon = 360
 nlev = 19
 
 diri = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
-filiu = "2_U850_onset_pentad.nc"
-filim = "2_MTG_onset_pentad.nc"
-filip = "2_precip_onset_pentad_GPCP.nc"
+fili1 = "U850_onset_BOB_SCS_ISM.txt"
+fili2 = "MTG_onset_BOB_SCS_ISM.txt"
+fili3 = "prec_onset_BOB_SCS_ISM.txt"
 
-fu = addfile(diri+filiu, "r")
-fm = addfile(diri+filim, "r")
-fp = addfile(diri+filip, "r")
+x1 = asciiread(diri+fili1, (/nyear,4/), "integer")
+x2 = asciiread(diri+fili2, (/nyear,4/), "integer")
+x3 = asciiread(diri+fili3, (/nyear,4/), "integer")
 
-u = fu->u850_peak
-mtg = fm->MTG_peak
-precx = fp->prec_peak
-printVarSummary(u)
-printVarSummary(mtg)
-prec = linint2_Wrap(precx&lon, precx&lat, precx, True, u&longitude, u&latitude, 0)
-printVarSummary(prec)
+x = new((/2,nyear,3/), integer)
+x(0,:,:) = x1(:,1:3)
+x(1,:,:) = x2(:,1:3)
+; x(2,:,:) = x3(:,1:3)
 
-x = new((/3,nyear,nlat,nlon/), float)
-x(0,:,:,:) = mtg
-x(1,:,:,:) = u
-x(2,:,:,:) = prec
+x_max = dim_max_n_Wrap(x, 0)
+; print("BOB "+x_max(:,0))
+; print("SCS "+x_max(:,1))
+; print("ISM "+x_max(:,2))
 
-onset_pentad = dim_max_n_Wrap(x, 0)
-printVarSummary(onset_pentad)
-onset_pentad_clm = dim_avg_n_Wrap(onset_pentad, 0)
+write_table("multi_standard_onset_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%10s %10s %10s %10s")
+write_table("multi_standard_onset_BOB_SCS_ISM.txt", "a", [/year,x_max(:,0),x_max(:,1),x_max(:,2)/], "%0.4i %0.2i %0.2i %0.2i")
 
-;========================================================
-; individual monsoon component
-;========================================================
 
-bob = wgt_areaave_Wrap(onset_pentad(:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
-scs = wgt_areaave_Wrap(onset_pentad(:,{scs_lat1:scs_lat2},{scs_lon1:scs_lon2}), 1., 1., 0)
-ism = wgt_areaave_Wrap(onset_pentad(:,{ism_lat1:ism_lat2},{ism_lon1:ism_lon2}), 1., 1., 0)
-print(bob)
+yy = new((/6,nyear/), integer)
+yy(0,:) = x_max(:,0)
+yy(1,:) = x_max(:,1)
+yy(2,:) = x_max(:,2)
+yy(3,:) = (/27,26,26,23,27,22,22,26,27,25,24,25,24,26,27,25,26,23,28,27,20,22,24,26,27,26,26,23,25,25,21,28,24,23,27,26,27,28,27/)
+yy(4,:) = (/29,28,30,30,29,28,30,27,32,29,32,29,32,28,29,30,28,34,28,29,28,27,28,28,28,34,29,30,28,29,29,29,27,27,27,31,33,32,29/)
+yy(5,:) = (/33,31,30,30,33,30,30,31,31,29,31,27,32,33,30,30,33,31,33,32,28,30,32,32,32,27,32,29,31,30,31,29,30,32,30,32,32,31,31/)
 
-; write_table(filipath+filiname, "w", [/"Year","BOB","SCS","ISM"/], "%10s %10s %10s %10s")
-; write_table(filipath+filiname, "a", [/year,bob,scs,ism/], "%2.4i %10.2f %10.2f %10.2f %10.2f")
+x_max!0 = "year"
+x_max!1 = "component"
+;=====================================================================
+; plot
+;=====================================================================
+figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
+figname = "3_onset_pentad_for_ASM"
+
+wks = gsn_open_wks("pdf", figpath+figname)
+plot = new(1, graphic)
+Colors = (/"black","red","blue","black","red","blue"/)
+Patterns = (/0,0,0,2,2,2/)
+
+res = True
+res@gsnFrame = False
+res@gsnDraw  = False
+res@gsnMaximize = True
+
+res@vpWidthF = 0.7
+res@vpHeightF = 0.45
+
+res@xyLineThicknessF = 5
+res@xyLineColors = Colors
+res@xyDashPatterns = Patterns
+
+res@trXMinF = yrStrt
+res@trXMaxF = yrLast
+
+res@gsnYRefLine = 0
+res@gsnYRefLineColor = "grey40"
+res@gsnYRefLineThicknessF = 5
+res@gsnYRefLineDashPattern = 2
+
+res@gsnRightString = ""
+res@gsnStringFontHeightF = 0.025
+
+plot(0) = gsn_csm_xy(wks, year, yy, res)
+draw(plot)
 
 end

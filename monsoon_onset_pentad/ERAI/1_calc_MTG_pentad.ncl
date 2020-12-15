@@ -28,7 +28,7 @@ mdiri = "/home/yangsong3/data-observation/ERA-interim/pressure/air/"
 t = new((/npenta,nlev,nlat,nlon/), float)
 mtg = new((/nyear,npenta,nlat,nlon/), float)
 
-do i = 0, 1 ;nyear-1
+do i = 0, 2 ;nyear-1
     filit = "air.interim."+year(i)+".nc"
     ft = addfile(mdiri+filit, "r")    
     TX = short2flt(ft->air(:,::-1,::-1,:))
@@ -70,26 +70,26 @@ do i = 0, 1 ;nyear-1
     psfc = max(plev)
     ptop = min(plev)
 
-    ; dP = dpres_plevel(plev, psfc, ptop, 0)
-    ; dP!0 = "lev"
-    ; dP&lev = lev
-    ; dp = conform_dims(dimsizes(MTG), dP, 1)
-    ; mtgdp = MTG*dp
-    ; copy_VarCoords(MTG, mtgdp)
-    ; mtg(i,:,:,:) = dim_sum_n_Wrap(mtgdp(:,{500:200},:,:), 1)/sum(dP({500:200}))
-    ; copy_VarCoords(mtgdp(:,0,:,:), mtg(i,:,:,:))
-    linlog =1
-    pbot   =50000
-    ptop   =20000
+    dP = dpres_plevel(plev, psfc, ptop, 0)
+    dP!0 = "lev"
+    dP&lev = lev
+    dp = conform_dims(dimsizes(MTG), dP, 1)
+    mtgdp = MTG*dp
+    copy_VarCoords(MTG, mtgdp)
+    mtg(i,:,:,:) = dim_sum_n_Wrap(mtgdp(:,{500:200},:,:), 1) ;/sum(dP({500:200}))
+    copy_VarCoords(mtgdp(:,0,:,:), mtg(i,:,:,:))
+;     linlog =1
+;     pbot   =50000
+;     ptop   =20000
 
-    ppppp = ps0(6,:,:)
-    do n=0, npenta-1
-        kkkkk=MTG(pentad|n,lat|:,lon|:,level|:)
-        ;ppppp=p_ClmPnt(26,:,:)
-;       printVarSummary(kkkkk)
-;       printVarSummary(ppppp)
-        mtg(i,n,:,:) = vibeta(plev,kkkkk,linlog,ppppp,pbot,ptop)
-    end do
+;     ppppp = ps0(6,:,:)
+;     do n=0, npenta-1
+;         kkkkk=MTG(pentad|n,lat|:,lon|:,level|:)
+;         ;ppppp=p_ClmPnt(26,:,:)
+; ;       printVarSummary(kkkkk)
+; ;       printVarSummary(ppppp)
+;         mtg(i,n,:,:) = vibeta(plev,kkkkk,linlog,ppppp,pbot,ptop)
+;     end do
 
 end do
 mtg!0 = "year"
@@ -101,7 +101,7 @@ printVarSummary(mtg)
 
 
 outpath = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/ERAI/"
-outname = "1_MTG_pentad_ERAI_1979_2015.nc"
+outname = "1_MTG_pentad_ERAI_"+yrStrt+"_"+yrLast+".nc"
 
 system("rm -rf "+outpath+outname)
 
