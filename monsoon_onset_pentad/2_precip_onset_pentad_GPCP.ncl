@@ -14,10 +14,10 @@ npenta = dimsizes(penta)
 
 bob_lat1 = 5
 bob_lat2 = 15
-bob_lon1 = 85
+bob_lon1 = 90
 bob_lon2 = 100
 
-scs_lat1 = 5
+scs_lat1 = 10
 scs_lat2 = 20
 scs_lon1 = 110
 scs_lon2 = 120
@@ -25,7 +25,7 @@ scs_lon2 = 120
 ism_lat1 = 10
 ism_lat2 = 20
 ism_lon1 = 60
-ism_lon2 = 75
+ism_lon2 = 85
 
 
 lat = fspan(-88.75, 88.75, 72)
@@ -72,15 +72,18 @@ printVarSummary(lsdata)
 lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, lon_new, lat_new, 0)
 printVarSummary(lsm)
 
-prec_new = linint2_Wrap(lon, lat, prec, True, lon_new, lat_new, 0)
+prec_newx = linint2_Wrap(lon, lat, prec, True, lon_new, lat_new, 0)
 ; prec_new = linint2_Wrap(lon, lat, prec, True, lsm&lon, lsm&lat, 0)
-printVarSummary(prec_new)
 
-prec_new!2 = "lat"
-prec_new!3 = "lon"
+
+prec_newx!2 = "lat"
+prec_newx!3 = "lon"
+
+pens = 18
+prec_new = prec_newx(:,pens:npenta-1,:,:)
 nlat = dimsizes(prec_new&lat)
 nlon = dimsizes(prec_new&lon)
-
+printVarSummary(prec_new)
 
 
 prec_bob = wgt_areaave_Wrap(prec_new(:,:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
@@ -102,21 +105,21 @@ do yy = 0, nyear-1
                 a := ind(prec_new(yy,:,ilat,ilon).gt.3.)
             end if
             ; printVarSummary(a)
-            peak(yy,ilat,ilon) = (/a(0)/)
+            peak(yy,ilat,ilon) = (/a(0)/) + pens
             delete(a)
         end do
     end do
 
     a = ind(prec_bob(yy,:).ge.5.)
-    BOB(yy) =(/a(0)/)
+    BOB(yy) =(/a(0)/) + pens
     delete(a)
 
     a = ind(prec_scs(yy,:).ge.5.)
-    SCS(yy) =(/a(0)/)
+    SCS(yy) =(/a(0)/) + pens
     delete(a)
 
     a = ind(prec_ism(yy,:).ge.5.)
-    ISM(yy) =(/a(0)/)
+    ISM(yy) =(/a(0)/) + pens
     delete(a)
 end do
 
@@ -126,16 +129,16 @@ write_table("prec_onset_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%1
 write_table("prec_onset_BOB_SCS_ISM.txt", "a", [/year,BOB,SCS,ISM/], "%0.4i %0.2i %0.2i %0.2i")
 
 
-bob = wgt_areaave_Wrap(peak(:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
-scs = wgt_areaave_Wrap(peak(:,{scs_lat1:scs_lat2},{scs_lon1:scs_lon2}), 1., 1., 0)
-ism = wgt_areaave_Wrap(peak(:,{ism_lat1:ism_lat2},{ism_lon1:ism_lon2}), 1., 1., 0)
-print(bob+" "+scs+" "+ism)
+; bob = wgt_areaave_Wrap(peak(:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
+; scs = wgt_areaave_Wrap(peak(:,{scs_lat1:scs_lat2},{scs_lon1:scs_lon2}), 1., 1., 0)
+; ism = wgt_areaave_Wrap(peak(:,{ism_lat1:ism_lat2},{ism_lon1:ism_lon2}), 1., 1., 0)
+; print(bob+" "+scs+" "+ism)
 
 peak@units = "penta"
 peak@long_name = "the onset pentad define by prec"
 
 outpath = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
-outname = "2_precip_onset_pentad_GPCP.nc"
+outname = "2_precip_onset_pentad_GPCP_"+yrStrt+"_"+yrLast+".nc"
 
 system("rm -rf "+outpath+outname)
 

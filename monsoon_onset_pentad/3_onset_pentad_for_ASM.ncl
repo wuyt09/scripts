@@ -3,10 +3,10 @@ begin
 
 bob_lat1 = 5
 bob_lat2 = 15
-bob_lon1 = 85
+bob_lon1 = 90
 bob_lon2 = 100
 
-scs_lat1 = 5
+scs_lat1 = 10
 scs_lat2 = 20
 scs_lon1 = 110
 scs_lon2 = 120
@@ -14,7 +14,7 @@ scs_lon2 = 120
 ism_lat1 = 10
 ism_lat2 = 20
 ism_lon1 = 60
-ism_lon2 = 75
+ism_lon2 = 85
 
 
 yrStrt = 1979
@@ -42,17 +42,19 @@ x1 = asciiread(diri+fili1, (/nyear,4/), "integer")
 x2 = asciiread(diri+fili2, (/nyear,4/), "integer")
 x3 = asciiread(diri+fili3, (/nyear,4/), "integer")
 
-x = new((/2,nyear,3/), integer)
+x = new((/3,nyear,3/), integer)
 x(0,:,:) = x1(:,1:3)
 x(1,:,:) = x2(:,1:3)
-; x(2,:,:) = x3(:,1:3)
+x(2,:,:) = x3(:,1:3)
 
 x_max = dim_max_n_Wrap(x, 0)
 ; print("BOB "+x_max(:,0))
 ; print("SCS "+x_max(:,1))
 ; print("ISM "+x_max(:,2))
+x_max(20,0) = 19
+; x_max(21,0) = 20
 
-write_table("multi_standard_onset_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%10s %10s %10s %10s")
+write_table("multi_standard_onset_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%4s %4s %4s %4s")
 write_table("multi_standard_onset_BOB_SCS_ISM.txt", "a", [/year,x_max(:,0),x_max(:,1),x_max(:,2)/], "%0.4i %0.2i %0.2i %0.2i")
 
 
@@ -76,6 +78,7 @@ wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)
 Colors = (/"black","red","blue","black","red","blue"/)
 Patterns = (/0,0,0,2,2,2/)
+Thick = (/10,10,10,5,5,5/)
 
 res = True
 res@gsnFrame = False
@@ -85,12 +88,16 @@ res@gsnMaximize = True
 res@vpWidthF = 0.7
 res@vpHeightF = 0.45
 
-res@xyLineThicknessF = 5
+res@xyLineThicknesses = Thick
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
 res@trXMinF = yrStrt
 res@trXMaxF = yrLast
+res@trYMinF = 18
+res@trYMaxF = 36
+res@tmYLPrecision = 2
+res@tiYAxisString = "Pentad"
 
 res@gsnYRefLine = 0
 res@gsnYRefLineColor = "grey40"

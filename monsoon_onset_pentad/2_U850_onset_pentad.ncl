@@ -18,10 +18,10 @@ nlev = 19
 
 bob_lat1 = 5
 bob_lat2 = 15
-bob_lon1 = 85
+bob_lon1 = 90
 bob_lon2 = 100
 
-scs_lat1 = 5
+scs_lat1 = 10
 scs_lat2 = 20
 scs_lon1 = 110
 scs_lon2 = 120
@@ -29,12 +29,13 @@ scs_lon2 = 120
 ism_lat1 = 10
 ism_lat2 = 20
 ism_lon1 = 60
-ism_lon2 = 75
+ism_lon2 = 85
 
 
-
+pens = 18
 f = addfile("1_U850_pentad_ERA5_"+yrStrt+"_"+yrLast+".nc", "r")
-u = f->u850
+ux = f->u850
+u = ux(:,pens:npenta-1,:,:)
 printVarSummary(u)
 
 u_bob = wgt_areaave_Wrap(u(:,:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
@@ -50,7 +51,7 @@ last1 = u_bob
 last2 = last1
 last3 = last1
 
-do n = 1, npenta-2
+do n = 1, npenta-pens-2
     diff(:,n,:,:) = u(:,n-1,:,:)*u(:,n,:,:)
     diff1(:,n) = u_bob(:,n-1)*u_bob(:,n)
     diff2(:,n) = u_scs(:,n-1)*u_scs(:,n)
@@ -72,21 +73,21 @@ do yy = 0, nyear-1
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
             a = ind((u(yy,:,ilat,ilon).gt.0) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
-            peak(yy,ilat,ilon) = (/a(0)/)
+            peak(yy,ilat,ilon) = (/a(0)/) + pens
             delete(a)
         end do
     end do
 
     a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.0) .and. (last1(yy,:).gt.0))
-    BOB(yy) =(/a(0)/)
+    BOB(yy) =(/a(0)/) + pens
     delete(a)
 
     a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.0) .and. (last2(yy,:).gt.0))
-    SCS(yy) =(/a(0)/)
+    SCS(yy) =(/a(0)/) + pens
     delete(a)
 
     a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.0) .and. (last3(yy,:).gt.0))
-    ISM(yy) =(/a(0)/)
+    ISM(yy) =(/a(0)/) + pens
     delete(a)
 end do
 printVarSummary(peak)

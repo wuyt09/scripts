@@ -19,10 +19,10 @@ nlev = 19
 
 bob_lat1 = 5
 bob_lat2 = 15
-bob_lon1 = 85
+bob_lon1 = 90
 bob_lon2 = 100
 
-scs_lat1 = 5
+scs_lat1 = 10
 scs_lat2 = 20
 scs_lon1 = 110
 scs_lon2 = 120
@@ -30,11 +30,13 @@ scs_lon2 = 120
 ism_lat1 = 10
 ism_lat2 = 20
 ism_lon1 = 60
-ism_lon2 = 75
+ism_lon2 = 85
 
 
+pens = 16
 f = addfile("./1_MTG_pentad_ERA5_"+yrStrt+"_"+yrLast+".nc", "r")
-MTG = f->MTG
+MTGx = f->MTG
+MTG = MTGx(:,pens:npenta-1,:,:)
 printVarSummary(MTG)
 
 u_bob = wgt_areaave_Wrap(MTG(:,:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
@@ -56,7 +58,7 @@ lastx1 = u_bob
 lastx2 = lastx1
 lastx3 = lastx1
 
-do n = 1, npenta-3
+do n = 1, npenta-pens-3
     diff(:,n,:,:) = MTG(:,n-1,:,:)*MTG(:,n,:,:)
     diff1(:,n) = u_bob(:,n-1)*u_bob(:,n)
     diff2(:,n) = u_scs(:,n-1)*u_scs(:,n)
@@ -82,26 +84,49 @@ ISM = BOB
 do yy = 0, nyear-1
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
-            a = ind((MTG(yy,:,ilat,ilon).gt.0) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0) .and. (lastx(yy,:,ilat,ilon).gt.0))
-            peak(yy,ilat,ilon) = (/a(0)/)
+            a = ind((MTG(yy,:,ilat,ilon).gt.0) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0 .and. (lastx(yy,:,ilat,ilon).gt.0)));
+            peak(yy,ilat,ilon) = (/a(0)/) + pens
             delete(a)
         end do
     end do
     
-    a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.0) .and. (last1(yy,:).gt.0) .and. (lastx1(yy,:).gt.0))
-    BOB(yy) =(/a(0)/)
+    a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.0) .and. (last1(yy,:).gt.0 .and. (lastx1(yy,:).gt.0)));
+    BOB(yy) =(/a(0)/) + pens
     delete(a)
 
-    a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.0) .and. (last2(yy,:).gt.0) .and. (lastx2(yy,:).gt.0))
-    SCS(yy) =(/a(0)/)
+    a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.0) .and. (last2(yy,:).gt.0 .and. (lastx2(yy,:).gt.0)));
+    SCS(yy) =(/a(0)/) + pens
     delete(a)
 
-    a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.0) .and. (last3(yy,:).gt.0) .and. (lastx3(yy,:).gt.0))
-    ISM(yy) =(/a(0)/)
+    a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.0) .and. (last3(yy,:).gt.0 .and. (lastx3(yy,:).gt.0)));
+    ISM(yy) =(/a(0)/) + pens
     delete(a)
 
 end do
 printVarSummary(peak)
+; do yy = 0, nyear-1
+;     do ilat = 0, nlat-1
+;         do ilon = 0, nlon-1
+;             a = ind((MTG(yy,:,ilat,ilon).gt.0) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0)); .and. (lastx(yy,:,ilat,ilon).gt.0)
+;             peak(yy,ilat,ilon) = (/a(0)/) + pens
+;             delete(a)
+;         end do
+;     end do
+    
+;     a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.0) .and. (last1(yy,:).gt.0)); .and. (lastx1(yy,:).gt.0)
+;     BOB(yy) =(/a(0)/) + pens
+;     delete(a)
+
+;     a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.0) .and. (last2(yy,:).gt.0)); .and. (lastx2(yy,:).gt.0)
+;     SCS(yy) =(/a(0)/) + pens
+;     delete(a)
+
+;     a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.0) .and. (last3(yy,:).gt.0)); .and. (lastx3(yy,:).gt.0)
+;     ISM(yy) =(/a(0)/) + pens
+;     delete(a)
+
+; end do
+; printVarSummary(peak)
 
 print(BOB+" "+SCS+" "+ISM)
 
@@ -134,46 +159,77 @@ latend = 30
 
 peak_clm = dim_avg_n_Wrap(peak, 0)
 
+; figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
+; figname = "2_MTG_onset"
+; wks = gsn_open_wks("pdf", figpath+figname)
+; plot = new(1, graphic)
+
+
+; res = True
+; res@gsnDraw = False
+; res@gsnFrame = False
+; res@gsnMaximize = True
+
+; res@mpOutlineOn = True
+; res@mpFillOn = True
+; res@mpGeophysicalLineThicknessF = 2
+; res@mpGeophysicalLineColor = "grey25" ;"red" 
+; ; res@mpFillDrawOrder = "PostDraw"
+
+; ;res@mpCenterLonF = 180
+; res@mpMinLatF = latstr
+; res@mpMaxLatF = latend
+; res@mpMinLonF = lonstr
+; res@mpMaxLonF = lonend
+
+
+; res@cnFillOn = True
+; res@cnLinesOn = False
+; res@cnLineLabelsOn = False
+; res@cnInfoLabelOn = False
+
+; res@gsnStringFontHeightF = 0.025
+; res@tmXBLabelFontHeightF = 0.02
+; res@tmYLLabelFontHeightF = 0.02
+
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMinLevelValF = 20
+; res@cnMaxLevelValF = 40
+; res@cnLevelSpacingF = 2
+
+; plot(0) = gsn_csm_contour_map(wks, peak_clm, res)
+; draw(plot)
+
 figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
-figname = "2_MTG_onset"
+figname = "2_MTG_onset_1999_2001"
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)
-
+Colors = (/"black","red","blue","black","red","blue"/)
+Patterns = (/0,0,0,2,2,2/)
 
 res = True
-res@gsnDraw = False
 res@gsnFrame = False
+res@gsnDraw  = False
 res@gsnMaximize = True
 
-res@mpOutlineOn = True
-res@mpFillOn = True
-res@mpGeophysicalLineThicknessF = 2
-res@mpGeophysicalLineColor = "grey25" ;"red" 
-; res@mpFillDrawOrder = "PostDraw"
+res@vpWidthF = 0.7
+res@vpHeightF = 0.45
 
-;res@mpCenterLonF = 180
-res@mpMinLatF = latstr
-res@mpMaxLatF = latend
-res@mpMinLonF = lonstr
-res@mpMaxLonF = lonend
+res@xyLineThicknessF = 5
+res@xyLineColors = Colors
+res@xyDashPatterns = Patterns
 
+res@trXMinF = pens
+res@trXMaxF = max(penta)
 
-res@cnFillOn = True
-res@cnLinesOn = False
-res@cnLineLabelsOn = False
-res@cnInfoLabelOn = False
+res@gsnYRefLine = 0
+res@gsnYRefLineColor = "grey40"
+res@gsnYRefLineThicknessF = 5
+res@gsnYRefLineDashPattern = 2
 
+res@gsnRightString = ""
 res@gsnStringFontHeightF = 0.025
-res@tmXBLabelFontHeightF = 0.02
-res@tmYLLabelFontHeightF = 0.02
 
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = 20
-res@cnMaxLevelValF = 40
-res@cnLevelSpacingF = 2
-
-plot(0) = gsn_csm_contour_map(wks, peak_clm, res)
+plot(0) = gsn_csm_xy(wks, ispan(pens+1, 73, 1), u_bob(20:22,:), res)
 draw(plot)
-
-
 end
