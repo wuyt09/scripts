@@ -1,7 +1,7 @@
 begin
 
 yrStrt = 1979
-yrLast = 2017
+yrLast = 2018
 mnStrt = 1
 mnLast = 12
 
@@ -125,8 +125,8 @@ end do
 
 print(BOB+" "+SCS+" "+ISM)
 
-write_table("prec_onset_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%10s %10s %10s %10s")
-write_table("prec_onset_BOB_SCS_ISM.txt", "a", [/year,BOB,SCS,ISM/], "%0.4i %0.2i %0.2i %0.2i")
+write_table("prec_GPCP_onset_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%10s %10s %10s %10s")
+write_table("prec_GPCP_onset_BOB_SCS_ISM.txt", "a", [/year,BOB,SCS,ISM/], "%0.4i %0.2i %0.2i %0.2i")
 
 
 ; bob = wgt_areaave_Wrap(peak(:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
@@ -159,7 +159,7 @@ latend = 30
 peak_clm = dim_avg_n_Wrap(peak, 0)
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
-figname = "2_precip_onset"
+figname = "2_precip_GPCP_onset"
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)
 

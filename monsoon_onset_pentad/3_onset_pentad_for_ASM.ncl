@@ -34,9 +34,9 @@ nlon = 360
 nlev = 19
 
 diri = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
-fili1 = "U850_onset_BOB_SCS_ISM.txt"
+fili1 = "wind_direction_10m_onset_BOB_SCS_ISM.txt"
 fili2 = "MTG_onset_BOB_SCS_ISM.txt"
-fili3 = "prec_onset_BOB_SCS_ISM.txt"
+fili3 = "prec_ERA5_onset_BOB_SCS_ISM.txt"
 
 x1 = asciiread(diri+fili1, (/nyear,4/), "integer")
 x2 = asciiread(diri+fili2, (/nyear,4/), "integer")

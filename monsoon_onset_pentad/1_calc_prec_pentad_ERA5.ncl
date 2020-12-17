@@ -1,7 +1,9 @@
 begin
+; this pentad data are quite different with GPCP pentad data, careful
+
 
 yrStrt = 1979
-yrLast = 2017
+yrLast = 2018
 mnStrt = 1
 mnLast = 12
 
@@ -16,63 +18,65 @@ nlat = 181
 nlon = 360
 nlev = 19
 
-mdiri = "/home/yangsong3/data-observation/ERA5-daily/Multi-levels/uwind/"
-LEV = 850
 
-U = new((/365,nlat,nlon/), float)
-u = new((/nyear,npenta,nlat,nlon/), float)
+mdiri = "/home/yangsong3/data-observation/ERA5-daily/Single-level/prect/"
+PREC = new((/365,nlat,nlon/), float)
+prec = new((/nyear,npenta,nlat,nlon/), float)
 
 do i = 0, nyear-1
     irecS = 0
     do j = 0, nmonth-1
         mth = sprinti("%0.2i", month(j))
-        filiu = "uwind."+year(i)+"-"+mth+".daily.nc"
+        filip = "prect."+year(i)+"-"+mth+".daily.nc"
 
-        fu = addfile(mdiri+filiu, "r")    
-        UX := short2flt(fu->u(:,{LEV},::-1,:))
+        fp = addfile(mdiri+filip, "r")    
+        UX := short2flt(fp->tp(:,::-1,:))
+        UX = UX * 24 * 1000 ; convert from m/hour to mm/day 
 
         ndays := dimsizes(UX&time)
         if (ndays.eq.29) then
             irecL = irecS+ndays-2
-            U(irecS:irecL,:,:) = UX(0:27,:,:)
+            PREC(irecS:irecL,:,:) = UX(0:27,:,:)
             irecS = irecS+ndays-1
         else
             irecL = irecS+ndays-1
-            U(irecS:irecL,:,:) = UX
+            PREC(irecS:irecL,:,:) = UX
             irecS = irecS+ndays
         end if
         ; print(irecL)
     end do
 
     do p = 0, 72
-        u(i,p,:,:) = dim_sum_n_Wrap(U(5*p:5*p+4,:,:), 0)/5.0
+        prec(i,p,:,:) = dim_sum_n_Wrap(PREC(5*p:5*p+4,:,:), 0)/5.0
     end do
-    copy_VarCoords(U(0,:,:), u(0,0,:,:))
+    copy_VarCoords(PREC(0,:,:), prec(0,0,:,:))
     print("end of year "+year(i))
 end do
-u!0 = "year"
-u&year = year
-u!1 = "pentad"
-u&pentad = penta
-printVarSummary(u)
+prec!0 = "year"
+prec&year = year
+prec!1 = "pentad"
+prec&pentad = penta
+printVarSummary(prec)
 
-u@units = "m/s"
-u@long_name = "zonal wind at 850 hPa derived from ERA5 daily data"
+prec@units = "mm/day"
+prec@long_name = "precipitation derived from ERA5 daily data"
 
 outpath = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
-outname = "1_U850_pentad_ERA5_"+yrStrt+"_"+yrLast+".nc"
+outname = "1_prec_pentad_ERA5_"+yrStrt+"_"+yrLast+".nc"
 
 system("rm -rf "+outpath+outname)
 
 fout = addfile(outpath+outname, "c")
 setfileoption(fout, "DefineMode", True)
 
-fout->u850 = u
+fout->prec = prec
 
+print("end of writing data")
 ;================================================================
 ; plot
 ;================================================================
 
+u = prec
 bob_lat1 = 5
 bob_lat2 = 15
 bob_lon1 = 85
@@ -104,7 +108,7 @@ x(5,:) = dim_avg_n_Wrap(u850_ism, 0)
 ; plot
 ;====================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
-figname = "1_calc_U850_pentad"
+figname = "1_calc_prec_pentad_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)
 

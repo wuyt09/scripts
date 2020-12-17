@@ -1,7 +1,7 @@
 begin
 
 yrStrt = 1979
-yrLast = 2017
+yrLast = 2018
 mnStrt = 1
 mnLast = 12
 
@@ -27,7 +27,7 @@ do i = 0, nyear-1
     do j = 0, nmonth-1
         mth = sprinti("%0.2i", month(j))
         filiu = "temp."+year(i)+"-"+mth+".daily.nc"
-        print(filiu)
+        ; print(filiu)
 
         ft = addfile(mdiri+filiu, "r")    
         UX := short2flt(ft->t(:,::-1,::-1,:))
@@ -42,7 +42,7 @@ do i = 0, nyear-1
             T(irecS:irecL,:,:,:) = UX 
             irecS = irecS+ndays
         end if
-        print(irecL)
+        ; print(irecL)
     end do
     print(irecL)
     do p = 0, 72
