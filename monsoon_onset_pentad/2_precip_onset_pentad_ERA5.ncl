@@ -37,6 +37,7 @@ f = addfile("1_prec_pentad_ERA5_"+yrStrt+"_"+yrLast+".nc", "r")
 ux = f->prec
 u = ux(:,pens:npenta-1,:,:)
 printVarSummary(u)
+delete(ux)
 
 fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
 ; lsdata = doubletofloat(a->lsm(0,:,:))
@@ -44,6 +45,7 @@ lsdata = fa->lsm(0,::-1,:)
 printVarSummary(lsdata)
 lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, u&longitude, u&latitude, 0)
 printVarSummary(lsm)
+delete(lsdata)
 
 
 u_bob = wgt_areaave_Wrap(u(:,:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
@@ -52,10 +54,14 @@ u_ism = wgt_areaave_Wrap(u(:,:,{ism_lat1:ism_lat2},{ism_lon1:ism_lon2}), 1., 1.,
 
 diff = u
 last = u
+diff = 0
+last = 0
 diff1 = u_bob
+diff1 = 0
 diff2 = diff1
 diff3 = diff1
 last1 = u_bob
+last1 = 0
 last2 = last1
 last3 = last1
 
@@ -89,25 +95,33 @@ ISM = BOB
 do yy = 0, nyear-1
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
-            a = ind((u(yy,:,ilat,ilon).gt.0) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
-            peak(yy,ilat,ilon) = (/a(0)/) + pens
-            delete(a)
+            if (lsm(ilat,ilon).eq.0) then
+                a = ind((u(yy,:,ilat,ilon).gt.5) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
+                peak(yy,ilat,ilon) = (/a(0)/) + pens
+                delete(a)
+            else
+                a = ind((u(yy,:,ilat,ilon).gt.3) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
+                peak(yy,ilat,ilon) = (/a(0)/) + pens
+                delete(a)
+            end if
         end do
     end do
 
-    a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.0) .and. (last1(yy,:).gt.0))
+    a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.5) .and. (last1(yy,:).gt.0))
     BOB(yy) =(/a(0)/) + pens
     delete(a)
 
-    a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.0) .and. (last2(yy,:).gt.0))
+    a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.5) .and. (last2(yy,:).gt.0))
     SCS(yy) =(/a(0)/) + pens
     delete(a)
 
-    a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.0) .and. (last3(yy,:).gt.0))
+    a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.5) .and. (last3(yy,:).gt.0))
     ISM(yy) =(/a(0)/) + pens
     delete(a)
+    print("end of year "+year(yy))
 end do
 printVarSummary(peak)
+delete([/u,diff,last,diff1,diff2,diff3,last1,last2,last3,u_bob,u_scs,u_ism/])
 
 print(BOB+" "+SCS+" "+ISM)
 

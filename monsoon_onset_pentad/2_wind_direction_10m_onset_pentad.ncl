@@ -39,22 +39,28 @@ u = ux(:,pens:npenta-1,:,:)
 printVarSummary(u)
 u_Jan = dim_avg_n_Wrap(ux(:,0:5,:,:), 1)
 printVarSummary(u_Jan)
+delete(ux)
 
 d_theta = u
+barr = 80
 
 do yy = 0, nyear-1
     do pp = 0, npenta-pens-1
         do ilat = 0, nlat-1
             do ilon = 0, nlon-1
                 delta = u(yy,pp,ilat,ilon) - u_Jan(yy,ilat,ilon)
-                if (delta.ge.180) then
+                if (delta.gt.180) then
                     d_theta(yy,pp,ilat,ilon) = delta - 360
+                else if (delta.lt.-180) then
+                    d_theta(yy,pp,ilat,ilon) = abs(delta + 360)
                 else
-                    d_theta(yy,pp,ilat,ilon) = delta + 360
+                    d_theta(yy,pp,ilat,ilon) = delta
+                end if
                 end if
             end do
         end do
     end do
+    print("end of year "+year(yy))
 end do
 
 u_bob = wgt_areaave_Wrap(d_theta(:,:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
@@ -63,23 +69,25 @@ u_ism = wgt_areaave_Wrap(d_theta(:,:,{ism_lat1:ism_lat2},{ism_lon1:ism_lon2}), 1
 
 diff = u
 last = u
+
 diff1 = u_bob
+diff1 = 0
 diff2 = diff1
 diff3 = diff1
 last1 = u_bob
+last1 = 0
 last2 = last1
 last3 = last1
 
-do n = 1, npenta-pens-2
-    diff(:,n,:,:) = d_theta(:,n-1,:,:)*d_theta(:,n,:,:)
-    diff1(:,n) = u_bob(:,n-1)*u_bob(:,n)
-    diff2(:,n) = u_scs(:,n-1)*u_scs(:,n)
-    diff3(:,n) = u_ism(:,n-1)*u_ism(:,n)
 
-    last(:,n,:,:) = d_theta(:,n+1,:,:)*d_theta(:,n,:,:)
-    last1(:,n) = u_bob(:,n+1)*u_bob(:,n)
-    last2(:,n) = u_scs(:,n+1)*u_scs(:,n)
-    last3(:,n) = u_ism(:,n+1)*u_ism(:,n)
+do n = 1, npenta-pens-2
+    diff1(:,n) = (u_bob(:,n-1)-barr)*(u_bob(:,n)-barr)
+    diff2(:,n) = (u_scs(:,n-1)-barr)*(u_scs(:,n)-barr)
+    diff3(:,n) = (u_ism(:,n-1)-barr)*(u_ism(:,n)-barr)
+
+    last1(:,n) = (u_bob(:,n+1)-barr)*(u_bob(:,n)-barr)
+    last2(:,n) = (u_scs(:,n+1)-barr)*(u_scs(:,n)-barr)
+    last3(:,n) = (u_ism(:,n+1)-barr)*(u_ism(:,n)-barr)
 end do
 printVarSummary(diff)
 
@@ -91,25 +99,29 @@ ISM = BOB
 do yy = 0, nyear-1
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
-            a = ind((u(yy,:,ilat,ilon).gt.100))
+            a = ind((d_theta(yy,:,ilat,ilon).gt.barr))
             peak(yy,ilat,ilon) = (/a(0)/) + pens
             delete(a)
         end do
     end do
 
     a= ind((diff1(yy,:).lt.0))
+    ; a= ind((u_bob(yy,:).gt.barr))
     BOB(yy) =(/a(0)/) + pens
     delete(a)
 
     a= ind((diff2(yy,:).lt.0))
+    ; a= ind((u_scs(yy,:).gt.barr))
     SCS(yy) =(/a(0)/) + pens
     delete(a)
 
     a= ind((diff3(yy,:).lt.0))
+    ; a= ind((u_ism(yy,:).gt.barr))
     ISM(yy) =(/a(0)/) + pens
     delete(a)
 end do
 printVarSummary(peak)
+delete([/u,u_Jan,delta,d_theta,diff,last,diff1,diff2,diff3,last1,last2,last3,u_bob,u_scs,u_ism/])
 
 print(BOB+" "+SCS+" "+ISM)
 
@@ -118,7 +130,7 @@ write_table("wind_direction_10m_onset_BOB_SCS_ISM.txt", "a", [/year,BOB,SCS,ISM/
 
 
 peak@units = "penta"
-peak@long_name = "the onset pentad define by U850 reverse"
+peak@long_name = "the onset pentad define by 10m wind direction"
 
 outpath = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
 outname = "2_wind_direction_10m_onset_pentad_"+yrStrt+"_"+yrLast+".nc"
@@ -128,7 +140,7 @@ system("rm -rf "+outpath+outname)
 fout = addfile(outpath+outname, "c")
 setfileoption(fout, "DefineMode", True)
 
-fout->u850_peak = peak
+fout->wind_peak = peak
 
 ;================================================================
 ; plot

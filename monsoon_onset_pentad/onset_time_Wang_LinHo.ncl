@@ -1,3 +1,4 @@
+
 begin
 
 yrStrt = 1979
@@ -54,37 +55,14 @@ do i = 0, nyear-1
 end do
 printVarSummary(prec)
 
-; print(prec(0,20,{10:20},{100:120}))
+prec_Jan = dim_avg_n_Wrap(prec(:,0:5,:,:), 1)
+printVarSummary(prec_Jan)
 
-
-;===================================================================
-; land sea mask
-;===================================================================
-lat_new = fspan(-90, 90, 181)
-lon_new = fspan(0, 359, 360)
-lat_new@units = "degree_north"
-lon_new@units = "degree_east"
-
-a      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
-; lsdata = doubletofloat(a->lsm(0,:,:))
-lsdata = a->lsm(0,::-1,:)
-printVarSummary(lsdata)
-lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, lon_new, lat_new, 0)
-printVarSummary(lsm)
-
-prec_newx = linint2_Wrap(lon, lat, prec, True, lon_new, lat_new, 0)
-; prec_new = linint2_Wrap(lon, lat, prec, True, lsm&lon, lsm&lat, 0)
-
-
-prec_newx!2 = "lat"
-prec_newx!3 = "lon"
 
 pens = 18
-prec_new = prec_newx(:,pens:npenta-1,:,:)
-nlat = dimsizes(prec_new&lat)
-nlon = dimsizes(prec_new&lon)
-printVarSummary(prec_new)
-
+precx = prec(:,pens:npenta-1,:,:)
+prec_new = precx
+prec_new = precx - conform_dims(dimsizes(precx), prec_Jan, (/0,2,3/))
 
 prec_bob = wgt_areaave_Wrap(prec_new(:,:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
 prec_scs = wgt_areaave_Wrap(prec_new(:,:,{scs_lat1:scs_lat2},{scs_lon1:scs_lon2}), 1., 1., 0)
@@ -106,13 +84,9 @@ last3 = last1
 do n = 1, npenta-pens-2
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
-            if (lsm(ilat,ilon).eq.0) then
-                diff(:,n,ilat,ilon) = (prec_new(:,n-1,ilat,ilon)-5)*(prec_new(:,n,ilat,ilon)-5)
-                last(:,n,ilat,ilon) = (prec_new(:,n+1,ilat,ilon)-5)*(prec_new(:,n,ilat,ilon)-5)
-            else
-                diff(:,n,ilat,ilon) = (prec_new(:,n-1,ilat,ilon)-3)*(prec_new(:,n,ilat,ilon)-3)
-                last(:,n,ilat,ilon) = (prec_new(:,n+1,ilat,ilon)-3)*(prec_new(:,n,ilat,ilon)-3)
-            end if
+            diff(:,n,ilat,ilon) = (prec_new(:,n-1,ilat,ilon)-5)*(prec_new(:,n,ilat,ilon)-5)
+            last(:,n,ilat,ilon) = (prec_new(:,n+1,ilat,ilon)-5)*(prec_new(:,n,ilat,ilon)-5)
+
             diff1(:,n) = (prec_bob(:,n-1)-5)*(prec_bob(:,n)-5)
             diff2(:,n) = (prec_scs(:,n-1)-5)*(prec_scs(:,n)-5)
             diff3(:,n) = (prec_ism(:,n-1)-5)*(prec_ism(:,n)-5)
@@ -132,13 +106,7 @@ ISM = BOB
 do yy = 0, nyear-1
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
-            ; a = ind(prec(yy,:,ilat,ilon).gt.0 .and. diff(yy,:,ilat,ilon).lt.0 .and. last(yy,:,ilat,ilon).gt.0)
-            if (lsm(ilat,ilon).eq.0) then
-                a := ind(prec_new(yy,:,ilat,ilon).gt.5. .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
-            else
-                a := ind(prec_new(yy,:,ilat,ilon).gt.3. .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
-            end if
-            ; printVarSummary(a)
+            a = ind(prec_new(yy,:,ilat,ilon).gt.5. .and. diff(yy,:,ilat,ilon).lt.0 .and. last(yy,:,ilat,ilon).gt.0)
             peak(yy,ilat,ilon) = (/a(0)/) + pens
             delete(a)
         end do
@@ -155,12 +123,13 @@ do yy = 0, nyear-1
     a = ind(prec_ism(yy,:).ge.5. .and. (diff3(yy,:).lt.0) .and. (last3(yy,:).gt.0))
     ISM(yy) =(/a(0)/) + pens
     delete(a)
+    print("end of year "+year(yy))
 end do
 
-print(BOB+" "+SCS+" "+ISM)
+print(year+"    "+BOB+" "+SCS+" "+ISM)
 
-write_table("prec_GPCP_onset_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%10s %10s %10s %10s")
-write_table("prec_GPCP_onset_BOB_SCS_ISM.txt", "a", [/year,BOB,SCS,ISM/], "%0.4i %0.2i %0.2i %0.2i")
+write_table("onset_time_Wang_LinHo_BOB_SCS_ISM.txt", "w", [/"YEAR","BOB","SCS","ISM"/], "%10s %10s %10s %10s")
+write_table("onset_time_Wang_LinHo_BOB_SCS_ISM.txt", "a", [/year,BOB,SCS,ISM/], "%0.4i %0.2i %0.2i %0.2i")
 
 
 ; bob = wgt_areaave_Wrap(peak(:,{bob_lat1:bob_lat2},{bob_lon1:bob_lon2}), 1., 1., 0)
@@ -172,7 +141,7 @@ peak@units = "penta"
 peak@long_name = "the onset pentad define by prec"
 
 outpath = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
-outname = "2_precip_onset_pentad_GPCP_"+yrStrt+"_"+yrLast+".nc"
+outname = "onset_time_Wang_LinHo_"+yrStrt+"_"+yrLast+".nc"
 
 system("rm -rf "+outpath+outname)
 
@@ -180,7 +149,6 @@ fout = addfile(outpath+outname, "c")
 setfileoption(fout, "DefineMode", True)
 
 fout->prec_peak = peak
-
 
 ;================================================================
 ; plot
@@ -193,7 +161,7 @@ latend = 30
 peak_clm = dim_avg_n_Wrap(peak, 0)
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/monsoon_onset_pentad/"
-figname = "2_precip_GPCP_onset"
+figname = "onset_time_Wang_LinHo"
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)
 
@@ -231,5 +199,4 @@ res@cnLevelSpacingF = 2
 
 plot(0) = gsn_csm_contour_map(wks, peak_clm, res)
 draw(plot)
-
 end
