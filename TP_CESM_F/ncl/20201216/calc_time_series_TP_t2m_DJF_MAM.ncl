@@ -19,7 +19,7 @@ printVarSummary(topo)
 ; OBS grid data
 ;===================================================================
 yrStrt = 1979
-yrLast = 2017
+yrLast = 2018
 year = ispan(yrStrt, yrLast, 1)
 nyr = dimsizes(year)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)

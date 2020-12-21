@@ -43,7 +43,7 @@ x2 = asciiread(diri+fili2, (/nyear,4/), "integer")
 x3 = asciiread(diri+fili3, (/nyear,4/), "integer")
 
 x = new((/3,nyear,3/), integer)
-x(0,:,:) = x1(:,1:3)
+; x(0,:,:) = x1(:,1:3)
 x(1,:,:) = x2(:,1:3)
 x(2,:,:) = x3(:,1:3)
 
