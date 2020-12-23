@@ -139,21 +139,21 @@ do yy = 0, nyear-1
                 a := ind(prec_new(yy,:,ilat,ilon).gt.3. .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
             end if
             ; printVarSummary(a)
-            peak(yy,ilat,ilon) = (/a(0)/) + pens
+            peak(yy,ilat,ilon) = (/a(0)/) + pens +1
             delete(a)
         end do
     end do
 
     a = ind(prec_bob(yy,:).ge.5. .and. (diff1(yy,:).lt.0) .and. (last1(yy,:).gt.0))
-    BOB(yy) =(/a(0)/) + pens
+    BOB(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a = ind(prec_scs(yy,:).ge.5. .and. (diff2(yy,:).lt.0) .and. (last2(yy,:).gt.0))
-    SCS(yy) =(/a(0)/) + pens
+    SCS(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a = ind(prec_ism(yy,:).ge.5. .and. (diff3(yy,:).lt.0) .and. (last3(yy,:).gt.0))
-    ISM(yy) =(/a(0)/) + pens
+    ISM(yy) =(/a(0)/) + pens +1
     delete(a)
 end do
 

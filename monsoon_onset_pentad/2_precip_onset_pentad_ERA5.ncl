@@ -97,26 +97,26 @@ do yy = 0, nyear-1
         do ilon = 0, nlon-1
             if (lsm(ilat,ilon).eq.0) then
                 a = ind((u(yy,:,ilat,ilon).gt.5) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
-                peak(yy,ilat,ilon) = (/a(0)/) + pens
+                peak(yy,ilat,ilon) = (/a(0)/) + pens +1
                 delete(a)
             else
                 a = ind((u(yy,:,ilat,ilon).gt.3) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0))
-                peak(yy,ilat,ilon) = (/a(0)/) + pens
+                peak(yy,ilat,ilon) = (/a(0)/) + pens +1
                 delete(a)
             end if
         end do
     end do
 
     a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.5) .and. (last1(yy,:).gt.0))
-    BOB(yy) =(/a(0)/) + pens
+    BOB(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.5) .and. (last2(yy,:).gt.0))
-    SCS(yy) =(/a(0)/) + pens
+    SCS(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.5) .and. (last3(yy,:).gt.0))
-    ISM(yy) =(/a(0)/) + pens
+    ISM(yy) =(/a(0)/) + pens +1
     delete(a)
     print("end of year "+year(yy))
 end do

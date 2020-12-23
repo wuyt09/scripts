@@ -100,24 +100,24 @@ do yy = 0, nyear-1
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
             a = ind((d_theta(yy,:,ilat,ilon).gt.barr))
-            peak(yy,ilat,ilon) = (/a(0)/) + pens
+            peak(yy,ilat,ilon) = (/a(0)/) + pens +1
             delete(a)
         end do
     end do
 
     a= ind((diff1(yy,:).lt.0))
     ; a= ind((u_bob(yy,:).gt.barr))
-    BOB(yy) =(/a(0)/) + pens
+    BOB(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a= ind((diff2(yy,:).lt.0))
     ; a= ind((u_scs(yy,:).gt.barr))
-    SCS(yy) =(/a(0)/) + pens
+    SCS(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a= ind((diff3(yy,:).lt.0))
     ; a= ind((u_ism(yy,:).gt.barr))
-    ISM(yy) =(/a(0)/) + pens
+    ISM(yy) =(/a(0)/) + pens +1
     delete(a)
 end do
 printVarSummary(peak)

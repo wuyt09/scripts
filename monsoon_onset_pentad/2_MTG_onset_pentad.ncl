@@ -112,21 +112,21 @@ do yy = 0, nyear-1
     do ilat = 0, nlat-1
         do ilon = 0, nlon-1
             a = ind((MTG(yy,:,ilat,ilon).gt.0) .and. (diff(yy,:,ilat,ilon).lt.0) .and. (last(yy,:,ilat,ilon).gt.0)); .and. (lastx(yy,:,ilat,ilon).gt.0)
-            peak(yy,ilat,ilon) = (/a(0)/) + pens
+            peak(yy,ilat,ilon) = (/a(0)/) + pens +1
             delete(a)
         end do
     end do
     
     a= ind((diff1(yy,:).lt.0) .and. (u_bob(yy,:).gt.0) .and. (last1(yy,:).gt.0)); .and. (lastx1(yy,:).gt.0)
-    BOB(yy) =(/a(0)/) + pens
+    BOB(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a= ind((diff2(yy,:).lt.0) .and. (u_scs(yy,:).gt.0) .and. (last2(yy,:).gt.0)); .and. (lastx2(yy,:).gt.0)
-    SCS(yy) =(/a(0)/) + pens
+    SCS(yy) =(/a(0)/) + pens +1
     delete(a)
 
     a= ind((diff3(yy,:).lt.0) .and. (u_ism(yy,:).gt.0) .and. (last3(yy,:).gt.0)); .and. (lastx3(yy,:).gt.0)
-    ISM(yy) =(/a(0)/) + pens
+    ISM(yy) =(/a(0)/) + pens +1
     delete(a)
 
 end do
