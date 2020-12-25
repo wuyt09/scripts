@@ -35,13 +35,13 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "sensible_heat_flux_mon_1x1_1979_2020.nc"
+fili = "surface_sensible_heat_flux_mon_1x1_1979_2019.nc"
 f = addfile(diri+fili, "r")
 
 Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-var = short2flt(f->sshf(iYYYY,0,:,:))
+var = short2flt(f->sshf(iYYYY,:,:))
 var = var/86400.
 var@units = "W/m~S~2~N~"
 var = var * (-1.)

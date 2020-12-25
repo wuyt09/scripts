@@ -27,13 +27,13 @@ nm = dimsizes(month)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "t2m_mon_1x1_1979_2020.nc"
+fili = "t2m_mon_1x1_1979_2019.nc"
 f1 = addfile(diri+fili, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-ts_obs = short2flt(f1->t2m(iYYYY,0,::-1,:))
+ts_obs = short2flt(f1->t2m(iYYYY,::-1,:))
 printVarSummary(ts_obs)
 
 TS_obs = mask(ts_obs, topo.ge.1500, True)

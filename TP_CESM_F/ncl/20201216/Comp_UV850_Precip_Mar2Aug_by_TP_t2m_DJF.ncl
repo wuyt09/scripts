@@ -5,6 +5,7 @@ yrStrt = 1979
 yrLast = 2018
 mnStrt = 1
 mnLast = 12
+Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 
 year = ispan(yrStrt, yrLast, 1)
 month = ispan(mnStrt, mnLast, 1)
@@ -13,6 +14,9 @@ nyear = dimsizes(year)
 nmonth = dimsizes(month)
 npenta = dimsizes(penta)
 season = (/"JJA"/)
+
+nlat = 181
+nlon = 360
 
 fx = "time_series_TP_t2m_DJF_MAM_OBS.txt"
 x = asciiread(fx, (/nyear,3/), "float")
@@ -66,20 +70,35 @@ prec@units = "mm/day"
 printVarSummary(u)
 printVarSummary(prec)
 
-u_sea = month_to_season(u, season)
-v_sea = month_to_season(v, season)
-z_sea = month_to_season(z, season)
-prec_sea = month_to_season(prec, season)
+u_sea = reshape(u, (/nyear,nmonth,nlat,nlon/))
+v_sea = reshape(v, (/nyear,nmonth,nlat,nlon/))
+z_sea = reshape(z, (/nyear,nmonth,nlat,nlon/))
+prec_sea = reshape(prec, (/nyear,nmonth,nlat,nlon/))
+u_sea!0 = "year"
+u_sea&year = year
+u_sea!1 = "month"
+u_sea&month = Month
+copy_VarCoords(u(0,:,:), u_sea(0,0,:,:))
+copy_VarCoords(u_sea, v_sea)
+copy_VarCoords(u_sea, z_sea)
+copy_VarCoords(u_sea, prec_sea)
 printVarSummary(u_sea)
 
-u_sea_hig = u_sea(hig_ind,:,:)
-u_sea_low = u_sea(low_ind,:,:)
-v_sea_hig = v_sea(hig_ind,:,:)
-v_sea_low = v_sea(low_ind,:,:)
-z_sea_hig = z_sea(hig_ind,:,:)
-z_sea_low = z_sea(low_ind,:,:)
-prec_sea_hig = prec_sea(hig_ind,:,:)
-prec_sea_low = prec_sea(low_ind,:,:)
+
+; u_sea = month_to_season(u, season)
+; v_sea = month_to_season(v, season)
+; z_sea = month_to_season(z, season)
+; prec_sea = month_to_season(prec, season)
+; printVarSummary(u_sea)
+
+u_sea_hig = u_sea(hig_ind,:,:,:)
+u_sea_low = u_sea(low_ind,:,:,:)
+v_sea_hig = v_sea(hig_ind,:,:,:)
+v_sea_low = v_sea(low_ind,:,:,:)
+z_sea_hig = z_sea(hig_ind,:,:,:)
+z_sea_low = z_sea(low_ind,:,:,:)
+prec_sea_hig = prec_sea(hig_ind,:,:,:)
+prec_sea_low = prec_sea(low_ind,:,:,:)
 
 
 ;=================================ttest============================================
@@ -133,10 +152,10 @@ latstr = 10
 latend = 55
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_UV850_Precip_JJA_by_TP_t2m_DJF"
+figname = "Comp_UV850_Precip_Mar2Aug_by_TP_t2m_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new(4, graphic)
+plot = new(3, graphic)
 plotv = plot
 plotc = plot
 plot_topo = plot
@@ -228,35 +247,37 @@ res@tmYLLabelFontHeightF = 0.02
 
 ;=====================================================
 
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 2.
-res@cnMaxLevelValF = 20.
-res@cnMinLevelValF = 2.
-res@cnFillPalette = "CBR_wet"
-res@pmLabelBarOrthogonalPosF = 0.12
 
-vcres@vcRefMagnitudeF         = 5.0 
 ; res@gsnRightString = "Comp"
 
 cnres@cnLevelSelectionMode = "ExplicitLevels"
 cnres@cnLevels = (/5883/);12520,12560
 
+do i = 0,5
+    res@cnLevelSelectionMode = "ManualLevels"
+    res@cnLevelSpacingF = 2.
+    res@cnMaxLevelValF = 20.
+    res@cnMinLevelValF = 2.
+    res@cnFillPalette = "CBR_wet"
+    res@pmLabelBarOrthogonalPosF = 0.12
+
+    vcres@vcRefMagnitudeF         = 5.0
 
   res@gsnLeftString = "(a) High DJF TP t2m"
-  plot(0) = gsn_csm_contour_map_ce(wks, precsea_hig_ave, res)
+  plot(0) = gsn_csm_contour_map_ce(wks, precsea_hig_ave(2+i,:,:), res)
   cnres@cnLineColor = "red"
-  plotc(0) = gsn_csm_contour(wks, zsea_hig_ave, cnres)
-  plotv(0) = gsn_csm_vector(wks, usea_hig_ave, vsea_hig_ave, vcres)
+  plotc(0) = gsn_csm_contour(wks, zsea_hig_ave(2+i,:,:), cnres)
+  plotv(0) = gsn_csm_vector(wks, usea_hig_ave(2+i,:,:), vsea_hig_ave(2+i,:,:), vcres)
   plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
   overlay(plot(0), plotc(0))
   overlay(plot(0), plotv(0))
   overlay(plot(0), plot_topo(0))
 
   res@gsnLeftString = "(b) Low DJF TP t2m"
-  plot(1) = gsn_csm_contour_map_ce(wks, precsea_low_ave, res)
+  plot(1) = gsn_csm_contour_map_ce(wks, precsea_low_ave(2+i,:,:), res)
   cnres@cnLineColor = "blue"
-  plotc(1) = gsn_csm_contour(wks, zsea_low_ave, cnres)
-  plotv(1) = gsn_csm_vector(wks, usea_low_ave, vsea_low_ave, vcres)
+  plotc(1) = gsn_csm_contour(wks, zsea_low_ave(2+i,:,:), cnres)
+  plotv(1) = gsn_csm_vector(wks, usea_low_ave(2+i,:,:), vsea_low_ave(2+i,:,:), vcres)
   plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
   overlay(plot(1), plotc(1))
   overlay(plot(1), plotv(1))
@@ -272,8 +293,8 @@ cnres@cnLevels = (/5883/);12520,12560
     vcres@vcRefMagnitudeF         = 1.0 
 
   res@gsnLeftString = "(c) a - b"
-  plot(2) = gsn_csm_contour_map_ce(wks, prec_diff, res)
-  plotv(2) = gsn_csm_vector(wks, usea_diff, vsea_diff, vcres)
+  plot(2) = gsn_csm_contour_map_ce(wks, prec_diff(2+i,:,:), res)
+  plotv(2) = gsn_csm_vector(wks, usea_diff(2+i,:,:), vsea_diff(2+i,:,:), vcres)
   plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
   overlay(plot(2), plotv(2))
   overlay(plot(2), plot_topo(2))
@@ -289,7 +310,9 @@ cnres@cnLevels = (/5883/);12520,12560
     resP@pmLabelBarOrthogonalPosF     = -0.005                  ; 调色标和图的间距
 ;--------------------------------------------------------------------------------  
 
-resP@gsnPanelMainString = "UV850_Precip_WPSH"
-gsn_panel(wks, plot, (/2,2/), resP)
+resP@gsnPanelMainString = "UV850_Precip_WPSH_"+Month(i+2)
+gsn_panel(wks, plot, (/1,3/), resP)
+
+end do
 
 end
