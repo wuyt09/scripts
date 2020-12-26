@@ -12,19 +12,19 @@ penta = ispan(1, 73, 1)
 nyear = dimsizes(year)
 nmonth = dimsizes(month)
 npenta = dimsizes(penta)
-season = (/"MAM"/)
+season = (/"JJA"/)
 
 fx = "time_series_TP_t2m_DJF_MAM_OBS.txt"
 x = asciiread(fx, (/nyear,3/), "float")
-inx = x(:,1)
+inx = x(:,2)
 
 hig_ind = ind(inx.ge.1.)
 low_ind = ind(inx.le.-1.)
 print(year(hig_ind))
 print(year(low_ind))
 
-hig_ind = hig_ind+1
-low_ind = low_ind+1
+; hig_ind = hig_ind+1
+; low_ind = low_ind+1
 
 ;===================================================================
 ; topo data
@@ -90,7 +90,7 @@ latstr = 15
 latend = 45
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_MAM_soil_moisture_by_TP_t2m_DJF"
+figname = "Comp_JJA_soil_moisture_by_TP_t2m_MAM"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
