@@ -20,15 +20,15 @@ nlev = 19
 
 fx = "time_series_TP_t2m_DJF_MAM_OBS.txt"
 x = asciiread(fx, (/nyear,3/), "float")
-inx = x(0:nyear-2,1)
+inx = x(0:nyear-1,1)
 
 hig_ind = ind(inx.ge.1.)
 low_ind = ind(inx.le.-1.)
 print(year(hig_ind))
 print(year(low_ind))
 
-hig_ind = hig_ind+1
-low_ind = low_ind+1
+; hig_ind = hig_ind+1
+; low_ind = low_ind+1
 
 ;-------------------------------------------------------------------
 ;-------------------------------------------------------------------

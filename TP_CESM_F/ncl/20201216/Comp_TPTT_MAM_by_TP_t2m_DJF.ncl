@@ -14,9 +14,9 @@ nmonth = dimsizes(month)
 npenta = dimsizes(penta)
 season = (/"MAM"/)
 
-fx = "time_series_TP_t2m_DJF_MAM_ERA5.txt"
+fx = "time_series_TP_t2m_DJF_MAM_OBS.txt"
 x = asciiread(fx, (/nyear,3/), "float")
-inx = x(:,1)
+inx = x(0:nyear-2,1)
 
 hig_ind = ind(inx.ge.1.)
 low_ind = ind(inx.le.-1.)
@@ -32,22 +32,22 @@ print(year(low_ind))
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
 printVarSummary(topo)
+;====================================================================
+latstr = 25
+latend = 40
+lonstr = 75
+lonend = 105
+pens = 18
+pene = 36
 
-;===================================================================
-diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "surface_sensible_heat_flux_mon_1x1_1979_2019.nc"
+diri = "/home/yangsong3/wuyt/sysu/scripts/monsoon_onset_pentad/"
+fili = "1_Tropo_Temp_pentad_ERA5_1979_2018.nc"
 f = addfile(diri+fili, "r")
 
-Time = f->time
-YYYY = cd_calendar(Time, -1)/100
-iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-var = short2flt(f->sshf(iYYYY,:,:))
-var = var/86400.
-var@units = "W/m~S~2~N~"
-var = var * (-1.)
+var = f->tropoT
 printVarSummary(var)
 
-var_sea = month_to_season(var, season)
+var_sea = dim_avg_n_Wrap(var(:,12:29,:,:), 1)
 printVarSummary(var_sea)
 
 var_hig = var_sea(hig_ind,:,:)
@@ -70,16 +70,17 @@ diff_var = var_hig_ave
 diff_var = var_hig_ave - var_low_ave
 printVarSummary(diff_var)
 
-;===================================================================
+;====================================================================
 ; plot
-;===================================================================
-lonstr = 60
-lonend = 110
-latstr = 15
-latend = 45
-
+;====================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_MAM_SH_by_TP_t2m_DJF"
+figname = "Comp_TPTT_MAM_by_TP_t2m_DJF"
+
+lonstr = 60
+lonend = 150
+latstr = 5
+latend = 60
+
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -158,11 +159,11 @@ res@tmYLLabelFontHeightF = 0.02
  ;----------------------------------------------
 
 
-res@cnFillPalette = "cmp_flux"
+res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -100
-res@cnMaxLevelValF = 100
-res@cnLevelSpacingF = 10
+res@cnMinLevelValF = 230
+res@cnMaxLevelValF = 250
+res@cnLevelSpacingF = 1.
 ; res@lbLabelBarOn = False
 
 res@gsnLeftString = "(a) High DJF TP t2m"
@@ -177,9 +178,9 @@ plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1
+res@cnMinLevelValF = -1
+res@cnMaxLevelValF = 1
+res@cnLevelSpacingF = 0.1
 res@lbLabelBarOn = True
 res@gsnLeftString = "(c) a-b"
 plot(2) = gsn_csm_contour_map(wks, diff_var, res)
@@ -192,10 +193,8 @@ overlay(plot(2), plot_prob(0))
 
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = "Surface sensible heat flux in MAM"
+pres@gsnPanelMainString = "Tropo Temp in MAM"
 ; pres@gsnPanelLabelBar = True
 ; pres@pmLabelBarOrthogonalPosF = -0.015
 gsn_panel(wks, plot, (/1,3/), pres)
-
-
 end

@@ -83,7 +83,7 @@ dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/ta/"
 models = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
         "CESM1-WACCM","CMCC-CESM","CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","FIO-ESM","GFDL-CM3",\
         "GFDL-ESM2G","GFDL-ESM2M","GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
-        "IPSL-CM5B-LR","MIROC5","MIROC5-ESM","MPI-ESM-LR","MPI-ESM-MR","MPI-ESM-P","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
+        "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MPI-ESM-P","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
 
 nm = dimsizes(models)
 TP_GCM5 = new((/nm,12/), float)
@@ -94,7 +94,7 @@ do i = 0, nm-1
     fgcm = addfile(filigcm, "r")
     TIME := fgcm->time
     YYYY := cd_calendar(TIME, -1)/100
-    iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+    iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
     T_GCMs := fgcm->ta(iYYYY,:,:,:)
     ; printVarSummary(T_GCMs)
     T_GCMs!1 = "lev"

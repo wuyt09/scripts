@@ -14,7 +14,7 @@ nmonth = dimsizes(month)
 npenta = dimsizes(penta)
 season = (/"MAM"/)
 
-fx = "time_series_TP_t2m_DJF_MAM_ERA5.txt"
+fx = "time_series_TP_skt_DJF_MAM_ERA5.txt"
 x = asciiread(fx, (/nyear,3/), "float")
 inx = x(:,1)
 
@@ -79,7 +79,7 @@ latstr = 15
 latend = 45
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_MAM_SH_by_TP_t2m_DJF"
+figname = "Comp_MAM_SH_by_TP_skt_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -165,12 +165,12 @@ res@cnMaxLevelValF = 100
 res@cnLevelSpacingF = 10
 ; res@lbLabelBarOn = False
 
-res@gsnLeftString = "(a) High DJF TP t2m"
+res@gsnLeftString = "(a) High DJF TP skt"
 plot(0) = gsn_csm_contour_map(wks, var_hig_ave, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@gsnLeftString = "(b) Low DJF TP t2m"
+res@gsnLeftString = "(b) Low DJF TP skt"
 plot(1) = gsn_csm_contour_map(wks, var_low_ave, res)
 plot(1) = gsn_csm_contour_map(wks, var_hig_ave, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)

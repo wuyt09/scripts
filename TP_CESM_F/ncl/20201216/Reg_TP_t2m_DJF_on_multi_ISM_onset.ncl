@@ -103,8 +103,8 @@ t2m_sea = month_to_season(ts_obs, season)
 printVarSummary(t2m_sea)
 
 
-x_djf = x(:,1:nyear-1)
-t2m_djf = t2m_sea(0:nyear-2,:,:)
+x_djf = x ;(:,1:nyear-1)
+t2m_djf = t2m_sea ;(0:nyear-2,:,:)
 
 rc = new((/6,72,128/), float)
 prob = rc

@@ -27,13 +27,13 @@ nm = dimsizes(month)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "t2m_mon_1x1_1979_2019.nc"
+fili = "skt_mon_1x1_1979_2019.nc"
 f1 = addfile(diri+fili, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-ts_obs = short2flt(f1->t2m(iYYYY,::-1,:))
+ts_obs = short2flt(f1->skt(iYYYY,::-1,:))
 time = f1->time(iYYYY)
 ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
 printVarSummary(ts_obs)
@@ -47,15 +47,15 @@ printVarSummary(TP_obs)
 TP_obs_std = dim_standardize_n_Wrap(TP_obs, 1, 1)
 printVarSummary(TP_obs_std)
 
-write_table("time_series_TP_t2m_"+season(0)+"_"+season(1)+"_ERA5.txt", "w", [/"YEAR","DJF","MAM"/], "%4s %4s %4s")
-write_table("time_series_TP_t2m_"+season(0)+"_"+season(1)+"_ERA5.txt", "a", [/year,TP_obs_std(0,:),TP_obs_std(1,:)/], "%0.4i %4.2f %4.2f %4.2f")
+write_table("time_series_TP_skt_"+season(0)+"_"+season(1)+"_ERA5.txt", "w", [/"YEAR","DJF","MAM"/], "%4s %4s %4s")
+write_table("time_series_TP_skt_"+season(0)+"_"+season(1)+"_ERA5.txt", "a", [/year,TP_obs_std(0,:),TP_obs_std(1,:)/], "%0.4i %4.2f %4.2f %4.2f")
 
 corr = escorc(TP_obs_std(0,:), TP_obs_std(1,:))
 ;====================================================================
 ; plot
 ;====================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "calc_time_series_TP_t2m_"+season(0)+"_"+season(1)+"_ERA5"
+figname = "calc_time_series_TP_skt_"+season(0)+"_"+season(1)+"_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)
 

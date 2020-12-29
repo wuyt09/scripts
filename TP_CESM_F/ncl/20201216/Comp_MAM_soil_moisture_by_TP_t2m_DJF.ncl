@@ -14,8 +14,8 @@ nmonth = dimsizes(month)
 npenta = dimsizes(penta)
 season = (/"MAM"/)
 
-fx = "time_series_TP_t2m_DJF_MAM_OBS.txt"
-x = asciiread(fx, (/nyear,3/), "float")
+fx = "time_series_TP_t2m_DJF_MAM_ERA5.txt"
+x = asciiread(fx, (/nyear-1,3/), "float")
 inx = x(:,1)
 
 hig_ind = ind(inx.ge.1.)
@@ -23,8 +23,8 @@ low_ind = ind(inx.le.-1.)
 print(year(hig_ind))
 print(year(low_ind))
 
-hig_ind = hig_ind+1
-low_ind = low_ind+1
+; hig_ind = hig_ind+1
+; low_ind = low_ind+1
 
 ;===================================================================
 ; topo data
@@ -35,10 +35,10 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili1 = "soil_water_layer_1_mon_1x1_1979_2019.nc"
-fili2 = "soil_water_layer_2_mon_1x1_1979_2019.nc"
-fili3 = "soil_water_layer_3_mon_1x1_1979_2019.nc"
-fili4 = "soil_water_layer_4_mon_1x1_1979_2019.nc"
+fili1 = "soil_water_layer_1_mon_1x1_1979_2019.nc" ; 0-7 cm
+fili2 = "soil_water_layer_2_mon_1x1_1979_2019.nc" ; 7-28 cm
+fili3 = "soil_water_layer_3_mon_1x1_1979_2019.nc" ; 28-100 cm
+fili4 = "soil_water_layer_4_mon_1x1_1979_2019.nc" ; 100-289 cm
 
 f1 = addfile(diri+fili1, "r")
 f2 = addfile(diri+fili2, "r")
@@ -53,7 +53,7 @@ var2 = short2flt(f2->swvl2(iYYYY,:,:))
 var3 = short2flt(f3->swvl3(iYYYY,:,:))
 var4 = short2flt(f4->swvl4(iYYYY,:,:))
 ; var = var1+var2+var3+var4
-var = var1
+var = var1+var2
 copy_VarCoords(var1, var)
 
 printVarSummary(var)
@@ -204,7 +204,7 @@ overlay(plot(2), plot_prob(0))
 
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = "Soil moisture (0cm-289cm) in MAM"
+pres@gsnPanelMainString = "Soil moisture (0cm-28cm) in MAM"
 ; pres@gsnPanelLabelBar = True
 ; pres@pmLabelBarOrthogonalPosF = -0.015
 gsn_panel(wks, plot, (/1,3/), pres)

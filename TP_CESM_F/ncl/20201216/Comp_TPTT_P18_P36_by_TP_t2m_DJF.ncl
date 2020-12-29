@@ -23,8 +23,8 @@ low_ind = ind(inx.le.-1.)
 print(year(hig_ind))
 print(year(low_ind))
 
-hig_ind = hig_ind+1
-low_ind = low_ind+1
+; hig_ind = hig_ind+1
+; low_ind = low_ind+1
 
 ;===================================================================
 ; topo data

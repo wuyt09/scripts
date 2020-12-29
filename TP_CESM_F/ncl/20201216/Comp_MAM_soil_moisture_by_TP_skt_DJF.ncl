@@ -14,8 +14,8 @@ nmonth = dimsizes(month)
 npenta = dimsizes(penta)
 season = (/"MAM"/)
 
-fx = "time_series_TP_t2m_DJF_MAM_ERA5.txt"
-x = asciiread(fx, (/nyear,3/), "float")
+fx = "time_series_TP_skt_DJF_MAM_ERA5.txt"
+x = asciiread(fx, (/nyear-1,3/), "float")
 inx = x(:,1)
 
 hig_ind = ind(inx.ge.1.)
@@ -35,16 +35,27 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "surface_sensible_heat_flux_mon_1x1_1979_2019.nc"
-f = addfile(diri+fili, "r")
+fili1 = "soil_water_layer_1_mon_1x1_1979_2019.nc" ; 0-7 cm
+fili2 = "soil_water_layer_2_mon_1x1_1979_2019.nc" ; 7-28 cm
+fili3 = "soil_water_layer_3_mon_1x1_1979_2019.nc" ; 28-100 cm
+fili4 = "soil_water_layer_4_mon_1x1_1979_2019.nc" ; 100-289 cm
 
-Time = f->time
+f1 = addfile(diri+fili1, "r")
+f2 = addfile(diri+fili2, "r")
+f3 = addfile(diri+fili3, "r")
+f4 = addfile(diri+fili4, "r")
+
+Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-var = short2flt(f->sshf(iYYYY,:,:))
-var = var/86400.
-var@units = "W/m~S~2~N~"
-var = var * (-1.)
+var1 = short2flt(f1->swvl1(iYYYY,:,:))
+var2 = short2flt(f2->swvl2(iYYYY,:,:))
+var3 = short2flt(f3->swvl3(iYYYY,:,:))
+var4 = short2flt(f4->swvl4(iYYYY,:,:))
+; var = var1+var2+var3+var4
+var = var1+var2
+copy_VarCoords(var1, var)
+
 printVarSummary(var)
 
 var_sea = month_to_season(var, season)
@@ -79,7 +90,7 @@ latstr = 15
 latend = 45
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_MAM_SH_by_TP_t2m_DJF"
+figname = "Comp_MAM_soil_moisture_by_TP_skt_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -158,11 +169,11 @@ res@tmYLLabelFontHeightF = 0.02
  ;----------------------------------------------
 
 
-res@cnFillPalette = "cmp_flux"
+res@cnFillPalette = "CBR_wet"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -100
-res@cnMaxLevelValF = 100
-res@cnLevelSpacingF = 10
+res@cnMinLevelValF = 0.1
+res@cnMaxLevelValF = 1.
+res@cnLevelSpacingF = 0.1
 ; res@lbLabelBarOn = False
 
 res@gsnLeftString = "(a) High DJF TP t2m"
@@ -176,10 +187,11 @@ plot(1) = gsn_csm_contour_map(wks, var_hig_ave, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
 
+res@cnFillPalette = "CBR_drywet"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1
+res@cnMinLevelValF = -0.1
+res@cnMaxLevelValF = 0.1
+res@cnLevelSpacingF = 0.01
 res@lbLabelBarOn = True
 res@gsnLeftString = "(c) a-b"
 plot(2) = gsn_csm_contour_map(wks, diff_var, res)
@@ -192,7 +204,7 @@ overlay(plot(2), plot_prob(0))
 
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = "Surface sensible heat flux in MAM"
+pres@gsnPanelMainString = "Soil moisture (0cm-28cm) in MAM"
 ; pres@gsnPanelLabelBar = True
 ; pres@pmLabelBarOrthogonalPosF = -0.015
 gsn_panel(wks, plot, (/1,3/), pres)

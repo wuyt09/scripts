@@ -16,15 +16,15 @@ season = (/"JJA"/)
 
 fx = "time_series_TP_t2m_DJF_MAM_OBS.txt"
 x = asciiread(fx, (/nyear,3/), "float")
-inx = x(0:nyear-2,1)
+inx = x(0:nyear-1,2)
 
 hig_ind = ind(inx.ge.1.)
 low_ind = ind(inx.le.-1.)
 print(year(hig_ind))
 print(year(low_ind))
 
-hig_ind = hig_ind+1
-low_ind = low_ind+1
+; hig_ind = hig_ind+1
+; low_ind = low_ind+1
 
 ;===================================================================
 ; topo data
@@ -40,7 +40,7 @@ filiv = "vwind.monthly.197901-201812.nc"
 filiz = "zg.monthly.197901-201812.nc"
 
 diri2 = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-filip = "precip_mon_1x1_1979_2020.nc"
+filip = "tp_mon_1x1_1979_2019.nc"
 
 fu = addfile(diri+filiu, "r")
 fv = addfile(diri+filiv, "r")
@@ -59,7 +59,7 @@ z = z/9.8
 Time = fp->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-prec = short2flt(fp->tp(iYYYY,0,::-1,:))
+prec = short2flt(fp->tp(iYYYY,::-1,:))
 prec = prec*1000
 prec@units = "mm/day"
 
@@ -133,7 +133,7 @@ latstr = 10
 latend = 55
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_UV850_Precip_JJA_by_TP_t2m_DJF"
+figname = "Comp_UV850_Precip_JJA_by_TP_t2m_MAM"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(4, graphic)
@@ -265,8 +265,8 @@ cnres@cnLevels = (/5883/);12520,12560
 
     res@cnLevelSelectionMode = "ManualLevels"
     res@cnLevelSpacingF = 0.5
-    res@cnMaxLevelValF = 5.
-    res@cnMinLevelValF = -5.
+    res@cnMaxLevelValF = 3.
+    res@cnMinLevelValF = -3.
     res@cnFillPalette = "CBR_drywet"
 
     vcres@vcRefMagnitudeF         = 1.0 
