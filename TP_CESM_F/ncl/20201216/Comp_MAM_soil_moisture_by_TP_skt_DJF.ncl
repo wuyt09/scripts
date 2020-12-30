@@ -176,12 +176,12 @@ res@cnMaxLevelValF = 1.
 res@cnLevelSpacingF = 0.1
 ; res@lbLabelBarOn = False
 
-res@gsnLeftString = "(a) High DJF TP t2m"
+res@gsnLeftString = "(a) High DJF TP skt"
 plot(0) = gsn_csm_contour_map(wks, var_hig_ave, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@gsnLeftString = "(b) Low DJF TP t2m"
+res@gsnLeftString = "(b) Low DJF TP skt"
 plot(1) = gsn_csm_contour_map(wks, var_low_ave, res)
 plot(1) = gsn_csm_contour_map(wks, var_hig_ave, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)

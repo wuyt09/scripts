@@ -102,6 +102,7 @@ do i = 0, nm-1
     T_GCMs!3 = "lon"
 
     T_GCM := linint2_Wrap(T_GCMs&lon, T_GCMs&lat, T_GCMs, True, t&lon, t&lat, 0)
+    printVarSummary(T_GCM)
 
     plev := tofloat(T_GCM&lev)
     ptop = min(plev)
@@ -113,12 +114,13 @@ do i = 0, nm-1
     dp := conform_dims(dimsizes(T_GCM), dP, 1)
     tgcmdp := T_GCM*dp
     copy_VarCoords(T_GCM, tgcmdp)
-    t_gcm = dim_sum_n_Wrap(tgcmdp(:,{50000:20000},:,:), 1)/sum(dP({50000:20000}))
+    t_gcm := dim_sum_n_Wrap(tgcmdp(:,{50000:20000},:,:), 1)/sum(dP({50000:20000}))
     copy_VarCoords(T_GCM(:,0,:,:), t_gcm)
 
-    t_gcm_clm = clmMonTLL(t_gcm)
-    t_gcm_clm = mask(t_gcm_clm, topox.ge.1500, True)
-    TP_GCM5(i,:) = wgt_areaave_Wrap(t_gcm_clm(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+    t_gcm_clm := clmMonTLL(t_gcm)
+    copy_VarCoords(T_GCM(0,0,:,:), t_gcm_clm(0,:,:))
+    t_gcm_clm := mask(t_gcm_clm, topox.ge.1500, True)
+    TP_GCM5(i,:) := wgt_areaave_Wrap(t_gcm_clm(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
     print("end of "+models(i))
 end do
 printVarSummary(TP_GCM5)

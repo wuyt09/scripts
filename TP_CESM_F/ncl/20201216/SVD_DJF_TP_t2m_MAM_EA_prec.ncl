@@ -27,14 +27,14 @@ nm = dimsizes(month)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "t2m_mon_1x1_1979_2019.nc"
+fili = "skt_mon_1x1_1979_2019.nc"
 f1 = addfile(diri+fili, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 time = f1->time(iYYYY)
-ts_obs = short2flt(f1->t2m(iYYYY,::-1,:))
+ts_obs = short2flt(f1->skt(iYYYY,::-1,:))
 printVarSummary(ts_obs)
 nlon = dimsizes(ts_obs&longitude)
 nlat = dimsizes(ts_obs&latitude)
@@ -158,7 +158,7 @@ res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 0.02
 res@cnMaxLevelValF = 0.1
 res@cnMinLevelValF = -0.1
-res@gsnLeftString = "DJF TP t2m"
+res@gsnLeftString = "DJF TP skt"
 res@gsnRightString = sprintf("%4.2f", pcVar)+"%"
 plot(0) = gsn_csm_contour_map(wks, xL, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
@@ -220,7 +220,7 @@ plot(0) = gsn_csm_xy(wks, year, lines, res)
     res_text@txFontHeightF      = 0.018                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = (/"TP t2m","EA prec"/)
+    Texts  = (/"TP skt","EA prec"/)
 
 ;============================================================
     gx = (/1980,1982/)

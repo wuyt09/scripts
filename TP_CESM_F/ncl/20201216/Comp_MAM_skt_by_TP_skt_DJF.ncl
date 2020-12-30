@@ -35,27 +35,14 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili1 = "soil_temperature_level_1_mon_1x1_1979_2019.nc" ; 0-7 cm
-fili2 = "soil_temperature_level_2_mon_1x1_1979_2019.nc" ; 7-28 cm
-fili3 = "soil_temperature_level_3_mon_1x1_1979_2019.nc" ; 28-100 cm
-fili4 = "soil_temperature_level_4_mon_1x1_1979_2019.nc" ; 100-289 cm
+fili1 = "skt_mon_1x1_1979_2019.nc"
 
 f1 = addfile(diri+fili1, "r")
-f2 = addfile(diri+fili2, "r")
-f3 = addfile(diri+fili3, "r")
-f4 = addfile(diri+fili4, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-var1 = short2flt(f1->stl1(iYYYY,:,:))
-var2 = short2flt(f2->stl2(iYYYY,:,:))
-; var3 = short2flt(f3->stl3(iYYYY,:,:))
-; var4 = short2flt(f4->stl4(iYYYY,:,:))
-; var = (var1+var2+var3+var4)/4
-var = (var1+var2)/2
-copy_VarCoords(var1, var)
-
+var = short2flt(f1->skt(iYYYY,:,:))
 printVarSummary(var)
 
 var_sea = month_to_season(var, season)
@@ -90,7 +77,7 @@ latstr = 15
 latend = 45
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_MAM_soil_temp_by_TP_skt_DJF"
+figname = "Comp_MAM_skt_by_TP_skt_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -204,7 +191,7 @@ overlay(plot(2), plot_prob(0))
 
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = "Soil temp (0cm-28cm) in MAM"
+pres@gsnPanelMainString = "Skin temp in MAM"
 ; pres@gsnPanelLabelBar = True
 ; pres@pmLabelBarOrthogonalPosF = -0.015
 gsn_panel(wks, plot, (/1,3/), pres)
