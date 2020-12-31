@@ -129,7 +129,7 @@ plot_topo = plot
 res = True
 res@gsnDraw = False
 res@gsnFrame = False
-; res@gsnMaximize = True
+res@gsnMaximize = True
 res@gsnAddCyclic = False
 
 res@mpOutlineOn = True
@@ -148,6 +148,7 @@ res@cnInfoLabelOn = False
 res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
+res@pmLabelBarOrthogonalPosF = 0.1
 
 res@mpMinLatF = latstr
 res@mpMaxLatF = latend
@@ -166,7 +167,7 @@ overlay(plot(0), plot_topo(0))
 
 res@mpMinLatF = 22
 res@mpMaxLatF = 40
-res@mpMinLonF = 106
+res@mpMinLonF = 100
 res@mpMaxLonF = 122
 res@cnFillPalette = "CBR_drywet"
 res@cnLevelSelectionMode = "ManualLevels"
@@ -175,6 +176,8 @@ res@cnMaxLevelValF = 0.1
 res@cnMinLevelValF = -0.1
 res@gsnLeftString = "MAM EA prec"
 plot(1) = gsn_csm_contour_map(wks, xR, res)
+plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(1), plot_topo(1))
 
 
 pres = True

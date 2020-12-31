@@ -64,7 +64,7 @@ prec@units = "mm/day"
 printVarSummary(prec)
 
 prec_sea = prec(5::12,:,:)
-prec_sea_EA = prec_sea(:,{18:45},{100:130})
+prec_sea_EA = prec_sea(:,{10:45},{70:130})
 Right = reshape(prec_sea_EA, (/nyear,dimsizes(prec_sea_EA&latitude)*dimsizes(prec_sea_EA&longitude)/))
 
 Right!0 = "time"
@@ -162,10 +162,10 @@ plot(0) = gsn_csm_contour_map(wks, xL, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@mpMinLatF = 22
+res@mpMinLatF = 10
 res@mpMaxLatF = 40
-res@mpMinLonF = 106
-res@mpMaxLonF = 122
+res@mpMinLonF = 70
+res@mpMaxLonF = 130
 res@cnFillPalette = "CBR_drywet"
 ; res@cnLevelSelectionMode = "ManualLevels"
 ; res@cnLevelSpacingF = 0.02
@@ -173,6 +173,8 @@ res@cnFillPalette = "CBR_drywet"
 ; res@cnMinLevelValF = -0.1
 res@gsnLeftString = "June EA prec"
 plot(1) = gsn_csm_contour_map(wks, xR, res)
+plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(1), plot_topo(1))
 
 
 pres = True
