@@ -32,7 +32,7 @@ ism_lon1 = 60
 ism_lon2 = 75
 
 
-pens = 18
+pens = 12
 f = addfile("1_wind_direction_10m_pentad_ERA5_"+yrStrt+"_"+yrLast+".nc", "r")
 ux = f->theta
 u = ux(:,pens:npenta-1,:,:)
@@ -42,7 +42,7 @@ printVarSummary(u_Jan)
 delete(ux)
 
 d_theta = u
-barr = 80
+barr = 100
 
 do yy = 0, nyear-1
     do pp = 0, npenta-pens-1

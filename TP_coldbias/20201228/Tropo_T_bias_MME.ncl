@@ -36,7 +36,7 @@ t = new((/nyear*nmonth,nlat,nlon/), float)
 
 diri = "/home/yangsong3/data-observation/MERRA2/monthly/t/"
 
-do i = 0, nyear-1
+do i = 0, 1 ;nyear-1
     yr = yrStrt+i
     do j = 0, 11
         mn = sprinti("%0.2i", j+1)
@@ -119,8 +119,8 @@ do i = 0, nm-1
 
     t_gcm_clm := clmMonTLL(t_gcm)
     copy_VarCoords(T_GCM(0,0,:,:), t_gcm_clm(0,:,:))
-    t_gcm_clm := mask(t_gcm_clm, topox.ge.1500, True)
-    TP_GCM5(i,:) := wgt_areaave_Wrap(t_gcm_clm(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+    t_gcm_clm = mask(t_gcm_clm, topox.ge.1500, True)
+    TP_GCM5(i,:) = wgt_areaave_Wrap(t_gcm_clm(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
     print("end of "+models(i))
 end do
 printVarSummary(TP_GCM5)

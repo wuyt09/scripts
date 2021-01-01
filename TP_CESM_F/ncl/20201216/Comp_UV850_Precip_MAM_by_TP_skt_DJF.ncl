@@ -14,7 +14,7 @@ nmonth = dimsizes(month)
 npenta = dimsizes(penta)
 season = (/"MAM"/)
 
-fx = "time_series_TP_t2m_DJF_MAM_ERA5.txt"
+fx = "time_series_TP_skt_DJF_MAM_ERA5.txt"
 x = asciiread(fx, (/nyear,3/), "float")
 inx = x(0:nyear-1,1)
 
@@ -127,16 +127,16 @@ prec_diff = precsea_hig_ave - precsea_low_ave
 ;===================================================================
 ; plot
 ;===================================================================
-lonstr = 60
-lonend = 180
-latstr = 10
-latend = 55
+lonstr = 100
+lonend = 122
+latstr = 20
+latend = 35
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
 figname = "Comp_UV850_Precip_MAM_by_TP_skt_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new(4, graphic)
+plot = new(3, graphic)
 plotv = plot
 plotc = plot
 plot_topo = plot
@@ -289,7 +289,7 @@ cnres@cnLevels = (/5883/);12520,12560
     resP@pmLabelBarOrthogonalPosF     = -0.005                  ; 调色标和图的间距
 ;--------------------------------------------------------------------------------  
 
-resP@gsnPanelMainString = "UV850_Precip_WPSH"
-gsn_panel(wks, plot, (/2,2/), resP)
+resP@gsnPanelMainString = "UV850_Precip" ;_WPSH
+gsn_panel(wks, plot, (/1,3/), resP)
 
 end
