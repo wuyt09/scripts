@@ -36,7 +36,7 @@ t = new((/nyear*nmonth,nlat,nlon/), float)
 
 diri = "/home/yangsong3/data-observation/MERRA2/monthly/t/"
 
-do i = 0, 1 ;nyear-1
+do i = 0, nyear-1
     yr = yrStrt+i
     do j = 0, 11
         mn = sprinti("%0.2i", j+1)
@@ -161,8 +161,8 @@ res@tmXBLabels = month
 res@tmXTOn = False
 ; res@tiXAxisString = "Month"
 
-; res@trYMinF = -20
-; res@trYMaxF = 20
+res@trYMinF = 232
+res@trYMaxF = 260
 ; res@tmYLMode = "Explicit"
 ; res@tmYLValues = ispan(-20, 20, 5)
 ; res@tmYLLabels = ispan(-20, 20, 5)
@@ -205,7 +205,7 @@ overlay(plot(1), plot(0))
 ;============================================================
     gx = (/1.5,2.2/)
     text_pos = 2.3
-    gy1 = (/254,254/)
+    gy1 = (/257,257/)
     interval = 2
     gy2 = gy1 - interval
     gy3 = gy2 -interval
@@ -230,7 +230,7 @@ overlay(plot(1), plot(0))
     res_lines@gsLineThicknessF = 7
     res_lines@gsLineDashPattern = 16
     dum41 = gsn_add_polyline(wks, plot(1), gx, gy3, res_lines)
-    dum42 = gsn_add_text(wks, plot(1), "CMIP5 GCMs", text_pos, gy4, res_text)
+    dum42 = gsn_add_text(wks, plot(1), "CMIP5 GCMs", text_pos, gy3, res_text)
 
 
 draw(plot(1))

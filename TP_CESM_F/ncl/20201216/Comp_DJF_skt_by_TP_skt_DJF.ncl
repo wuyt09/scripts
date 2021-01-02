@@ -35,15 +35,13 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "snow_depth_mon_1x1_1979_2019.nc"
+fili = "skt_mon_1x1_1979_2019.nc"
 f = addfile(diri+fili, "r")
 
 Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-var = short2flt(f->sd(iYYYY,:,:))
-var = var*1000.
-var@units = "mm"
+var = short2flt(f->skt(iYYYY,:,:))
 printVarSummary(var)
 
 var_sea = month_to_season(var, season)
@@ -78,7 +76,7 @@ latstr = 15
 latend = 45
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_DJF_SnowDepth_by_TP_skt_DJF"
+figname = "Comp_DJF_skt_by_TP_skt_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -157,11 +155,11 @@ res@tmYLLabelFontHeightF = 0.02
  ;----------------------------------------------
 
 
-res@cnFillPalette = "cmp_flux"
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -100
-res@cnMaxLevelValF = 100
-res@cnLevelSpacingF = 10
+res@cnFillPalette = "CBR_coldhot"
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMinLevelValF = 0.
+; res@cnMaxLevelValF = 1.
+; res@cnLevelSpacingF = 0.1
 ; res@lbLabelBarOn = False
 
 res@gsnLeftString = "(a) High DJF TP skt"
@@ -176,8 +174,8 @@ plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -5
+res@cnMaxLevelValF = 5
 res@cnLevelSpacingF = 1
 res@lbLabelBarOn = True
 res@gsnLeftString = "(c) a-b"
