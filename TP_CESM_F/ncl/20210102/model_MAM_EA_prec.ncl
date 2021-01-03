@@ -5,10 +5,10 @@ LEV = 200
 nlat = 96
 nlon = 144
 
-lonstr = 106
-lonend = 122
+lonstr = 108
+lonend = 120
 latstr = 20
-latend = 35
+latend = 31
 
 casename = (/"CTRL","TPQ1_double"/) ;"NOTP"
 ncase = dimsizes(casename)

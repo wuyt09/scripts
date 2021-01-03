@@ -81,9 +81,10 @@ printVarSummary(TP_obs)
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/ta/"
 
 models = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
-        "CESM1-WACCM","CMCC-CESM","CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","FIO-ESM","GFDL-CM3",\
+        "CMCC-CESM","CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3",\
         "GFDL-ESM2G","GFDL-ESM2M","GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
-        "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MPI-ESM-P","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
+        "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
+;"CESM1-WACCM","FIO-ESM","MPI-ESM-P",
 
 nm = dimsizes(models)
 TP_GCM5 = new((/nm,12/), float)
@@ -120,7 +121,12 @@ do i = 0, nm-1
     t_gcm_clm := clmMonTLL(t_gcm)
     copy_VarCoords(T_GCM(0,0,:,:), t_gcm_clm(0,:,:))
     t_gcm_clm = mask(t_gcm_clm, topox.ge.1500, True)
-    TP_GCM5(i,:) = wgt_areaave_Wrap(t_gcm_clm(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+    x_med = wgt_areaave_Wrap(t_gcm_clm(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+    if (x_med(0).le.228.) then
+        print("======================="+models(i))
+        x_med = t_gcm_clm@_FillValue
+    end if
+    TP_GCM5(i,:) = x_med
     print("end of "+models(i))
 end do
 printVarSummary(TP_GCM5)

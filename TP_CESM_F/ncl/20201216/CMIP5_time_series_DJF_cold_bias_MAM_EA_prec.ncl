@@ -6,9 +6,9 @@ lonend = 135
 latstr = 5
 latend = 50
 
-latstr1 = 22
-latend1 = 30
-lonstr1 = 110
+latstr1 = 21
+latend1 = 31
+lonstr1 = 108
 lonend1 = 120
 
 ;===================================================================
