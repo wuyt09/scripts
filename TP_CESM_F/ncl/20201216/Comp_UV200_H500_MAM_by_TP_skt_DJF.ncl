@@ -47,14 +47,12 @@ fv = addfile(diri+filiv, "r")
 fz = addfile(diri+filiz, "r")
 fp = addfile(diri2+filip, "r")
 
-u = short2flt(fu->u(:,{850},::-1,:))
-v = short2flt(fv->v(:,{850},::-1,:))
-
-u = mask(u, topo.ge.1500, False)
-v = mask(v, topo.ge.1500, False)
+u = short2flt(fu->u(:,{200},::-1,:))
+v = short2flt(fv->v(:,{200},::-1,:))
 
 z = short2flt(fz->z(:,{500},::-1,:))
 z = z/9.8
+z@units = "gpm"
 
 Time = fp->time
 YYYY = cd_calendar(Time, -1)/100
@@ -117,6 +115,8 @@ usea_diff = usea_hig_ave
 usea_diff = usea_hig_ave - usea_low_ave
 vsea_diff = vsea_hig_ave
 vsea_diff = vsea_hig_ave - vsea_low_ave
+zsea_diff = zsea_hig_ave
+zsea_diff = zsea_hig_ave - zsea_low_ave
 prec_diff = precsea_hig_ave
 prec_diff = precsea_hig_ave - precsea_low_ave
 
@@ -127,14 +127,13 @@ prec_diff = precsea_hig_ave - precsea_low_ave
 ;===================================================================
 ; plot
 ;===================================================================
-
 lonstr = 40
 lonend = 130
 latstr = 10
 latend = 40
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "Comp_UV850_Precip_MAM_by_TP_skt_DJF"
+figname = "Comp_UV200_H500_MAM_by_TP_skt_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -191,9 +190,9 @@ res@tmYLLabelFontHeightF = 0.02
   vcres                         = True             ; plot mods desired
   vcres@gsnFrame                = False            ; so we can draw time stamp
   vcres@gsnDraw                 = False
-  vcres@vcRefAnnoOrthogonalPosF = -0.35          ; move ref vector up
+  vcres@vcRefAnnoOrthogonalPosF = -1.0          ; move ref vector up
 
-  vcres@vcGlyphStyle            = "CurlyVector"  ;"LineArrow"    ; turn on curly vectors
+  vcres@vcGlyphStyle            = "LineArrow"  ;"LineArrow"    ; turn on curly vectors
   ;vcres@vcMinDistanceF          = 0.017
   ;vcres@vcGlyphStyle            = "LineArrow"
   vcres@vcMinDistanceF          = 0.03
@@ -230,13 +229,13 @@ res@tmYLLabelFontHeightF = 0.02
 ;=====================================================
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 2.
-res@cnMaxLevelValF = 20.
-res@cnMinLevelValF = 2.
-res@cnFillPalette = "CBR_wet"
+res@cnLevelSpacingF = 50
+res@cnMaxLevelValF = 6000
+res@cnMinLevelValF = 5300
+res@cnFillPalette = "WhiteYellowOrangeRed"
 res@pmLabelBarOrthogonalPosF = 0.12
 
-vcres@vcRefMagnitudeF         = 5.0 
+vcres@vcRefMagnitudeF         = 20.0 
 ; res@gsnRightString = "Comp"
 
 cnres@cnLevelSelectionMode = "ExplicitLevels"
@@ -244,36 +243,30 @@ cnres@cnLevels = (/5883/);12520,12560
 
 
   res@gsnLeftString = "(a) High DJF TP t2m"
-  plot(0) = gsn_csm_contour_map_ce(wks, precsea_hig_ave, res)
-  cnres@cnLineColor = "red"
-  plotc(0) = gsn_csm_contour(wks, zsea_hig_ave, cnres)
+  plot(0) = gsn_csm_contour_map_ce(wks, zsea_hig_ave, res)
   plotv(0) = gsn_csm_vector(wks, usea_hig_ave, vsea_hig_ave, vcres)
   plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
-  overlay(plot(0), plotc(0))
   overlay(plot(0), plotv(0))
   overlay(plot(0), plot_topo(0))
 
   res@gsnLeftString = "(b) Low DJF TP t2m"
-  plot(1) = gsn_csm_contour_map_ce(wks, precsea_low_ave, res)
-  cnres@cnLineColor = "blue"
-  plotc(1) = gsn_csm_contour(wks, zsea_low_ave, cnres)
+  plot(1) = gsn_csm_contour_map_ce(wks, zsea_low_ave, res)
   plotv(1) = gsn_csm_vector(wks, usea_low_ave, vsea_low_ave, vcres)
   plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
-  overlay(plot(1), plotc(1))
   overlay(plot(1), plotv(1))
   overlay(plot(1), plot_topo(1))
 
 
     res@cnLevelSelectionMode = "ManualLevels"
-    res@cnLevelSpacingF = 0.5
-    res@cnMaxLevelValF = 3.
-    res@cnMinLevelValF = -3.
-    res@cnFillPalette = "CBR_drywet"
+    res@cnLevelSpacingF = 5
+    res@cnMaxLevelValF = 20
+    res@cnMinLevelValF = -20
+    res@cnFillPalette = "BlueWhiteOrangeRed"
 
-    vcres@vcRefMagnitudeF         = 1.0 
+    vcres@vcRefMagnitudeF         = 5.0 
 
   res@gsnLeftString = "(c) a - b"
-  plot(2) = gsn_csm_contour_map_ce(wks, prec_diff, res)
+  plot(2) = gsn_csm_contour_map_ce(wks, zsea_diff, res)
   plotv(2) = gsn_csm_vector(wks, usea_diff, vsea_diff, vcres)
   plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
   overlay(plot(2), plotv(2))
@@ -290,7 +283,7 @@ cnres@cnLevels = (/5883/);12520,12560
     resP@pmLabelBarOrthogonalPosF     = -0.005                  ; 调色标和图的间距
 ;--------------------------------------------------------------------------------  
 
-resP@gsnPanelMainString = "UV850_Precip" ;_WPSH
+resP@gsnPanelMainString = "UV200_H500" ;_WPSH
 gsn_panel(wks, plot, (/1,3/), resP)
 
 end

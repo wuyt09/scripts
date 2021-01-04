@@ -5,10 +5,14 @@ LEV = 200
 nlat = 96
 nlon = 144
 
-lonstr = 108
-lonend = 120
-latstr = 20
-latend = 31
+; lonstr = 108
+; lonend = 120
+; latstr = 20
+; latend = 31
+lonstr = 60
+lonend = 122
+latstr = 10
+latend = 40
 
 casename = (/"CTRL","TPQ1_double"/) ;"NOTP"
 ncase = dimsizes(casename)
@@ -66,11 +70,11 @@ probv = ttest(v_ave(0,:,:), v_var(0,:,:), nyear, v_ave(1,:,:), v_var(1,:,:), nye
 probz = ttest(z_ave(0,:,:), z_var(0,:,:), nyear, z_ave(1,:,:), z_var(1,:,:), nyear, False, False)
 
 diff_z = z_ave(0,:,:)
-diff_z = z_ave(0,:,:) - z_ave(1,:,:)
+diff_z = z_ave(1,:,:) - z_ave(0,:,:)
 diff_u = u_ave(0,:,:)
-diff_u = u_ave(0,:,:) - u_ave(1,:,:)
+diff_u = u_ave(1,:,:) - u_ave(0,:,:)
 diff_v = v_ave(0,:,:)
-diff_v = v_ave(0,:,:) - v_ave(1,:,:)
+diff_v = v_ave(1,:,:) - v_ave(0,:,:)
 
 sig = 0.05
 diff_u = mask(diff_u, (probu.lt.sig).or.(probv.lt.sig), True)
@@ -89,11 +93,11 @@ printVarSummary(tpmask)
 
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20210102/"
-figname = "model_MAM_EA_prec"
+figname = "model_"+season+"_EA_prec"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
-nplot = 1
+nplot = 3
 plot = new(nplot, graphic)
 plotv = plot
 plotc = plot
@@ -118,6 +122,7 @@ plot_topo = plot
 res = True
 res@gsnDraw  = False
 res@gsnFrame = False
+res@gsnMaximize = True
 
 res@mpOutlineOn = True
 res@mpGeophysicalLineThicknessF = 2
@@ -170,9 +175,9 @@ res@tmYLLabelFontHeightF = 0.025
   vcres                         = True             ; plot mods desired
   vcres@gsnFrame                = False            ; so we can draw time stamp
   vcres@gsnDraw                 = False
-  vcres@vcRefAnnoOrthogonalPosF = -1.0  ;   -0.35          ; move ref vector up
+  vcres@vcRefAnnoOrthogonalPosF = -0.65          ; move ref vector up
 
-  vcres@vcGlyphStyle            = "CurlyVector" ; "LineArrow"    ; turn on curly vectors
+  vcres@vcGlyphStyle            = "LineArrow" ;"CurlyVector"     ; turn on curly vectors
   ;vcres@vcMinDistanceF          = 0.017
   ;vcres@vcGlyphStyle            = "LineArrow"
   vcres@vcMinDistanceF          = 0.03
@@ -189,13 +194,8 @@ res@tmYLLabelFontHeightF = 0.025
 
 ;res@gsnRightString = "mm/day"
 
-  vcres@vcRefMagnitudeF         = 2.0  ; define vector ref mag
 
-  res@cnLevelSelectionMode = "ManualLevels"
-  res@cnLevelSpacingF = 0.2
-  res@cnMaxLevelValF = 2.
-  res@cnMinLevelValF = -2.
-  res@cnFillPalette = "CBR_drywet"
+
   ; cnres@cnLevelSelectionMode = "ExplicitLevels"
   ; cnres@cnLevels = (/12460,12470,12480,12490,12500,15210,12520,12540/);12520,12560
   cnres@cnLevelSelectionMode = "ManualLevels"
@@ -204,23 +204,52 @@ res@tmYLLabelFontHeightF = 0.025
   cnres@cnMinLevelValF = 0.
 
 
-  res@gsnLeftString = season
-  
-plot(0) = gsn_csm_contour_map(wks, diff_z, res)
-plotc(0) = gsn_csm_contour(wks, z_ave(0,:,:), cnres)
-;overlay(plot(0), plotc(0))
-plotv(0) = gsn_csm_vector(wks, diff_u, diff_v, vcres)
+  ; res@gsnCenterString = season
+
+  vcres@vcRefMagnitudeF         = 8.0  ; define vector ref mag
+  res@cnLevelSelectionMode = "ManualLevels"
+  res@cnLevelSpacingF = 2.
+  res@cnMaxLevelValF = 20.
+  res@cnMinLevelValF = 2.
+  res@cnFillPalette = "CBR_wet"
+  res@gsnLeftString = "(a) CTRL"
+plot(0) = gsn_csm_contour_map(wks, z_ave(0,:,:), res)
+plotv(0) = gsn_csm_vector(wks, u_ave(0,:,:), v_ave(0,:,:), vcres)
 overlay(plot(0), plotv(0))
 plot_topo(0) = gsn_csm_contour(wks, tpmask, res_topo)
 overlay(plot(0), plot_topo(0))
 
-draw(plot(0))
-; pres = True
-; pres@gsnMaximize = True
-; pres@gsnPanelLabelBar = True
-; ; pres@gsnPanelMainString = "UV200_H200"
-; ;pres@pmLabelBarOrthogonalPosF = -0.01
+  res@gsnLeftString = "(b) TPQ1_double"
+plot(1) = gsn_csm_contour_map(wks, z_ave(1,:,:), res)
+plotv(1) = gsn_csm_vector(wks, u_ave(1,:,:), v_ave(1,:,:), vcres)
+overlay(plot(1), plotv(1))
+plot_topo(1) = gsn_csm_contour(wks, tpmask, res_topo)
+overlay(plot(1), plot_topo(1))
 
-; gsn_panel(wks, plot, (/2,3/), pres)
+
+
+
+
+
+  vcres@vcRefMagnitudeF         = 3.0  ; define vector ref mag
+  res@cnLevelSelectionMode = "ManualLevels"
+  res@cnLevelSpacingF = 0.5
+  res@cnMaxLevelValF = 3.
+  res@cnMinLevelValF = -3.
+  res@cnFillPalette = "CBR_drywet"
+  res@gsnLeftString = "(c) b - a"
+plot(2) = gsn_csm_contour_map(wks, diff_z, res)
+plotv(2) = gsn_csm_vector(wks, diff_u, diff_v, vcres)
+overlay(plot(2), plotv(2))
+plot_topo(2) = gsn_csm_contour(wks, tpmask, res_topo)
+overlay(plot(2), plot_topo(2))
+
+pres = True
+pres@gsnMaximize = True
+pres@gsnPanelMainString = season+"_UV850_Precip"
+; pres@gsnPanelLabelBar = True
+;pres@pmLabelBarOrthogonalPosF = -0.01
+
+gsn_panel(wks, plot, (/1,3/), pres)
 
 end
