@@ -130,7 +130,7 @@ prec_diff = precsea_hig_ave - precsea_low_ave
 lonstr = 40
 lonend = 130
 latstr = 10
-latend = 40
+latend = 50
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
 figname = "Comp_UV200_H500_MAM_by_TP_skt_DJF"
@@ -263,7 +263,7 @@ cnres@cnLevels = (/5883/);12520,12560
     res@cnMinLevelValF = -20
     res@cnFillPalette = "BlueWhiteOrangeRed"
 
-    vcres@vcRefMagnitudeF         = 5.0 
+    vcres@vcRefMagnitudeF         = 3.0 
 
   res@gsnLeftString = "(c) a - b"
   plot(2) = gsn_csm_contour_map_ce(wks, zsea_diff, res)

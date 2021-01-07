@@ -24,7 +24,7 @@ ncase = dimsizes(casename)
 outpath = "/home/yangsong3/wuyt/sysu/scripts/TP_CESM_F/ncl/20210102/ISM_onset/"
 
 
-do i = 0, ncase-1
+do i = 1, ncase-1
     ps = new((/nyear,npenta,nlat,nlon/), float)
     column_qu = new((/nyear,npenta,nlat,nlon/), float)
 

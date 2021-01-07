@@ -82,11 +82,18 @@ printVarSummary(TP_obs)
 ;===================================================================
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/ta/"
 
-models = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
-        "CMCC-CESM","CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3",\
-        "GFDL-ESM2G","GFDL-ESM2M","GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
-        "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
-;"CESM1-WACCM","FIO-ESM","MPI-ESM-P",
+models1 = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
+        "CMCC-CESM","CMCC-CM","CMCC-CMS","CNRM-CM5","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\
+        "GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR","IPSL-CM5B-LR",\
+        "MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
+;"CESM1-WACCM","FIO-ESM","MPI-ESM-P","CSIRO-Mk3-6-0",
+
+models2 = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
+        "CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\
+        "GISS-E2-H","GISS-E2-R","HadGEM2-CC","HadGEM2-ES","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
+        "IPSL-CM5B-LR","MIROC5","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
+
+models = venn2_intersection(models1,models2)
 
 nm = dimsizes(models)
 TP_GCM5 = new((/nm,2/), float)
@@ -140,8 +147,8 @@ Solid(0,:) = TP_GCM5(:,0) - TP_obs(0)
 Solid(1,:) = TP_GCM5(:,1) - TP_obs(1)
 
 
-write_table("write_Tropo_T_bias.txt", "w", [/"model","DJF","JJA"/], "%10s %4s %4s")
-write_table("write_Tropo_T_bias.txt", "a", [/models,Solid(0,:),Solid(1,:)/], "%10s %0.2i %0.2i")
+write_table("write_Tropo_T_bias.txt", "w", [/"DJF","JJA"/], "%4s %4s")
+write_table("write_Tropo_T_bias.txt", "a", [/Solid(0,:),Solid(1,:)/], "%4.2f %4.2f")
 
 Month = ispan(1, 12, 1)
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/20201228/"
