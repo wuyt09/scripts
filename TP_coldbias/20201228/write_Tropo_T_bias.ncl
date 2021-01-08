@@ -60,6 +60,7 @@ do i = 0, nyear-1
         copy_VarCoords(T, tdp)
         t(i*12+j,:,:) = dim_sum_n_Wrap(tdp({500:200},:,:), 0)/sum(dP({500:200}))
         copy_VarCoords(tdp(0,:,:), t(0,:,:))
+        delete([/plev,T,dP,dp,tdp/])
     end do
     print("end of year "+year(i))
 end do
@@ -138,6 +139,8 @@ do i = 0, nm-1
     end if
     TP_GCM5(i,:) = x_med
     print("end of "+models(i))
+
+    delete([/T_GCMs,T_GCM,plev,dP,dp,tgcmdp,t_gcm,t_gcm_clmx,t_gcm_clm,x_med/])
 end do
 printVarSummary(TP_GCM5)
 

@@ -96,7 +96,6 @@ nm = dimsizes(models)
 
 Tropo_T = asciiread("./write_Tropo_T_bias.txt", (/nm,2/), "float")
 print(Tropo_T(nm-1,:))
-exit
 
 
 TP_GCM5 = new((/nm,2/), float)
@@ -130,14 +129,14 @@ lines(1,:) = TP_GCM5(:,1) - TP_obs_sea(1)
 lines(2,:) = Tropo_T(:,0)
 lines(3,:) = Tropo_T(:,1)
 
-lines!0 = "season"
-lines&season = season
+; lines!0 = "season"
+; lines&season = season
 lines!1 = "model"
 lines&model = models
 printVarSummary(lines)
 
-; Corr_DJF = escorc(lines(0,:), lines(2,:))
-; Corr_MAM = escorc(lines(1,:), lines(3,:))
+Corr_DJF = escorc(lines(0,:), lines(2,:))
+Corr_JJA = escorc(lines(1,:), lines(3,:))
 ;=========================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/20201228/"
 figname = "Corss_model_corr_Tropo_bias_with_surf_bias"
@@ -175,17 +174,17 @@ res@tmYLPrecision = 2
 ; res@tmYROn = False
 res@tiYAxisString = ""
 ; res@gsnLeftString = season
-; res@gsnRightString = "DJF Corr: "+sprintf("%4.2f", Corr_DJF)+", MAM Corr: "+sprintf("%4.2f", Corr_JJA)
+res@gsnRightString = "DJF Corr: "+sprintf("%4.2f", Corr_DJF)+", JJA Corr: "+sprintf("%4.2f", Corr_JJA)
 res@gsnStringFontHeightF = 0.02
 
 res@gsnYRefLine = 0
 res@gsnYRefLineDashPattern = 2
 res@gsnYRefLineColor = "grey40"
-res@gsnYRefLineThicknessF = 8
+res@gsnYRefLineThicknessF = 5
 
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
-Colors = (/"blue","red","blue","red"/) ;
-Patterns = (/0,0,2,2/) ;
+Colors = (/"blue","red","dodgerblue","firebrick3"/) ;
+Patterns = (/0,0,16,16/) ;
 res@xyLineThicknessF = 15
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
