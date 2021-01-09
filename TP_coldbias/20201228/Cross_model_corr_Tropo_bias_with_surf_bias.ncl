@@ -13,66 +13,58 @@ season = (/"DJF","JJA"/)
 ;===================================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
+lato = topo&lat
+lono = topo&lon
 printVarSummary(topo)
 
 ;===================================================================
 ; OBS grid data
 ;===================================================================
-yrStrt = 1961
+yrStrt = 1980
 yrLast = 2005
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 nm = dimsizes(month)
 
-ts_obsx = new((/nyear*nm,72,128/), float,-99.)
+ts_obs = new((/nyear*nm,361,576/), float)
 
-diriobs = "/home/yangsong3/data-observation/stationChina2000/Grid/t2m/"
+diriobs = "/home/yangsong3/data-observation/MERRA2/monthly/surfT/"
 
 do i = 0, nyear-1
     yr = yrStrt+i
     do j = 0, 11
         mn = sprinti("%0.2i", j+1)
-        filiobs = "SURF_CLI_CHN_TEM_MON_GRID_0.5-MEAN-"+yr+mn+".txt"
-        x = asciiread(diriobs+filiobs, -1, "float")
-        ts_obsx(i*12+j,:,:) = reshape(x(6:), (/72,128/))
+        filiobs = systemfunc("ls "+diriobs+"MERRA2_*.instM_2d_lfo_Nx."+yr+mn+".SUB.nc4")
+        fobs = addfile(filiobs, "r")
+        ts_obs(i*12+j,:,:) = fobs->TLML(0,:,:)
     end do
 end do
-printVarSummary(ts_obsx)
-
-ts_obs = ts_obsx(:,::-1,:)
+printVarSummary(ts_obs)
 
 time = ispan(1, nyear*12, 1)
-lat = fspan(18.25, 53.75, 72)
-lon = fspan(72.25, 135.75, 128)
-;print(lat)
-;print(lon)
 
 ts_obs!0 = "time"
-ts_obs!1 = "lat"
-ts_obs!2 = "lon"
+; ts_obs!1 = "lat"
+; ts_obs!2 = "lon"
 ts_obs&time = time
-ts_obs&lat = lat
-ts_obs&lon = lon
-ts_obs&lat@units = "degrees_north"
-ts_obs&lon@units = "degrees_east"
+; ts_obs&lat = lat
+; ts_obs&lon = lon
+; ts_obs&lat@units = "degrees_north"
+; ts_obs&lon@units = "degrees_east"
 printVarSummary(ts_obs)
 
 ts_obs_seax = month_to_seasonN(ts_obs, season)
 ts_obs_sea = dim_avg_n_Wrap(ts_obs_seax, 1)
 printVarSummary(ts_obs_sea)
 
-topox1 = ftopo->topo({18:54},{72:136})
-lonx = topox1&lon
-latx = topox1&lat
-; printVarSummary(topox1)
-topox2 = linint2_Wrap(lonx, latx, topox1, False, lon, lat, 0)
+ts_obs_sea_TP = linint2_Wrap(ts_obs&lon, ts_obs&lat, ts_obs_sea, False, lono, lato, 0)
 ; print(topox2({35},{90}))
 
-ts_obs_sea = mask(ts_obs_sea, topox2.ge.1500, True)
-TP_obs_sea = wgt_areaave_Wrap(ts_obs_sea(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+ts_obs_sea_TP = mask(ts_obs_sea_TP, topo.ge.1500, True)
+TP_obs_sea = wgt_areaave_Wrap(ts_obs_sea_TP(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
 printVarSummary(TP_obs_sea)
-
+print(TP_obs_sea)
 
 ;===================================================================
 ; GCM 20 data
@@ -111,7 +103,7 @@ do i = 0, nm-1
     TS_GCMs := fgcm->tas(iYYYY,:,:)
     TS_GCMs!1 = "lat"
     TS_GCMs!2 = "lon"
-    TS_GCMs = TS_GCMs - 273.15
+    ; TS_GCMs = TS_GCMs - 273.15
     TS_GCMx := month_to_seasonN(TS_GCMs, season)
     TS_GCM := dim_avg_n_Wrap(TS_GCMx, 1)
 

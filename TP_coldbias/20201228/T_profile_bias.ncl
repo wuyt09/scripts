@@ -16,11 +16,11 @@ lat = ispan(-90, 90, 1)
 lat@units = "degree_north"
 lon = ispan(0, 359, 1)
 lon@units = "degree_east"
-print(lat)
-print(lon)
+; print(lat)
+; print(lon)
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
-LEV = (/1000,925,850,700,600,500,400,300,200,100,50,10/)
+LEV = (/1000,925,850,700,600,500,400,300,250,200,150,100,50,10/)
 LEV@units = "hPa"
 LEV2 = LEV*100
 LEV2@units = "Pa"
@@ -81,17 +81,30 @@ TS_obs_profile = TS_obs(:,{LAT},:)
 ; GCM 20 data
 ;===================================================================
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/ta/"
+dirigcm2 = "/home/yangsong3/data-model/wuyt/CMIP5/"
 
-models = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
-        "CMCC-CESM","CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3",\
-        "GFDL-ESM2G","GFDL-ESM2M","GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
-        "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
-;"CESM1-WACCM","FIO-ESM","MPI-ESM-P",
+
+models1 = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
+        "CMCC-CESM","CNRM-CM5","GFDL-ESM2M","GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR",\
+        "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M"/)
+;"CESM1-WACCM","FIO-ESM","MPI-ESM-P","CSIRO-Mk3-6-0",
+;"CMCC-CM","CMCC-CMS","GFDL-CM3","GFDL-ESM2G","IPSL-CM5A-MR",,"NorESM1-ME"
+
+models2 = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
+        "CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\
+        "GISS-E2-H","GISS-E2-R","HadGEM2-CC","HadGEM2-ES","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR",\
+        "IPSL-CM5B-LR","MIROC5","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
+
+models = venn2_intersection(models1,models2)
 
 nm = dimsizes(models)
+print(models)
+
 TP_GCM5 = new((/nm,nlev,nlon/), float)
 TP_GCM5!0 = "model"
 TP_GCM5&model = models
+TP_usea = TP_GCM5
+
 do i = 0, nm-1
     filigcm = systemfunc("ls "+dirigcm+"/ta_Amon_"+models(i)+"_historical_r1i1p1_1*-20*12.nc")
     fgcm = addfile(filigcm, "r")
@@ -112,8 +125,27 @@ do i = 0, nm-1
     TP_GCM5(i,:,:) = t_gcm_clm(:,{LAT},:)
     print("end of "+models(i))
     delete([/T_GCMs,T_GCM,t_gcm_clmx,t_gcm_clm/])
+
+
+    filiu = systemfunc("ls "+dirigcm2+models(i)+"/ua_Amon_"+models(i)+"_historical_r1i1p1_*.nc")
+    print(filiu)
+    fu = addfile(filiu, "r")
+    TIMEu = fu->time
+    YYYYu = cd_calendar(TIMEu, -1)/100
+    iYYYYu = ind(YYYYu.ge.yrStrt .and. YYYYu.le.yrLast)
+    Us = fu->ua(iYYYYu,{LEV2},:,:)
+    U = linint2_Wrap(Us&lon, Us&lat, Us, True, lon, lat, 0)
+    u_seax = month_to_season(U, season)
+    u_sea = dim_avg_n_Wrap(u_seax, 0)
+    TP_usea(i,:,:) = u_sea(:,{LAT},:)
+    print("end of "+models(i))
+    print(u_sea({20000},{LAT},{lonstr:lonend}))
+
+    delete([/TIMEu,YYYYu,iYYYYu,Us,u_seax,u_sea/])
+
 end do
 printVarSummary(TP_GCM5)
+printVarSummary(TP_usea)
 
 diff = TP_GCM5
 do i = 0, nm-1
@@ -140,6 +172,7 @@ wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(nm, graphic)
 plot_topo = plot
+plotc = plot
 
 ;=====================================================
     res_topo                   = True
@@ -218,6 +251,35 @@ plot_topo = plot
  res3@cnFillDotSizeF = 0.003
  res3@cnFillScaleF  = 1.2
  ;----------------------------------------------
+
+ ; ====================================================================================
+    cnres = True
+    cnres@gsnDraw  = False
+    cnres@gsnFrame = False
+
+    cnres@cnFillOn = False
+    cnres@cnLinesOn = True
+    cnres@cnLineLabelsOn = False
+    cnres@cnLineLabelFontColor = "red"
+    cnres@cnLineColor = "purple"
+    cnres@cnLineThicknessF = 4
+    cnres@cnInfoLabelOn = True
+    cnres@cnInfoLabelOrthogonalPosF = -0.25
+    cnres@cnInfoLabelFontHeightF = 0.02
+    cnres@cnLabelDrawOrder = "PostDraw"
+    cnres@gsnContourNegLineDashPattern = 2
+    cnres@gsnContourPosLineDashPattern = 0
+    cnres@gsnLeftString = ""
+    cnres@gsnRightString = ""
+    cnres@tmYLMode      = "Explicit"
+    cnres@tmYLValues    = (/"1000","850","750","500","300","250","150","100"/) ;
+    cnres@tmYLLabels    = (/"1000","850","750","500","300","250","150","100"/) ;
+
+    cnres@trYMinF   = 100
+    cnres@trYMaxF   = 1000
+    cnres@gsnPresHgtHeightLabelOn = False
+    cnres@tmYROn = False
+;====================================================================================
  ;----------------------------------------------
 
 res@cnLevelSelectionMode = "ManualLevels"
@@ -226,11 +288,18 @@ res@cnMaxLevelValF = 10.
 res@cnMinLevelValF = -10.
 res@cnFillPalette = "temp_diff_18lev" ; "MPL_RdBu"
 
+cnres@cnLevelSelectionMode = "ManualLevels"
+cnres@cnMinLevelValF = 10
+cnres@cnMaxLevelValF = 30
+cnres@cnLevelSpacingF = 5
+
 do i = 0, nm-1
     res@gsnLeftString = models(i)
     plot(i) = gsn_csm_pres_hgt(wks, diff(i,:,{lonstr:lonend}), res)
     plot_topo(i) = gsn_csm_xy(wks, topo&lon, topo_zonal, res_topo)
     overlay(plot(i), plot_topo(i))
+    plotc(i) = gsn_csm_pres_hgt(wks, TP_usea(i,:,{lonstr:lonend}), cnres)
+    overlay(plot(i), plotc(i))
     ; plot_prob(i) = gsn_csm_contour(wks,prob(i,:,{lonstr:lonend}),res3)
     ; plot_prob(i) = ShadeLtContour(plot_prob(i),0.055,17)
     ; overlay(plot(i), plot_prob(i))
