@@ -10,7 +10,7 @@ year = ispan(yrStrt, yrLast, 1)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/) ;ispan(mnStrt, mnLast, 1)
 nyear = dimsizes(year)
 nmonth = dimsizes(month)
-season = "JJA"
+season = "DJF"
 
 lat = ispan(-90, 90, 1)
 lat@units = "degree_north"
@@ -289,9 +289,9 @@ res@cnMinLevelValF = -10.
 res@cnFillPalette = "temp_diff_18lev" ; "MPL_RdBu"
 
 cnres@cnLevelSelectionMode = "ManualLevels"
-cnres@cnMinLevelValF = 10
-cnres@cnMaxLevelValF = 30
-cnres@cnLevelSpacingF = 5
+cnres@cnMinLevelValF = 20
+cnres@cnMaxLevelValF = 50
+cnres@cnLevelSpacingF = 10
 
 do i = 0, nm-1
     res@gsnLeftString = models(i)
