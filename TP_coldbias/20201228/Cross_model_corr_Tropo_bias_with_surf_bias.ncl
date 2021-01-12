@@ -72,10 +72,11 @@ print(TP_obs_sea)
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/"
 
 models1 = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
-        "CMCC-CESM","CMCC-CM","CMCC-CMS","CNRM-CM5","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\
-        "GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5A-MR","IPSL-CM5B-LR",\
-        "MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M","NorESM1-ME"/)
+        "CMCC-CESM","CNRM-CM5","GFDL-ESM2M","GISS-E2-H","CMCC-CM","CMCC-CMS","GFDL-CM3","GFDL-ESM2G",\
+        "IPSL-CM5A-MR","NorESM1-ME","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR",\
+        "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M"/)
 ;"CESM1-WACCM","FIO-ESM","MPI-ESM-P","CSIRO-Mk3-6-0",
+;
 
 models2 = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
         "CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\

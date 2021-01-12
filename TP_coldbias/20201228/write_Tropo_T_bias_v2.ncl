@@ -48,7 +48,7 @@ t = new((/nyear*nmonth,nlev,nlat,nlon/), float)
 
 diri = "/home/yangsong3/data-observation/MERRA2/monthly/t/"
 
-do i = 0, 1 ;nyear-1
+do i = 0, nyear-1
     yr = yrStrt+i
     do j = 0, 11
         mn = sprinti("%0.2i", j+1)
@@ -89,10 +89,11 @@ printVarSummary(TP_obs)
 dirigcm = "/home/yangsong3/data-model/wuyt/CMIP5/aaa-post/ta/"
 
 models1 = (/"ACCESS1-0","bcc-csm1-1","BNU-ESM","CanCM4","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
-        "CMCC-CESM","CNRM-CM5","GFDL-ESM2M","GISS-E2-H","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR",\
+        "CMCC-CESM","CNRM-CM5","GFDL-ESM2M","GISS-E2-H","CMCC-CM","CMCC-CMS","GFDL-CM3","GFDL-ESM2G",\
+        "IPSL-CM5A-MR","NorESM1-ME","GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR",\
         "IPSL-CM5B-LR","MIROC5","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR","MRI-CGCM3","NorESM1-M"/)
 ;"CESM1-WACCM","FIO-ESM","MPI-ESM-P","CSIRO-Mk3-6-0",
-;"CMCC-CM","CMCC-CMS","GFDL-CM3","GFDL-ESM2G","IPSL-CM5A-MR",,"NorESM1-ME"
+;
 
 models2 = (/"ACCESS1-0","ACCESS1-3","bcc-csm1-1","CanESM2","CCSM4","CESM1-BGC","CESM1-CAM5",\
         "CMCC-CM","CMCC-CMS","CNRM-CM5","CSIRO-Mk3-6-0","GFDL-CM3","GFDL-ESM2G","GFDL-ESM2M",\
@@ -113,7 +114,7 @@ diff = 1
 last = diff
 
 
-do i = 0, 1 ;nm-1
+do i = 0, nm-1
     filigcm = systemfunc("ls "+dirigcm+"/ta_Amon_"+models(i)+"_historical_r1i1p1_1*-20*12.nc")
     fgcm = addfile(filigcm, "r")
     TIME := fgcm->time

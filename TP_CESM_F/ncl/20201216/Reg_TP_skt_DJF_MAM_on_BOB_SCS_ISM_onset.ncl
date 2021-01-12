@@ -185,5 +185,5 @@ pres@pmLabelBarWidthF = 0.7
 pres@lbLabelFontHeightF = 0.01
 ; pres@gsnPanelMainString = "BOB onset"
 
-gsn_panel(wks, plot, (/2,3/), pres)
+gsn_panel(wks, plot(0:2), (/1,3/), pres)
 end
