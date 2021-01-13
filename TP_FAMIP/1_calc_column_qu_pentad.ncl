@@ -60,10 +60,10 @@ do ll = 1, ncase-1
         qu!0 = "pentad"
         qu&pentad = penta
 
-        lev = tofloat(qu&lev)
+        lev = tofloat(qu&level)
         plev = lev*100
         plev@units = "Pa"
-        psfc = ps(ll,:,:,:)
+        psfc = ps(i,:,:,:)
         ptop = min(plev)
         dp = dpres_plevel_Wrap(plev, psfc, ptop, 0)
 
@@ -71,10 +71,10 @@ do ll = 1, ncase-1
         copy_VarCoords(qu, qudp)
         column_qu(ll,:,:,:) = dim_sum_n_Wrap(qudp(:,{1000:300},:,:), 1)
         copy_VarCoords(qudp(:,0,:,:), column_qu(ll,:,:,:))
-        print("end of year "+year(ll))
+        print("end of year "+year(i))
         delete([/Q,U,QU,qu,dp,qudp/])
     end do
-    print("end of "+casename(i))
+    print("end of "+casename(ll))
     delete([/PS,ps/])
 
 

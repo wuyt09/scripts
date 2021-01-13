@@ -5,14 +5,14 @@ LEV = 200
 nlat = 96
 nlon = 144
 
-lonstr = 108
-lonend = 120
-latstr = 20
-latend = 31
-; lonstr = 60
-; lonend = 122
-; latstr = 10
-; latend = 40
+; lonstr = 108
+; lonend = 120
+; latstr = 20
+; latend = 31
+lonstr = 60
+lonend = 122
+latstr = 10
+latend = 40
 
 casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_FAMIP_CMIP6"
 ncase = dimsizes(casename)

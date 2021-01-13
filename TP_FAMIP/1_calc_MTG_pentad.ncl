@@ -17,7 +17,7 @@ nlon = 144
 nlev = 17
 
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_FAMIP_CMIP6"
+casename = (/"Hist_FAMIP_CMIP6"/) ;,"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"
 ncase = dimsizes(casename)
 
 outpath = "/home/yangsong3/wuyt/sysu/scripts/TP_FAMIP/"

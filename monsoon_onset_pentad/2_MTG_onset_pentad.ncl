@@ -1,4 +1,3 @@
-
 begin
 
 yrStrt = 1979
