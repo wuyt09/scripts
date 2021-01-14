@@ -22,7 +22,7 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 nm = dimsizes(month)
-season = "DJF"
+season = "JJA"
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
