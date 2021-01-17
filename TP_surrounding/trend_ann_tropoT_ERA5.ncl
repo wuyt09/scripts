@@ -6,7 +6,7 @@ latstr = 10
 latend = 60
 
 yrStrt = 1979
-yrLast = 1990
+yrLast = 2018
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
@@ -37,27 +37,23 @@ lon = t&longitude
 
 filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
 fps = addfile(filips, "r")
-ps = fps->sp(iYYYY,::-1,:)
+ps = short2flt(fps->sp(iYYYY,::-1,:))
 printVarSummary(ps)
 
 
 plev = t&level
-; plev = plev*100
-; plev!0 = "lev"
-; plev&lev = t&level
-; plev@units = "Pa"
+plev = plev*100
+plev!0 = "lev"
+plev&lev = t&level
+plev@units = "Pa"
 
 dp = dpres_plevel_Wrap(plev, ps, min(plev), 0)
+printVarSummary(dp)
+
 tdp = t*dp
 copy_VarCoords(t, tdp)
 printVarSummary(tdp)
 
-z = dim_sum_n_Wrap(dp(:,{LEVs:LEVe},:,:), 1) ;{latstr:latend},{lonstr:lonend}
-z1d = ndtooned(z)
-z_size = dimsizes(z)
-inx_z = ind_resolve(ind(z1d.eq.0), z_size)
-print("time "+inx_z(:,0)+"  lat "+lat(inx_z(:,1))+"  lon "+lon(inx_z(:,2)))
-exit
 t_tropo = dim_sum_n_Wrap(tdp(:,{LEVs:LEVe},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs:LEVe},:,:), 1)
 ; t_tropo = dim_sum_n_Wrap(tdp, 1)/dim_sum_n_Wrap(dp, 1)
 copy_VarCoords(t(:,0,:,:), t_tropo)
@@ -167,9 +163,9 @@ res@tmYLLabelFontHeightF = 0.02
 
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.2
+res@cnMinLevelValF = -0.3
+res@cnMaxLevelValF = 0.3
+res@cnLevelSpacingF = 0.05
 ; res@lbLabelBarOn = False
 
 res@gsnLeftString = "Annual trend ("+yrStrt+"-"+yrLast+")"
@@ -185,6 +181,28 @@ plot_prob(0) = gsn_csm_contour(wks,prob,res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
 overlay(plot(0), plot_prob(0))
 
+
+;-----------------------------------
+gres = True
+gres@gsLineColor = "blue"
+gres@gsLineThicknessF = 5.0
+gres@gsLineDashPattern = 16
+ glon1 = (/110,110,70,70,100/)
+ glat1 = (/45,60,60,45,45/) ; north
+ glon2 = (/120,120,105,105,120/)
+ glat2 = (/25,45,45,25,25/) ; east
+ glon3 = (/110,110,75,75,110/)
+ glat3 = (/10,25,25,10,10/) ; south
+ glon4 = (/70,70,30,30,70/)
+ glat4 = (/30,55,55,30,30/) ; west
+;-----------------------------------
+
+
+dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
+dum2 = gsn_add_polyline(wks, plot(0), glon2, glat2, gres)
+dum3 = gsn_add_polyline(wks, plot(0), glon3, glat3, gres)
+dum4 = gsn_add_polyline(wks, plot(0), glon4, glat4, gres)
 draw(plot(0))
+
 
 end

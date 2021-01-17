@@ -6,10 +6,13 @@ latstr = 10
 latend = 60
 
 yrStrt = 1979
-yrLast = 2019
+yrLast = 2018
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
+season = (/"MAM","JJA","SON","DJF"/)
 
+LEVs = 500
+LEVe = 200
 ;===================================================================
 ; topo data
 ;===================================================================
@@ -19,24 +22,48 @@ printVarSummary(topo)
 
 
 ;===================================================================
-diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "t2m_mon_1x1_1979_2019.nc"
-; fili = "skt_mon_1x1_1979_2019.nc"
+diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
+fili = "temp.monthly.197901-201812.nc"
 f = addfile(diri+fili, "r")
 
 Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-t2m = short2flt(f->t2m(iYYYY,::-1,:))
-printVarSummary(t2m)
+t = short2flt(f->t(iYYYY,::-1,::-1,:))
+printVarSummary(t)
+
+lat = t&latitude
+lon = t&longitude
+
+filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
+fps = addfile(filips, "r")
+ps = short2flt(fps->sp(iYYYY,::-1,:))
+printVarSummary(ps)
 
 
-t2m_clm = month_to_annual(t2m, 1)
+plev = t&level
+plev = plev*100
+plev!0 = "lev"
+plev&lev = t&level
+plev@units = "Pa"
+
+dp = dpres_plevel_Wrap(plev, ps, min(plev), 0)
+printVarSummary(dp)
+
+tdp = t*dp
+copy_VarCoords(t, tdp)
+printVarSummary(tdp)
+
+t_tropo = dim_sum_n_Wrap(tdp(:,{LEVs:LEVe},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs:LEVe},:,:), 1)
+; t_tropo = dim_sum_n_Wrap(tdp, 1)/dim_sum_n_Wrap(dp, 1)
+copy_VarCoords(t(:,0,:,:), t_tropo)
+
+t2m_clm = month_to_seasonN(t_tropo, season)
 printVarSummary(t2m_clm)
 
-rc = regCoef_n(year, t2m_clm, 0, 0)
-copy_VarCoords(t2m_clm(0,:,:), rc)
+rc = regCoef_n(year, t2m_clm, 0, 1)
+copy_VarCoords(t2m_clm(:,0,:,:), rc)
 printVarSummary(rc)
 
 tval = onedtond(rc@tval, dimsizes(rc))
@@ -58,12 +85,16 @@ printVarSummary(trend)
 sig = 0.05
 ;===============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
-figname = "trend_ann_surfT_ERA5"
+figname = "trend_sea_tropoT_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new(1, graphic)
+plot = new(4, graphic)
 plot_topo = plot
-plot_prob = new(1, graphic)
+plot_prob = new(4, graphic)
+dum1 = plot
+dum2 = plot
+dum3 = plot
+dum4 = plot
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -137,23 +168,10 @@ res@tmYLLabelFontHeightF = 0.02
 
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.2
-; res@lbLabelBarOn = False
-
-res@gsnLeftString = "Annual trend ("+yrStrt+"-"+yrLast+")"
-res@pmLabelBarOrthogonalPosF = 0.12
-res@lbLabelFontHeightF = 0.015
-; res@tiMainString = "surface temperature"
-
-plot(0) = gsn_csm_contour_map(wks, trend, res)
-plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(0), plot_topo(0))
-
-plot_prob(0) = gsn_csm_contour(wks,prob,res3)
-plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
-overlay(plot(0), plot_prob(0))
+res@cnMinLevelValF = -0.3
+res@cnMaxLevelValF = 0.3
+res@cnLevelSpacingF = 0.05
+res@lbLabelBarOn = False
 
 
 ;-----------------------------------
@@ -172,10 +190,28 @@ gres@gsLineDashPattern = 16
 ;-----------------------------------
 
 
-dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
-dum2 = gsn_add_polyline(wks, plot(0), glon2, glat2, gres)
-dum3 = gsn_add_polyline(wks, plot(0), glon3, glat3, gres)
-dum4 = gsn_add_polyline(wks, plot(0), glon4, glat4, gres)
-draw(plot(0))
+do i = 0, 3
+    res@gsnLeftString = season(i)+" trend ("+yrStrt+"-"+yrLast+")"
+    plot(i) = gsn_csm_contour_map(wks, trend(i,:,:), res)
+    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+    overlay(plot(i), plot_topo(i))
+
+    plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
+    plot_prob(i) = ShadeLtContour(plot_prob(i),sig,17)
+    overlay(plot(i), plot_prob(i))
+
+    dum1(i) = gsn_add_polyline(wks, plot(i), glon1, glat1, gres)
+    dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
+    dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
+    dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
+end do
+
+pres = True
+pres@gsnMaximize = True
+pres@gsnPanelLabelBar = True
+; pres@pmLabelBarOrthogonalPosF = 0.12
+pres@lbLabelFontHeightF = 0.015
+
+gsn_panel(wks, plot, (/2,2/), pres)
 
 end

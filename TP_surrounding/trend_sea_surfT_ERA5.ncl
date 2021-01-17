@@ -21,15 +21,15 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-; fili = "t2m_mon_1x1_1979_2019.nc"
-fili = "skt_mon_1x1_1979_2019.nc"
+fili = "t2m_mon_1x1_1979_2019.nc"
+; fili = "skt_mon_1x1_1979_2019.nc"
 f = addfile(diri+fili, "r")
 
 Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-t2m = short2flt(f->skt(iYYYY,::-1,:))
+t2m = short2flt(f->t2m(iYYYY,::-1,:))
 printVarSummary(t2m)
 
 
@@ -65,6 +65,10 @@ wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(4, graphic)
 plot_topo = plot
 plot_prob = plot
+dum1 = plot
+dum2 = plot
+dum3 = plot
+dum4 = plot
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -145,6 +149,20 @@ res@lbLabelBarOn = False
 
 
 ; res@tiMainString = "surface temperature"
+;-----------------------------------
+gres = True
+gres@gsLineColor = "blue"
+gres@gsLineThicknessF = 5.0
+gres@gsLineDashPattern = 16
+ glon1 = (/110,110,70,70,100/)
+ glat1 = (/45,60,60,45,45/) ; north
+ glon2 = (/120,120,105,105,120/)
+ glat2 = (/25,45,45,25,25/) ; east
+ glon3 = (/110,110,75,75,110/)
+ glat3 = (/10,25,25,10,10/) ; south
+ glon4 = (/70,70,30,30,70/)
+ glat4 = (/30,55,55,30,30/) ; west
+;-----------------------------------
 
 do i = 0, 3
     res@gsnLeftString = season(i)+" trend ("+yrStrt+"-"+yrLast+")"
@@ -155,6 +173,11 @@ do i = 0, 3
     plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
     plot_prob(i) = ShadeLtContour(plot_prob(i),sig,17)
     overlay(plot(i), plot_prob(i))
+
+    dum1(i) = gsn_add_polyline(wks, plot(i), glon1, glat1, gres)
+    dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
+    dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
+    dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
 end do
 
 
