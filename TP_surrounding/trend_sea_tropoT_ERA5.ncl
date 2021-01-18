@@ -168,9 +168,9 @@ res@tmYLLabelFontHeightF = 0.02
 
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -0.3
-res@cnMaxLevelValF = 0.3
-res@cnLevelSpacingF = 0.05
+res@cnMinLevelValF = -0.5
+res@cnMaxLevelValF = 0.5
+res@cnLevelSpacingF = 0.1
 res@lbLabelBarOn = False
 
 
