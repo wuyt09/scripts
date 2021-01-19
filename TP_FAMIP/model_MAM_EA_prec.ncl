@@ -14,7 +14,7 @@ lonend = 122
 latstr = 10
 latend = 40
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_FAMIP_CMIP6"
+casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO","Hist_FAMIP_CMIP6"/) ;
 ncase = dimsizes(casename)
 year = ispan(1979, 2005, 1)
 nyear = dimsizes(year)
