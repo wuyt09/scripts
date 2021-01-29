@@ -2,8 +2,8 @@
 begin
 
 lonstr = 0
-lonend = 130
-latstr = 10
+lonend = 360
+latstr = 10 ;10
 latend = 60
 
 yrStrt = 1979
@@ -85,56 +85,63 @@ plev = plev*100
 plev!0 = "lev"
 plev&lev = t&level
 plev@units = "Pa"
+; print(plev)
+
+dp = dpres_plevel_Wrap(plev, ps, min(plev), 0) ;LEVs(i)*100
+; dP = dpres_plevel_Wrap(plev, max(plev), min(plev), 0)
+; dp = conform_dims(dimsizes(t), dP, 1)
+; copy_VarCoords(t, dp)
+printVarSummary(dp)
+; print(dp(90,:,{35},{90}))
+; exit
+
+tdp = t*dp
+copy_VarCoords(t, tdp)
+printVarSummary(tdp)
 
 t_tropo = new((/dimsizes(iYYYY),4,nlat,nlon/), float)
+
 do i = 0, 3
-    dp := dpres_plevel_Wrap(plev, ps, LEVs(i)*100, 0)
-    ; dP = dpres_plevel_Wrap(plev, max(plev), min(plev), 0)
-    ; dp = conform_dims(dimsizes(t), dP, 1)
-    ; copy_VarCoords(t, dp)
-    printVarSummary(dp)
-
-    tdp := t(:,{LEVs(i):LEVe(i)},:,:)*dp(:,{LEVs(i):LEVe(i)},:,:)
-    copy_VarCoords(t(:,{LEVs(i):LEVe(i)},:,:), tdp)
-    printVarSummary(tdp)
-
-    t_tropo(:,i,:,:) = dim_sum_n_Wrap(tdp, 1)/dim_sum_n_Wrap(dp(:,{LEVs(i):LEVe(i)},:,:), 1)
+    t_tropo(:,i,:,:) = dim_sum_n_Wrap(tdp(:,{LEVs(i):LEVe(i)},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs(i):LEVe(i)},:,:), 1)
     copy_VarCoords(t(:,0,:,:), t_tropo(:,i,:,:))
 end do
 
-; t_tropo_2 = dim_sum_n_Wrap(tdp(:,{LEVs(1):LEVe(1)},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs(1):LEVe(1)},:,:), 1)
-; copy_VarCoords(t(:,0,:,:), t_tropo_2)
 
-; t_tropo_3 = dim_sum_n_Wrap(tdp(:,{LEVs(2):LEVe(2)},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs(2):LEVe(2)},:,:), 1)
-; copy_VarCoords(t(:,0,:,:), t_tropo_3)
-
-; t_tropo_4 = dim_sum_n_Wrap(tdp(:,{LEVs(3):LEVe(3)},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs(3):LEVe(3)},:,:), 1)
-; copy_VarCoords(t(:,0,:,:), t_tropo_4)
-; t_tropo = dim_sum_n_Wrap(tdp, 1)/dim_sum_n_Wrap(dp, 1)
-
-t2m_clmx = month_to_season(t_tropo, season)
-t2m_clm = dim_avg_n_Wrap(t2m_clmx, 0)
+t2m_clm = month_to_season(t_tropo, season)
 printVarSummary(t2m_clm)
 
+rc = regCoef_n(year, t2m_clm, 0, 0)
+copy_VarCoords(t2m_clm(0,:,:,:), rc)
 
-; lines = new((/4,nlat,nlon/), float)
-; lines(0,:,:) = t2m_clm_1
-; lines(1,:,:) = t2m_clm_2
-; lines(2,:,:) = t2m_clm_3
-; lines(3,:,:) = t2m_clm_4
-; copy_VarCoords(t2m_clm_1, lines(0,:,:))
-; lines!0 = "type"
-; lines&type = region
-; printVarSummary(lines)
+tval = onedtond(rc@tval, dimsizes(rc))
+df   = onedtond(rc@nptxy, dimsizes(rc))
+b    = tval
+b    = 0.5
+prob = betainc(df/(df+tval^2), df/2.0, b)
+copy_VarCoords(rc, prob)
+
+rc@long_name = "regression coefficient"
+prob@long_name = "probability"
+
+
+trend = rc*10
+copy_VarCoords(rc, trend)
+trend@units = "K/decade"
+printVarSummary(trend)
+
+sig = 0.05
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
-figname = "spatial_distribution_"+season+"_tropoT_sensitivity_ERA5"
+figname = "spatial_distribution_"+season+"_tropoT_trend_sensitivity_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(4, graphic)
-
 plot_topo = plot
-plot_prob = new(1, graphic)
+plot_prob = new(4, graphic)
+dum1 = plot
+dum2 = plot
+dum3 = plot
+dum4 = plot
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -194,6 +201,7 @@ res@mpMinLatF = latstr
 res@mpMaxLatF = latend
 res@mpMinLonF = lonstr
 res@mpMaxLonF = lonend
+res@mpCenterLonF = (lonstr+lonend)/2
 
 
 res@cnFillOn = True
@@ -208,26 +216,49 @@ res@tmYLLabelFontHeightF = 0.02
 
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = 250
-res@cnMaxLevelValF = 270
-res@cnLevelSpacingF = 2
-; res@lbLabelBarOn = False
+res@cnMinLevelValF = -0.5
+res@cnMaxLevelValF = 0.5
+res@cnLevelSpacingF = 0.1
+res@lbLabelBarOn = False
 
-; res@gsnLeftString = season+" trend ("+yrStrt+"-"+yrLast+")"
-res@pmLabelBarOrthogonalPosF = 0.12
-res@lbLabelFontHeightF = 0.015
-; res@tiMainString = "surface temperature"
+
+;-----------------------------------
+gres = True
+gres@gsLineColor = "blue"
+gres@gsLineThicknessF = 5.0
+gres@gsLineDashPattern = 16
+ glon1 = (/110,110,70,70,100/)
+ glat1 = (/45,60,60,45,45/) ; north
+ glon2 = (/120,120,105,105,120/)
+ glat2 = (/25,45,45,25,25/) ; east
+ glon3 = (/110,110,75,75,110/)
+ glat3 = (/10,25,25,10,10/) ; south
+ glon4 = (/70,70,30,30,70/)
+ glat4 = (/30,55,55,30,30/) ; west
+;-----------------------------------
+
 
 do i = 0, 3
-    res@gsnLeftString = LEVs(i)+"-"+LEVe(i)+" hPa Tropo T"
-    plot(i) = gsn_csm_contour_map(wks, t2m_clm(i,:,:), res)
+    res@gsnLeftString = season+" trend ("+LEVs(i)+"-"+LEVe(i)+"hPa)"
+    plot(i) = gsn_csm_contour_map(wks, trend(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
+
+    plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
+    plot_prob(i) = ShadeLtContour(plot_prob(i),sig,17)
+    overlay(plot(i), plot_prob(i))
+
+    ; dum1(i) = gsn_add_polyline(wks, plot(i), glon1, glat1, gres)
+    ; dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
+    ; dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
+    ; dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
 end do
 
 pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
+; pres@pmLabelBarOrthogonalPosF = 0.12
+pres@lbLabelFontHeightF = 0.015
 
 gsn_panel(wks, plot, (/2,2/), pres)
 

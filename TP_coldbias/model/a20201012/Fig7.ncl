@@ -120,25 +120,25 @@ topo = smth9_Wrap(topo, 0.5, 0.25, True)
 ; correction
 ;===================================================================================
 
-clat = cos(0.01745329*lat)
-error = x_diff(5,:,:)
-cld_corr = x_diff(2,:,:)
-error = mask(error, TOPO.ge.1500, True)
-cld_corr = mask(cld_corr, TOPO.ge.1500, True)
+; clat = cos(0.01745329*lat)
+; error = x_diff(5,:,:)
+; cld_corr = x_diff(2,:,:)
+; error = mask(error, TOPO.ge.1500, True)
+; cld_corr = mask(cld_corr, TOPO.ge.1500, True)
 
-; error = x_diff(5,{latstr:latend},{lonstr:lonend})
-; cld_corr = x_diff(0,{latstr:latend},{lonstr:lonend})
+; ; error = x_diff(5,{latstr:latend},{lonstr:lonend})
+; ; cld_corr = x_diff(0,{latstr:latend},{lonstr:lonend})
 
-upper_term = error*cld_corr
-uterm = wgt_areaave_Wrap(upper_term, 1.0, 1.0, 0)
-lower_term = cld_corr*cld_corr
-lterm = wgt_areaave_Wrap(lower_term, 1.0, 1.0, 0)
-alpha = uterm/lterm
-print("alpha = "+alpha)
+; upper_term = error*cld_corr
+; uterm = wgt_areaave_Wrap(upper_term, 1.0, 1.0, 0)
+; lower_term = cld_corr*cld_corr
+; lterm = wgt_areaave_Wrap(lower_term, 1.0, 1.0, 0)
+; alpha = uterm/lterm
+; print("alpha = "+alpha)
 
-x_diff(2,:,:) = x_diff(2,:,:)*(1+alpha)
-x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
-x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
+; x_diff(2,:,:) = x_diff(2,:,:)*(1+alpha)
+; x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+; x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
 ;==========================================================
 ;****************************************************
 ; plot
@@ -147,7 +147,7 @@ x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20201012/" ;diri2
 figname = "Fig7"
 wks  = gsn_open_wks("pdf",figpath+figname)
-gsn_define_colormap(wks,"temp_diff_18lev")
+gsn_define_colormap(wks,"BlueYellowRed") ;temp_diff_18lev
 
 nplot = dimsizes(title)
 plot = new(nplot, graphic)
@@ -214,7 +214,7 @@ res@gsnRightString = "W/m~S~2~N~"
 ;-------------------------------------------------------
 
 ; res@cnLevelSelectionMode = "ExplicitLevels"
-; res@cnLevels = (/-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0.1,0.5,1,1.5,2,2.5,3/)
+; res@cnLevels = (/-5,-4,-3,-2,-1,-0.5,-0.1,0.1,0.5,1,2,3,4,5,6,8,10/)
 ; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 
 res@cnLevelSelectionMode = "ManualLevels"
