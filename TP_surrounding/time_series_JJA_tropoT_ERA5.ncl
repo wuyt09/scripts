@@ -15,7 +15,7 @@ season = "JJA"
 LEVs = 1000
 LEVe = 300
 
-latstr_east = 30
+latstr_east = 35
 latend_east = 55
 lonstr_east = 80
 lonend_east = 120
