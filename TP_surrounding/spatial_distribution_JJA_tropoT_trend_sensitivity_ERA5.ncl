@@ -6,7 +6,7 @@ lonend = 130 ;360
 latstr = 10 ;10
 latend = 60
 
-yrStrt = 1979
+yrStrt = 1981 ;1979
 yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
