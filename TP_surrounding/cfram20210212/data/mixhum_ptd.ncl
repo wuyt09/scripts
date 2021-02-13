@@ -1,8 +1,8 @@
 
 begin
 
-filiname = (/"surface_solar_downwards","surface_net_solar"/)
-varname = (/"ssrd","ssr"/)
+filiname = (/"sur_pressure","2m_dewp_tem"/)
+varname = (/"sp","d2m"/)
 nvar = dimsizes(varname)
 
 yrStrt = 1979
@@ -10,7 +10,7 @@ yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
 season = (/"JJA"/)
 
-outname = (/"ssru"/)
+outname = (/"huss"/)
 outpath = "./"
 
 diri1 = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
@@ -28,8 +28,8 @@ i = 0
     basename = outname(i)+"_base.dat"
     warmname = outname(i)+"_warm.dat"
 
-    fili1 = "surface_solar_downwards_mon_1x1_1979_2019.nc"
-    fili2 = "surface_net_solar_mon_1x1_1979_2019.nc"
+    fili1 = "sur_pressure_mon_1x1_1979_2019.nc"
+    fili2 = "2m_dewp_tem_mon_1x1_1979_2019.nc"
 
     f1 = addfile(diri1+fili1, "r")
     f2 = addfile(diri1+fili2, "r")
@@ -38,12 +38,12 @@ i = 0
     YYYY = cd_calendar(TIME, -1)/100
     iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-    X1 = short2flt(f1->ssrd(iYYYY,:,:))
-    X2 = short2flt(f2->ssr(iYYYY,:,:))
-    X = X1
-    X = X1 - X2
-    X = X/86400.
-   
+    X1 = short2flt(f1->sp(iYYYY,:,:))
+    X2 = short2flt(f2->d2m(iYYYY,:,:))
+
+    X  = mixhum_ptd (X1, X2, 2)
+    copy_VarCoords(X1, X)
+
     x = month_to_season(X, season)
     x!0 = "year"
     x&year = year
