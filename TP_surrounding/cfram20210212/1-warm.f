@@ -1,15 +1,15 @@
       program base
       implicit none
 
-      integer,parameter:: xt=240,yt=121,z1=37,z18=38
-      real             :: plev(1:z1)
+      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=31
+      real             :: plev(1:z1),co2(1:nn),co2ts
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
       real             :: camt(1:xt,1:yt,1:z1),cice(1:xt,1:yt,1:z1)
       real             :: solar(1:xt,1:yt),cliq(1:xt,1:yt,1:z1)
       real             :: swdn_surf(1:xt,1:yt),swup_surf(1:xt,1:yt)
       real             :: t_surf(1:xt,1:yt),hus_s(1:xt,1:yt)
-      integer          :: irec,i,j,k,n1,n2,n3,n4
+      integer          :: irec,i,j,k,n1,n2,n3,n4,nnn
 
       plev = (/1.,2.,3.,5.,7.,10.,20.,30.,50.,70.,100.,125.,150.,175.,
      &       200.,225.,250.,300.,350.,400.,450.,500.,550.,
@@ -17,32 +17,40 @@
      &       925.,950.,975.,1000./)
 
 ***********************data input*************************************
-      open ( unit = 11, file = './solarin_warm.dat',
+      open ( unit = 11, file = './data/solarin_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 12, file = './ssrd_warm.dat',
+      open ( unit = 12, file = './data/ssrd_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 13, file = './ssru_warm.dat',
+      open ( unit = 13, file = './data/ssru_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 14, file = './skt_warm.dat',
+      open ( unit = 14, file = './data/t2m_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 15, file = './huss_warm.dat',
+      open ( unit = 15, file = './data/huss_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 16, file = './sp_warm.dat',
+      open ( unit = 16, file = './data/sp_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 17, file = './o3_warm.dat',
+      open ( unit = 17, file = './data/o3_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './cc_warm.dat',
+      open ( unit = 18, file = './data/cc_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './clwc_warm.dat',
+      open ( unit = 19, file = './data/clwc_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './ciwc_warm.dat',
+      open ( unit = 110, file = './data/ciwc_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 111, file = './hus_warm.dat',
+      open ( unit = 111, file = './data/hus_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 112, file = './t_warm.dat',
+      open ( unit = 112, file = './data/t_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
+      open ( unit = 113, file = './data/co2_warm.dat',
+     & form='unformatted', access='direct',recl = nn )
 
-      irec = 24
+      irec = 1
+      read(113,rec=irec)co2
+      print*,co2
+      close(113)
+
+      do nnn = 1,nn
+      irec = nnn
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
       read(13,rec=irec)((swup_surf(i,j),i=1,xt),j=1,yt)
@@ -50,43 +58,55 @@
       read(15,rec=irec)((hus_s(i,j),i=1,xt),j=1,yt)
       read(16,rec=irec)((pres(i,j),i=1,xt),j=1,yt)
 
-      irec = 23*37+1
+      irec = z1*(nnn-1)+1
       do k = 1,z1,1
         read(17,rec=irec)((tro3(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec= 23*37+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(18,rec=irec)((camt(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec= 23*37+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(19,rec=irec)((cliq(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec= 23*37+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(110,rec=irec)((cice(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec= 23*37+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(111,rec=irec)((q(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec= 23*37+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      print*,"end of input"
+      print*,"end of input for job",nnn
+      
+      n1=xt
+      n2=yt
+      n3=z1
+      n4=z18
+      co2ts = co2(nnn)
+
+      call baseline(n1,n2,n3,n4,plev,pres,tro3,tem_a,q,camt,co2ts,
+     &  cice,cliq,solar,swdn_surf,swup_surf,t_surf,hus_s,nnn)
+      print*,'finish of job!',nnn
+      end do
+
       close(11)
       close(12)
       close(13)
@@ -99,15 +119,6 @@
       close(110)
       close(111)
       close(112)
-
-      n1=xt
-      n2=yt
-      n3=z1
-      n4=z18
-
-      call baseline(n1,n2,n3,n4,plev,pres,tro3,tem_a,q,camt,
-     &  cice,cliq,solar,swdn_surf,swup_surf,t_surf,hus_s)
-      print*,'finish!'
       end program
 
 
@@ -116,9 +127,10 @@
 
 C     NCLFORTSTART
       subroutine baseline(ix,iy,zd1,zd18,plevel,ps,o3,ta,hus,cld_amt,
-     1	ice_wat,liq_wat,solar_in,swdn_sfc,swup_sfc,tsurf,huss)
+     1	co2mass,ice_wat,liq_wat,solar_in,swdn_sfc,swup_sfc,tsurf,huss,mm)
 
-      INTEGER ix,iy,zd1,zd18
+      INTEGER ix,iy,zd1,zd18,mm
+      character*20 mm_ch
       real plevel(zd1),ps(ix,iy),o3(ix,iy,zd1),ta(ix,iy,zd1)
       real hus(ix,iy,zd1)
       real cld_amt(ix,iy,zd1),ice_wat(ix,iy,zd1),liq_wat(ix,iy,zd1)
@@ -134,7 +146,7 @@ C       from AR4 data, Uses huss ctl run and hus co2 run, and surface pressure c
       include 'para.file'
 
       integer iseed
-      real plev(zd18)
+      real plev(zd18),co2mass
       real as(mbs), albedo(IX,IY),ee(mbir)
       real dp(IX,IY,zd18)
       real X(IX,IY)
@@ -184,20 +196,27 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
 *
       ss = 1360.89
       sbc= 5.67e-8
+      
+      write(mm_ch,*)mm
+      print*,mm_ch
 
 *--------------------------------------------------------------------------------
 
 
 *     OUTPUT
 *
-       open ( unit = 22, file = './warm_radranc_24.grd',
+       open ( unit = 22, file = 
+     &  './warm_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access='direct',recl= ix*iy )
-       open ( unit = 32, file = './warm_radsfc_ranc_24.grd',
+       open ( unit = 32, file = 
+     &  './warm_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access = 'direct',recl = ix*iy )
 
-       open ( unit = 51, file = './warm_input_24.dat',
+       open ( unit = 51, file = 
+     &  './warm_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
-       open ( unit = 52, file = './warm_no_cloud_out_24.dat',
+       open ( unit = 52, file = 
+     &  './warm_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"
@@ -320,7 +339,7 @@ c          do 2000 ilong = 123, 124
           ndfs4      = 4 * ndfs
           ndfs2      = ndfs * 2
 
-          umco2 = 350.69
+          umco2 = co2mass
           umch4 = 1.6
           umn2o = 0.28
 
