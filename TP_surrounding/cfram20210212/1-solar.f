@@ -1,7 +1,7 @@
       program base
       implicit none
 
-      integer,parameter:: xt=240,yt=121,z1=37,z18=38,nn=24
+      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=31
       real             :: plev(1:z1),co2(1:nn),co2ts
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
@@ -17,31 +17,31 @@
      &       925.,950.,975.,1000./)
 
 ***********************data input*************************************
-      open ( unit = 11, file = './solarin_warm.dat',
+      open ( unit = 11, file = './data/solarin_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 12, file = './ssrd_base.dat',
+      open ( unit = 12, file = './data/ssrd_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 13, file = './ssru_base.dat',
+      open ( unit = 13, file = './data/ssru_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 14, file = './skt_base.dat',
+      open ( unit = 14, file = './data/t2m_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 15, file = './huss_base.dat',
+      open ( unit = 15, file = './data/huss_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 16, file = './sp_base.dat',
+      open ( unit = 16, file = './data/sp_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 17, file = './o3_base.dat',
+      open ( unit = 17, file = './data/o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './cc_base.dat',
+      open ( unit = 18, file = './data/cc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './clwc_base.dat',
+      open ( unit = 19, file = './data/clwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './ciwc_base.dat',
+      open ( unit = 110, file = './data/ciwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 111, file = './hus_base.dat',
+      open ( unit = 111, file = './data/hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 112, file = './t_base.dat',
+      open ( unit = 112, file = './data/t_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 113, file = './co2_b.dat',
+      open ( unit = 113, file = './data/co2_base.dat',
      & form='unformatted', access='direct',recl = nn )
 
       irec = 1

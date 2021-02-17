@@ -1,10 +1,11 @@
 
-varname=("warm" "albedo" "cloud" "co2" "drdt" "o3" "solar" "t" "wv")
-#varname=("albedo" "co2" "drdt" "o3" "solar")
+#varname=("albedo" "cloud" "co2" "drdt" "o3" "solar" "ta" "ts" "wv")
+#varname=("albedo" "cloud" "co2" "o3" "solar" "ta" "wv")
+varname=("cloud")
 size=${#varname[*]}
 for ((i=0; i<${size}; i++))
 do
-	ifort ${varname[i]}.f -o ${varname[i]}.out
+	ifort 1-${varname[i]}.f -o 1-${varname[i]}.out
 done
 
 

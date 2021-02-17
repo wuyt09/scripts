@@ -19,9 +19,9 @@
 ***********************data input*************************************
       open ( unit = 11, file = './data/solarin_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 12, file = './data/ssrd_base.dat',
+      open ( unit = 12, file = './data/ssrd_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 13, file = './data/ssru_base.dat',
+      open ( unit = 13, file = './data/ssru_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 14, file = './data/t2m_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
@@ -31,11 +31,11 @@
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 17, file = './data/o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './data/cc_warm.dat',
+      open ( unit = 18, file = './data/cc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './data/clwc_warm.dat',
+      open ( unit = 19, file = './data/clwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './data/ciwc_warm.dat',
+      open ( unit = 110, file = './data/ciwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 111, file = './data/hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
@@ -49,7 +49,8 @@
       print*,co2
       close(113)
 
-      irec = 1
+      do nnn = 1,nn
+      irec = nnn
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
       read(13,rec=irec)((swup_surf(i,j),i=1,xt),j=1,yt)
@@ -57,60 +58,48 @@
       read(15,rec=irec)((hus_s(i,j),i=1,xt),j=1,yt)
       read(16,rec=irec)((pres(i,j),i=1,xt),j=1,yt)
 
-      irec = 1
+      irec = z1*(nnn-1)+1
       do k = 1,z1,1
         read(17,rec=irec)((tro3(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=1
-      do k = 1,z1,1
-        read(111,rec=irec)((q(i,j,k),i=1,xt),j=1,yt)
-        irec=irec+1
-      enddo
-
-      irec=1
-      do k = 1,z1,1
-        read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
-        irec=irec+1
-      enddo
-      close(11)
-      close(12)
-      close(13)
-      close(14)
-      close(15)
-      close(16)
-      close(17)
-      close(111)
-      close(112)
-
-      do nnn = 1,nn
-
-      irec=(nnn-1)*37+1
+      irec=z1*(nnn-1)+1
       do k = 1,z1,1
         read(18,rec=irec)((camt(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=(nnn-1)*37+1
+      irec=z1*(nnn-1)+1
       do k = 1,z1,1
         read(19,rec=irec)((cliq(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=(nnn-1)*37+1
+      irec=z1*(nnn-1)+1
       do k = 1,z1,1
         read(110,rec=irec)((cice(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
+      irec=z1*(nnn-1)+1
+      do k = 1,z1,1
+        read(111,rec=irec)((q(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+
+      irec=z1*(nnn-1)+1
+      do k = 1,z1,1
+        read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
       print*,"end of input for case ", nnn
 
       n1=xt
       n2=yt
       n3=z1
       n4=z18
-      co2ts = co2(1)
+      co2ts = co2(nnn)
 
       call baseline(n1,n2,n3,n4,plev,pres,tro3,
      &  tem_a,q,camt,co2ts,cice,cliq,
@@ -118,9 +107,18 @@
       print*,'case ', nnn, 'finished!'
       end do
 
+      close(11)
+      close(14)
+      close(15)
+      close(16)
+      close(17)
       close(18)
       close(19)
       close(110)
+      close(111)
+      close(112)
+      close(12)
+      close(13)
       end program
 
 
@@ -205,17 +203,17 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
 *     OUTPUT
 *
        open ( unit = 22, file =
-     & './cloud_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
+     & './albedo_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access='direct',recl= ix*iy )
        open ( unit = 32, file =
-     & './cloud_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
+     & './albedo_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access = 'direct',recl = ix*iy )
 
        open ( unit = 51, file =
-     & './cloud_input_'//Trim(AdjustL(mm_ch))//'.dat',
+     & './albedo_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
        open ( unit = 52, file =
-     & './warm_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
+     & './base_no_cloud_out_1.dat',
      & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"
