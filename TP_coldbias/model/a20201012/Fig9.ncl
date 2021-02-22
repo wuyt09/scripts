@@ -155,8 +155,14 @@ cnres@gsnFrame = False
 
 cnres@cnFillOn = False
 cnres@cnLinesOn = True
-cnres@cnLineLabelsOn = False
+cnres@cnLineLabelsOn = True
 cnres@cnLineLabelFontColor = "red"
+cnres@cnLineLabelInterval = 1
+; cnres@cnLineLabelDensityF = 2
+cnres@cnLineLabelPlacementMode = "Constant"
+cnres@cnLineDashSegLenF = 0.2
+
+cnres@cnLineLabelFontHeightF = 0.02
 cnres@cnLineColor = "purple"
 cnres@cnLineThicknessF = 4
 cnres@cnInfoLabelOn = True

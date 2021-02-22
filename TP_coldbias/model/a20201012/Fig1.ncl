@@ -118,7 +118,8 @@ print(TP_GCMA5)
 ;===================================================================
 ; GCM 20 data
 ;===================================================================
-dirigcm = "/home/yangsong3/data-model/wuyt/CMIP6/"
+;dirigcm = "/home/yangsong3/data-model/wuyt/CMIP6/"
+dirigcm = "/home/yangsong3/CMIP6/"
 
 models := (/"BCC-CSM2-MR","BCC-ESM1","CanESM5","CAS-ESM2-0","CESM2","CESM2-FV2","CESM2-WACCM",\
           "CESM2-WACCM-FV2","CIESM","E3SM-1-0","E3SM-1-1","E3SM-1-1-ECA","FGOALS-f3-L",\
@@ -129,7 +130,7 @@ TP_GCM6 = new((/nm,12/), float)
 TP_GCM6!0 = "model"
 TP_GCM6&model = models
 do i = 0, nm-1
-    filigcm = systemfunc("ls "+dirigcm+"tas_Amon_"+models(i)+"_historical_r1i1p1f1_g*_185001-201*12.nc")
+    filigcm = systemfunc("ls "+dirigcm+models(i)+"/historical/tas_Amon_"+models(i)+"_historical_r1i1p1f1_g*_185001-201*12.nc")
     fgcm = addfile(filigcm, "r")
     TIME := fgcm->time
     YYYY := cd_calendar(TIME, -1)/100
@@ -213,7 +214,7 @@ res@tiYAxisString = "Temperature (~S~o~N~C)"
 ;res@gsnLeftString = "Tas: grid2station"
 
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
-Colors = (/"black","red","forestgreen"/)
+Colors = (/"black","purple","forestgreen"/)
 Patterns = (/0,0,0/)
 res@xyLineThicknessF = 15
 res@xyLineColors = Colors
