@@ -21,7 +21,7 @@ lonstr_west = 10
 lonend_west = 50
 
 
-;================================================================
+;=============================================================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
 fili = "t_mon_1x1_1979_2019.nc"
 
@@ -33,18 +33,6 @@ iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
 t = short2flt(f->t(iYYYY,:,:,:))
 printVarSummary(t)
-
-lat  = f->latitude ;(::-1)
-lon  = f->longitude
-lev  = f->level
-print(lev)
-
-delete(f)
-
-nlat = dimsizes(lat)
-nlon = dimsizes(lon)
-nlev = dimsizes(lev)
-
 
 
 filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
@@ -78,5 +66,48 @@ t_base = avg(t_series(0:9))
 t_new = t_series - t_base
 print(t_new)
 t_runmean = runave(t_new, 10, 0)
+t_runmean!0 = "year"
+t_runmean&year = year
 print(t_runmean)
+;=============================================================================================================
+
+nvname = (/"albedo","wv","cloud","cloud_sw","cloud_lw","co2","o3","solar",\
+           "dyn","atm_dyn","ocean_dyn","shflx","lhflx"/)  ; ,"error"
+nn = 31
+
+lat  = f->latitude ;(::-1)
+lon  = f->longitude
+level  = f->level
+lev = new(38, integer, "No_FillValue")
+lev(0:nlev-2) = level
+lev(nlev-1) = 1001
+print(lev)
+
+delete(f)
+
+nlat = dimsizes(lat)
+nlon = dimsizes(lon)
+nlev = dimsizes(lev)
+
+setfileoption("bin","ReadByteOrder","Native")
+
+UNDEF = -999.
+x = new((/nn,nvars,nlev,nlat,nlon/),float,UNDEF)
+x!0 = "series"
+x!1 = "var"
+x!2 = "lev"
+x!3 = "lat"
+x!4 = "lon"
+x&series = ispan(1983, 2013, 1)
+x&var = nvname
+x&lat = lat
+x&lon = lon
+x&lev = lev
+x&lat@units = "degrees_north"
+x&lon@units = "degrees_east"
+x&lev@units = "hPa"
+x@long_name = "forcing"
+x@units     = "W/m2"
+
+
 end

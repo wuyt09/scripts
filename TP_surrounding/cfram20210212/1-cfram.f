@@ -1,6 +1,6 @@
       program main
 
-      INTEGER,PARAMETER :: zd1=37,IX=240,IY=121,zd18=38,nn=24
+      INTEGER,PARAMETER :: zd1=37,IX=360,IY=181,zd18=38,nn=31
 
 c  input data
       real rht_cloud(ix,iy,zd18),rht_base_sw(ix,iy,zd18)
@@ -37,20 +37,20 @@ c  input data
 
 
       open ( unit = 21, file =
-     & '../drdt_ranc_1.dat',
+     & './drdt_ranc_1.dat',
      & form='unformatted', access='direct',recl=100*100)
 
-      open ( unit = 31, file = './slhf_base.dat',
-     & form='unformatted', access='direct',recl=240*121 )
+      open ( unit = 31, file = './data/slhf_base.dat',
+     & form='unformatted', access='direct',recl= IX*IY)
 
-      open ( unit = 32, file = './slhf_warm.dat',
-     & form='unformatted', access='direct',recl=240*121 )
+      open ( unit = 32, file = './data/slhf_warm.dat',
+     & form='unformatted', access='direct',recl= IX*IY)
 
-      open ( unit = 33, file = './sshf_base.dat',
-     & form='unformatted', access='direct',recl=240*121 )
+      open ( unit = 33, file = './data/sshf_base.dat',
+     & form='unformatted', access='direct',recl= IX*IY)
 
-      open ( unit = 34, file = './sshf_warm.dat',
-     & form='unformatted', access='direct',recl=240*121 )
+      open ( unit = 34, file = './data/sshf_warm.dat',
+     & form='unformatted', access='direct',recl= IX*IY)
 
        do nnn=1,nn
 
@@ -59,41 +59,41 @@ c  input data
 
        open ( unit = 11, file =
      & './baseline_radranc_1.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 12, file =
      & './albedo_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 13, file =
      & './wv_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 14, file =
      & './cloud_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 15, file =
      & './co2_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 16, file =
      & './o3_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 17, file =
      & './solar_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 18, file =
      & './warm_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl=240*121 )
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open(51,file = './partial_T_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access = 'direct', recl = 240*121)
+     & form='unformatted', access = 'direct', recl = IX*IY)
 
        open(52,file = './forcing_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access = 'direct', recl = 240*121)
+     & form='unformatted', access = 'direct', recl = IX*IY)
 
        nt = 1
        xnt= float(nt)
@@ -271,7 +271,7 @@ c  input data
              print*,"drdt in ",i,j,"is NaN"
              irec=irec-1 !drdt_ran has infinite values this location
              read(21,rec=irec)drdt
-             PAUSE
+c             PAUSE
           endif
 
           rht_base(i,j,nv1)    =rht_base(i,j,zd18)
