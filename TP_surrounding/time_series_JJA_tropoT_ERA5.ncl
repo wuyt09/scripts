@@ -17,13 +17,18 @@ LEVe = 300
 
 latstr_east = 35
 latend_east = 55
-lonstr_east = 80
-lonend_east = 120
+lonstr_east = 84 ;80
+lonend_east = 115 ;120
 
 latstr_west = 40
-latend_west = 60
+latend_west = 55
 lonstr_west = 10
 lonend_west = 50
+
+latstr_south = 15
+latend_south = 25
+lonstr_south = 60
+lonend_south = 110
 
 ;===================================================================
 ; topo data
@@ -81,16 +86,18 @@ copy_VarCoords(t(:,0,:,:), t_tropo)
 t2m_clm = month_to_season(t_tropo, season)
 printVarSummary(t2m_clm)
 
-lines = new((/2,nyear/), float)
+lines = new((/3,nyear/), float)
 lines(0,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
 lines(1,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
+lines(2,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 
+lines = dim_standardize_n_Wrap(lines, 1, 1)
 lines_runave = runave_n_Wrap(lines, 5, 0, 1)
 printVarSummary(lines_runave)
 
 lines_trend = lines
 rc = lines(:,0)
-do i = 0, 1
+do i = 0, 2
     x_med = regline(year, lines(i,:))
     rc(i) = x_med
     lines_trend(i,:) = year*x_med+x_med@yintercept
@@ -98,10 +105,10 @@ end do
 printVarSummary(lines_trend)
 
 
-pp = new((/6,nyear/), float)
-pp(0:1,:) = lines
-pp(2:3,:) = lines_runave
-pp(4:5,:) = lines_trend
+pp = new((/9,nyear/), float)
+pp(0:2,:) = lines
+pp(3:5,:) = lines_runave
+pp(6:8,:) = lines_trend
 
 ; rc = regCoef_n(year, t2m_clm, 0, 0)
 ; copy_VarCoords(t2m_clm(0,:,:), rc)
@@ -152,8 +159,8 @@ res@tiYAxisString = ""
 res@gsnStringFontHeightF = 0.03
 
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
-Colors = (/"red","blue","red","blue","red","blue"/)
-Patterns = (/0,0,2,2,16,16/)
+Colors = (/"red","blue","green4","red","blue","green4","red","blue","green4"/)
+Patterns = (/0,0,0,2,2,2,16,16,16/)
 res@xyLineThicknessF = 10
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
