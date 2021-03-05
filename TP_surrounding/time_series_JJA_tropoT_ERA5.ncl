@@ -6,7 +6,7 @@ lonend = 130 ;360
 latstr = 10 ;10
 latend = 60
 
-yrStrt = 1981 ;1979
+yrStrt = 1979
 yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
@@ -91,8 +91,10 @@ lines(0,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_west:latend_west},{lonstr_west:l
 lines(1,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
 lines(2,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 
-lines = dim_standardize_n_Wrap(lines, 1, 1)
-lines_runave = runave_n_Wrap(lines, 5, 0, 1)
+lines_base = dim_avg_n_Wrap(lines(:,0:9), 1)
+lines = lines - conform_dims(dimsizes(lines), lines_base, 0)
+; lines = dim_standardize_n_Wrap(lines, 1, 1)
+lines_runave = runave_n_Wrap(lines, 10, 0, 1)
 printVarSummary(lines_runave)
 
 lines_trend = lines
@@ -104,9 +106,11 @@ do i = 0, 2
 end do
 printVarSummary(lines_trend)
 
+rc = rc*10
+rc@units = "K/decade"
 
 pp = new((/9,nyear/), float)
-pp(0:2,:) = lines
+; pp(0:2,:) = lines
 pp(3:5,:) = lines_runave
 pp(6:8,:) = lines_trend
 
@@ -144,7 +148,7 @@ res@gsnDraw  = False
 res@gsnFrame = False
 res@gsnMaximize = True
 
-res@vpWidthF = 0.7
+res@vpWidthF = 0.8
 res@vpHeightF = 0.4
 
 res@trXMinF = yrStrt
@@ -158,31 +162,59 @@ res@tmYROn = False
 res@tiYAxisString = ""
 res@gsnStringFontHeightF = 0.03
 
+res@gsnYRefLine = 0
+res@gsnYRefLineColor = "grey40"
+res@gsnYRefLineDashPattern = 16
+res@gsnYRefLineThicknessF = 6
+
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
 Colors = (/"red","blue","green4","red","blue","green4","red","blue","green4"/)
-Patterns = (/0,0,0,2,2,2,16,16,16/)
+Patterns = (/2,2,2,0,0,0,16,16,16/)
 res@xyLineThicknessF = 10
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
 
 plot(0) = gsn_csm_xy(wks, year, pp, res)
+
+
+
+
+;==================================================================================
+    res_lines                   = True                  ; polyline mods desired
+    res_lines@gsLineThicknessF  = 5                     ; line thicker
+    
+
+    res_text                    = True                  ; text mods desired
+    res_text@txFontHeightF      = 0.018                 ; change text size
+    res_text@txJust             = "CenterLeft"          ; text justification
+
+    Texts  = (/"west region "+sprintf("%8.3f", rc(0))+"K/decade","east region "+sprintf("%8.3f", rc(1))+"K/decade","south region "+sprintf("%8.3f", rc(2))+"K/decade"/)
+
+;============================================================
+    gx = (/1981.5,1984.2/)
+    text_pos = 1984.5
+
+    interval = 0.2
+    gy1 = (/1.3,1.3/)
+    gy2 = gy1 - interval
+    gy3 = gy2 - interval
+
+    res_lines@gsLineThicknessF = 5
+    res_lines@gsLineColor = Colors(0)
+    res_lines@gsLineDashPattern = Patterns(0)
+    dum11 = gsn_add_polyline(wks, plot(0), gx, gy1, res_lines)
+    dum12 = gsn_add_text(wks, plot(0), Texts(0), text_pos, gy1, res_text)
+    res_lines@gsLineColor = Colors(1)
+    res_lines@gsLineDashPattern = Patterns(1)
+    dum21 = gsn_add_polyline(wks, plot(0), gx, gy2, res_lines)
+    dum22 = gsn_add_text(wks, plot(0), Texts(1), text_pos, gy2, res_text)
+    res_lines@gsLineColor = Colors(2)
+    res_lines@gsLineDashPattern = Patterns(2)
+    dum31 = gsn_add_polyline(wks, plot(0), gx, gy3, res_lines)
+    dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos, gy3, res_text)
+
+
 draw(plot(0))
-exit
-
-; pres = True
-; pres@gsnMaximize = True
-
-; ; do i = 0, 1
-; ;     ; res@xyLineColors = Colors(i)
-; ;     res@gsnLeftString = region(i)
-; ;     res@gsnRightString = "trend: "+sprintf("%4.2f", trend(i))+" K/decade"
-; ;     plot(i) = gsn_csm_xy(wks, year, lines(i*,:,:), res)
-
-; ; end do
-
-; pres@gsnPanelMainString = region(i)+" ("+yrStrt+"-"+yrLast+")"
-; pres@gsnPanelMainString = "Annual mean"
-; gsn_panel(wks, plot, (/2,3/), pres)
 
 end

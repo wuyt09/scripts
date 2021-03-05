@@ -15,7 +15,6 @@ latend_south = 25
 lonstr_south = 60
 lonend_south = 110
 
-
 ;=============================================================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
 fili = "t_mon_1x1_1979_2019.nc"
@@ -153,12 +152,12 @@ copy_VarCoords(x(:,:,0,:,:), x_tropo)
 x_series = wgt_areaave_Wrap(x_tropo(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 printVarSummary(x_series)
 
-nvname2 = (/"albedo","wv","cloud","co2","o3","solar","atm_dyn","ocean_dyn","shflx","lhflx"/)  ; ,"error"
+nvname2 = (/"albedo","wv","cloud","co2","atm_dyn","ocean_dyn","shflx","lhflx"/)  ; ,"error"
 
-x_final = x_series(:,0:9)
+x_final = x_series(:,0:7)
 x_final(:,0:2) = x_series(:,0:2)
-x_final(:,3:5) = x_series(:,5:7)
-x_final(:,6:9) = x_series(:,9:12)
+x_final(:,3) = x_series(:,5)
+x_final(:,4:7) = x_series(:,9:12)
 x_final&var = nvname2
 printVarSummary(x_final)
 
@@ -182,8 +181,8 @@ d5 = x_final(:,4)
 d6 = x_final(:,5)
 d7 = x_final(:,6)
 d8 = x_final(:,7)
-d9 = x_final(:,8)
-d0 = x_final(:,9)
+; d9 = x_final(:,8)
+; d0 = x_final(:,9)
 
 ;==================================================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/cfram20210212/ncl/"
@@ -204,8 +203,8 @@ res@vpHeightF = 0.4
 ;---Set axes limits. Add extra space for X max.
 res@trYMinF                  = -2.2
 res@trYMaxF                  = 2.2;(max(d2) + max(d1)+max(d3) + max(d4))*1.2  
-res@trXMinF                  = yrStrt
-res@trXMaxF                  = yrLast
+res@trXMinF                  = yrStrt+4
+res@trXMaxF                  = yrLast-4
 
 ;---Put city labels on X axis
 ; res@tmXBMode                 = "Explicit"
@@ -232,7 +231,7 @@ res@tmXTMajorOutwardLengthF  = 0.
 
 ;---Create blank plot without Y grid lines
 ; plot_without_xgrid = gsn_csm_blank_plot(wks,res)
-res@gsnLeftString = "(a) South region: ("+lonstr_south+"-"+lonend_south+"E,"+latstr_south+"-"+latend_south+"N)"
+res@gsnLeftString = "(c) South region: ("+lonstr_south+"-"+lonend_south+"E,"+latstr_south+"-"+latend_south+"N)"
 res@gsnRightString = " "
 res@tiXAxisString = "Year"
 res@tiYAxisFontHeightF = 0.015
@@ -267,8 +266,8 @@ dum5 = new(ncities,graphic)
 dum6 = new(ncities,graphic)
 dum7 = new(ncities,graphic)
 dum8 = new(ncities,graphic)
-dum9 = new(ncities,graphic)
-dum0 = new(ncities,graphic)
+; dum9 = new(ncities,graphic)
+; dum0 = new(ncities,graphic)
 
 ;---Set some resources for the bars.
 bres           = True
@@ -448,9 +447,9 @@ do i=1,ncities
     ybar_n_min = ybar_n_max
   end if
 
-  bres@gsFillColor          = "plum2"
-  bres@gsEdgeColor          = "plum2"
-  bres@gsFillIndex          = 0
+  bres@gsFillColor          = "wheat3"
+  bres@gsEdgeColor          = "wheat3"
+  bres@gsFillIndex          = 5
   bres@gsEdgeThicknessF     = 2.5
 
   dum7(i-1) = gsn_add_polygon(wks,plot_without_xgrid,xbar,ybar,bres)
@@ -470,56 +469,13 @@ do i=1,ncities
     ybar_n_min = ybar_n_max
   end if
 
-  bres@gsFillColor          = "rosybrown1"
-  bres@gsEdgeColor          = "rosybrown1"
-  bres@gsFillIndex          = 0
+  bres@gsFillColor          = "magenta1"
+  bres@gsEdgeColor          = "magenta1"
+  bres@gsFillIndex          = 8
   bres@gsEdgeThicknessF     = 2.5
 
   dum8(i-1) = gsn_add_polygon(wks,plot_without_xgrid,xbar,ybar,bres)
 
-;*************************************************
-  if (d9(i-1).ge.0) then
-    ybar_p_max = ybar_p_max + d9(i-1)
-    ybar_positive = (/ybar_p_min,ybar_p_max,ybar_p_max,ybar_p_min,ybar_p_min/)
-    ybar = ybar_positive
-    ybar_p_min = ybar_p_max
-  end if
-
-  if (d9(i-1).lt.0) then
-    ybar_n_max = ybar_n_max + d9(i-1)
-    ybar_negative = (/ybar_n_min,ybar_n_max,ybar_n_max,ybar_n_min,ybar_n_min/)
-    ybar = ybar_negative
-    ybar_n_min = ybar_n_max
-  end if
-
-  bres@gsFillColor          = "yellowgreen"
-  bres@gsEdgeColor          = "yellowgreen"
-  bres@gsFillIndex          = 0
-  bres@gsEdgeThicknessF     = 2.5
-
-  dum9(i-1) = gsn_add_polygon(wks,plot_without_xgrid,xbar,ybar,bres)
-
-;*************************************************
-  if (d0(i-1).ge.0) then
-    ybar_p_max = ybar_p_max + d0(i-1)
-    ybar_positive = (/ybar_p_min,ybar_p_max,ybar_p_max,ybar_p_min,ybar_p_min/)
-    ybar = ybar_positive
-    ybar_p_min = ybar_p_max
-  end if
-
-  if (d0(i-1).lt.0) then
-    ybar_n_max = ybar_n_max + d0(i-1)
-    ybar_negative = (/ybar_n_min,ybar_n_max,ybar_n_max,ybar_n_min,ybar_n_min/)
-    ybar = ybar_negative
-    ybar_n_min = ybar_n_max
-  end if
-
-  bres@gsFillColor          = "wheat3"
-  bres@gsEdgeColor          = "wheat3"
-  bres@gsFillIndex          = 0
-  bres@gsEdgeThicknessF     = 2.5
-
-  dum0(i-1) = gsn_add_polygon(wks,plot_without_xgrid,xbar,ybar,bres)
 
 ;*************************************************
   delete([/ybar_p_min, ybar_p_max, ybar_n_min, ybar_n_max,\
@@ -530,12 +486,12 @@ end do
 
 
 ; Create some labelbars for a legend
-lb_colors = (/"coral2","goldenrod2","darkviolet","lightskyblue3","green3","dodgerblue","plum2","rosybrown1","yellowgreen","wheat3"/)
-lb_dash = (/0,0,16,1,17,0,0,0,0,0/)
+lb_colors = (/"coral2","goldenrod2","darkviolet","lightskyblue3","green3","dodgerblue","wheat3","magenta1"/)
+lb_dash = (/0,0,16,1,17,0,5,8/)
 
 lb_x = new((/10,5/), "float")
 ; lb_x(0,:) = (/0.5,0.5,2.,2.,0.5/)
-lb_x(0,:) = (/1980.5,1980.5,1982.,1982.,1980.5/)
+lb_x(0,:) = (/1984.5,1984.5,1986.,1986.,1984.5/)
 do i = 1, 9
   lb_x(i,:) = lb_x(i-1,:) + 3.0
 end do
@@ -546,28 +502,28 @@ dum_lb = new(10, graphic)
 lb_res = True
 lb_res@gsEdgesOn = True
 lb_res@gsEdgeThicknessF = 2.5
-do i = 0, 9
+do i = 0, 7
   lb_res@gsFillColor = lb_colors(i)
   lb_res@gsEdgeColor = lb_colors(i)
   lb_res@gsFillIndex = lb_dash(i)
   dum_lb(i) = gsn_add_polygon(wks, plot_without_xgrid, lb_x(i,:), lb_y, lb_res)
 end do
 
-text = (/"AL","WV","CLD","CO2","O3","SLR","ATM","HS","SH","LH","Sum","ERA5"/) ;(/"AL","WV","CLD","ATM","OCN","HF","Sum","Glb Mean WPS"/)
+text = (/"AL","WV","CLD","CO2","ATM","HS","SH","LH","Sum","ERA5"/) ;(/"AL","WV","CLD","ATM","OCN","HF","Sum","Glb Mean WPS"/)
 text_res = True
 text_res@txFontHeightF = 0.012
 text_res@txJust             = "CenterLeft"
-text_plot = new(12, graphic)
-text_x = new(12, "float")
-text_x(0) = 1982.1
-do i = 1, 9
+text_plot = new(10, graphic)
+text_x = new(10, "float")
+text_x(0) = 1986.1
+do i = 1, 7
   text_x(i) = text_x(i-1) + 3.0
 end do
-do i = 10, 11
-  text_x(i) = text_x(i-1) + 2.7
+do i = 8, 9
+  text_x(i) = text_x(i-1) + 2.8
 end do
 text_y = -1.8
-do i = 0, 11
+do i = 0, 9
   text_plot(i) = gsn_add_text(wks, plot_without_xgrid, text(i), text_x(i), text_y, text_res)
 end do
 
@@ -577,8 +533,8 @@ line_th = (/8.0,5.0/)
 line_res = True
 line_plot = new(2, graphic)
 line_x = new((/2,2/), "float")
-line_x(0,:) = (/text_x(10)-1.6,text_x(10)-0.2/)
-line_x(1,:) = (/text_x(11)-1.6,text_x(11)-0.2/)
+line_x(0,:) = (/text_x(8)-1.6,text_x(8)-0.2/)
+line_x(1,:) = (/text_x(9)-1.6,text_x(9)-0.2/)
 line_y = (/-1.8,-1.8/)
 do i = 0, 1
   line_res@gsLineColor = line_color(i)
