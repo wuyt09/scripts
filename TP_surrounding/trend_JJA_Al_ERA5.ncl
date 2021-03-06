@@ -1,6 +1,7 @@
 
 begin
 
+
 lonstr = 0
 lonend = 130 ;360
 latstr = 10 ;10
@@ -11,9 +12,6 @@ yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
-
-LEVs = 1000
-LEVe = 300
 
 latstr_east = 35
 latend_east = 55
@@ -50,9 +48,9 @@ printVarSummary(topo)
 
 
 ;===================================================================
-diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
-fili1 = "t_mon_1x1_1979_2019.nc" ;"temp.monthly.197901-201812.nc"
-fili2 = "v_mon_1x1_1979_2019.nc"
+diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
+fili1 = "surface_net_solar_mon_1x1_1979_2019.nc"
+fili2 = "surface_solar_downwards_mon_1x1_1979_2019.nc"
 f1 = addfile(diri+fili1, "r")
 f2 = addfile(diri+fili2, "r")
 
@@ -60,56 +58,22 @@ Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-t = short2flt(f1->t(iYYYY,::-1,::-1,:))
-v = short2flt(f2->v(iYYYY,::-1,::-1,:))
-; t_mean = month_to_season(t, season)
-; v_mean = month_to_season(v, season)
-t_zonal_mean = dim_avg_n_Wrap(t, 3)
-v_zonal_mean = dim_avg_n_Wrap(v, 3)
-t_star = t - conform_dims(dimsizes(t), t_zonal_mean, (/0,1,2/))
-v_star = v - conform_dims(dimsizes(v), v_zonal_mean, (/0,1,2/))
-copy_VarCoords(t, t_star)
-copy_VarCoords(v, v_star)
-printVarSummary(t_star)
+ssr = short2flt(f1->ssr(iYYYY,::-1,:))
+ssrd = short2flt(f2->ssrd(iYYYY,::-1,:))
+ssru = ssrd - ssr
+copy_VarCoords(ssrd, ssru)
+ssrd = where(ssrd.eq.0, ssrd@_FillValue, ssrd)
+t = ssr
+t = ssru/ssrd
 
+printVarSummary(t)
 
 lat = t&latitude
 lon = t&longitude
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
-filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
-fps = addfile(filips, "r")
-ps = short2flt(fps->sp(iYYYY,::-1,:))
-printVarSummary(ps)
-
-
-plev = tofloat(t&level)
-plev = plev*100
-plev!0 = "lev"
-plev&lev = t&level
-plev@units = "Pa"
-; print(plev)
-
-dp = dpres_plevel_Wrap(plev, ps, min(plev), 0) ;LEVs(i)*100
-; dP = dpres_plevel_Wrap(plev, max(plev), min(plev), 0)
-; dp = conform_dims(dimsizes(t), dP, 1)
-; copy_VarCoords(t, dp)
-printVarSummary(dp)
-; print(dp(90,:,{35},{90}))
-; exit
-
-tdp = t_star*v_star*dp
-copy_VarCoords(t, tdp)
-printVarSummary(tdp)
-
-
-t_tropo = dim_sum_n_Wrap(tdp(:,{LEVs:LEVe},:,:), 1) ;/dim_sum_n_Wrap(dp(:,{LEVs:LEVe},:,:), 1)
-t_tropo = t_tropo/9.81*1004.7
-t_tropo = t_tropo*1.e-7
-copy_VarCoords(t(:,0,:,:), t_tropo)
-
-t2m_clm = month_to_season(t_tropo, season)
+t2m_clm = month_to_season(t, season)
 printVarSummary(t2m_clm)
 
 rc = regCoef_n(year, t2m_clm, 0, 0)
@@ -134,7 +98,7 @@ printVarSummary(trend)
 sig = 0.05
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
-figname = "trend_"+season+"_meridional_heat_flux_sfc_300hPa_ERA5"
+figname = "trend_"+season+"_Albedo_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(1, graphic)
@@ -216,19 +180,16 @@ res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@cnFillPalette = "BlueWhiteOrangeRed"
+; res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.2
+res@cnMinLevelValF = -0.05
+res@cnMaxLevelValF = 0.05
+res@cnLevelSpacingF = 0.01
 ; res@lbLabelBarOn = False
 
 res@pmLabelBarHeightF = 0.1
 res@pmLabelBarWidthF = 0.7
-; res@lbLabelFontHeightF = 0.01
 res@pmLabelBarOrthogonalPosF = 0.1
-
-res@gsnRightString = ""
 
 
 ;-----------------------------------
@@ -247,7 +208,7 @@ gres@gsLineDashPattern = 16
  glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
 
-res@gsnLeftString = season+" trend ("+LEVs+"-"+LEVe+"hPa)"
+res@gsnLeftString = season+" trend"
 plot(0) = gsn_csm_contour_map(wks, trend, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))

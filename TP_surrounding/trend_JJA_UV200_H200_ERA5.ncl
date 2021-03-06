@@ -2,8 +2,8 @@
 begin
 
 lonstr = 0
-lonend = 130 ;360
-latstr = 10 ;10
+lonend = 360 ;130
+latstr = 0 ;10
 latend = 70
 
 yrStrt = 1979
@@ -14,6 +14,7 @@ season = "JJA"
 
 LEVs = 1000
 LEVe = 300
+LEV = 200
 
 latstr_east = 35
 latend_east = 55
@@ -51,66 +52,38 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
-fili1 = "t_mon_1x1_1979_2019.nc" ;"temp.monthly.197901-201812.nc"
-fili2 = "v_mon_1x1_1979_2019.nc"
-f1 = addfile(diri+fili1, "r")
-f2 = addfile(diri+fili2, "r")
+filiz = "t_mon_1x1_1979_2019.nc" ;"temp.monthly.197901-201812.nc"
+filiu = "u_mon_1x1_1979_2019.nc"
+filiv = "v_mon_1x1_1979_2019.nc"
 
-Time = f1->time
+f = addfile(diri+filiz, "r")
+fu = addfile(diri+filiu, "r")
+fv = addfile(diri+filiv, "r")
+
+Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-t = short2flt(f1->t(iYYYY,::-1,::-1,:))
-v = short2flt(f2->v(iYYYY,::-1,::-1,:))
-; t_mean = month_to_season(t, season)
-; v_mean = month_to_season(v, season)
-t_zonal_mean = dim_avg_n_Wrap(t, 3)
-v_zonal_mean = dim_avg_n_Wrap(v, 3)
-t_star = t - conform_dims(dimsizes(t), t_zonal_mean, (/0,1,2/))
-v_star = v - conform_dims(dimsizes(v), v_zonal_mean, (/0,1,2/))
-copy_VarCoords(t, t_star)
-copy_VarCoords(v, v_star)
-printVarSummary(t_star)
-
+t = short2flt(f->t(iYYYY,{LEV},::-1,:))
+u = short2flt(fu->u(iYYYY,{LEV},::-1,:))
+v = short2flt(fv->v(iYYYY,{LEV},::-1,:))
+printVarSummary(t)
 
 lat = t&latitude
 lon = t&longitude
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
-filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
-fps = addfile(filips, "r")
-ps = short2flt(fps->sp(iYYYY,::-1,:))
-printVarSummary(ps)
-
-
-plev = tofloat(t&level)
-plev = plev*100
-plev!0 = "lev"
-plev&lev = t&level
-plev@units = "Pa"
-; print(plev)
-
-dp = dpres_plevel_Wrap(plev, ps, min(plev), 0) ;LEVs(i)*100
-; dP = dpres_plevel_Wrap(plev, max(plev), min(plev), 0)
-; dp = conform_dims(dimsizes(t), dP, 1)
-; copy_VarCoords(t, dp)
-printVarSummary(dp)
-; print(dp(90,:,{35},{90}))
-; exit
-
-tdp = t_star*v_star*dp
-copy_VarCoords(t, tdp)
-printVarSummary(tdp)
-
-
-t_tropo = dim_sum_n_Wrap(tdp(:,{LEVs:LEVe},:,:), 1) ;/dim_sum_n_Wrap(dp(:,{LEVs:LEVe},:,:), 1)
-t_tropo = t_tropo/9.81*1004.7
-t_tropo = t_tropo*1.e-7
-copy_VarCoords(t(:,0,:,:), t_tropo)
-
-t2m_clm = month_to_season(t_tropo, season)
+qu_clm = month_to_season(u, season)
+qv_clm = month_to_season(v, season)
+t2m_clm = month_to_season(t, season)
 printVarSummary(t2m_clm)
+
+
+rc_qu = regCoef_n(year, qu_clm, 0, 0)
+rc_qv = regCoef_n(year, qv_clm, 0, 0)
+copy_VarCoords(u(0,:,:), rc_qu)
+copy_VarCoords(v(0,:,:), rc_qv)
 
 rc = regCoef_n(year, t2m_clm, 0, 0)
 copy_VarCoords(t2m_clm(0,:,:), rc)
@@ -122,22 +95,36 @@ b    = 0.5
 prob = betainc(df/(df+tval^2), df/2.0, b)
 copy_VarCoords(rc, prob)
 
+
+prob_qu = betainc(df/(df+tval^2), df/2.0, b)
+copy_VarCoords(rc_qu, prob_qu)
+prob_qv = betainc(df/(df+tval^2), df/2.0, b)
+copy_VarCoords(rc_qv, prob_qv)
+rc_qu = rc_qu*10
+rc_qv = rc_qv*10
+; rc_qu = mask(rc_qu, prob_qu.le.0.05, True)
+; rc_qv = mask(rc_qv, prob_qv.le.0.05, True)
+
 rc@long_name = "regression coefficient"
 prob@long_name = "probability"
-
 
 trend = rc*10
 copy_VarCoords(rc, trend)
 ; trend@units = "K/decade"
 printVarSummary(trend)
 
+trend_u = rc_qu*10
+trend_v = rc_qv*10
+copy_VarCoords(rc_qu, trend_u)
+copy_VarCoords(rc_qv, trend_v)
 sig = 0.05
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
-figname = "trend_"+season+"_meridional_heat_flux_sfc_300hPa_ERA5"
+figname = "trend_"+season+"_UV200_H200_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(1, graphic)
+plotv = plot
 plot_topo = plot
 plot_prob = new(1, graphic)
 dum1 = plot
@@ -218,19 +205,44 @@ res@tmYLLabelFontHeightF = 0.02
 
 res@cnFillPalette = "BlueWhiteOrangeRed"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.2
+res@cnMinLevelValF = -0.5
+res@cnMaxLevelValF = 0.5
+res@cnLevelSpacingF = 0.1
+
 ; res@lbLabelBarOn = False
 
 res@pmLabelBarHeightF = 0.1
 res@pmLabelBarWidthF = 0.7
-; res@lbLabelFontHeightF = 0.01
 res@pmLabelBarOrthogonalPosF = 0.1
 
-res@gsnRightString = ""
+res@gsnRightString = "" ;g/m~S~2~N~/s
 
+;------------------------------------------
 
+  vcres                         = True             ; plot mods desired
+  vcres@gsnFrame                = False            ; so we can draw time stamp
+  vcres@gsnDraw                 = False
+  vcres@vcRefAnnoOrthogonalPosF = -1.0    ; -0.35          ; move ref vector up
+
+  vcres@vcGlyphStyle            = "LineArrow"  ;"CurlyVector"    ; turn on curly vectors
+  ;vcres@vcMinDistanceF          = 0.017
+  ;vcres@vcGlyphStyle            = "LineArrow"
+  vcres@vcMinDistanceF          = 0.03
+  vcres@vcRefLengthF            = 0.045            ; define length of vec ref
+  ; vcres@vcLineArrowColor        = "red"
+  
+  vcres@vcLineArrowThicknessF   = 5.0
+  ;vecres@vcLineArrowHeadMinSizeF = 0.008
+  ;vecres@vcLineArrowHeadMaxSizeF = 0.3
+
+  vcres@vcRefAnnoString2On = False
+  vcres@vcRefAnnoFontHeightF = 0.02
+  vcres@gsnLeftString = ""
+  vcres@gsnRightString = ""
+  
+  vcres@vcRefMagnitudeF         = 15.0 
+;------------------------------------------
+;=====================================================
 ;-----------------------------------
 gres = True
 gres@gsLineColor = "blue"
@@ -247,10 +259,14 @@ gres@gsLineDashPattern = 16
  glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
 
-res@gsnLeftString = season+" trend ("+LEVs+"-"+LEVe+"hPa)"
+res@gsnLeftString = season+" trend ("+LEV+"hPa)"
 plot(0) = gsn_csm_contour_map(wks, trend, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
+
+
+plotv(0) = gsn_csm_vector(wks, trend_u, trend_v, vcres)
+overlay(plot(0), plotv(0))
 
 plot_prob(0) = gsn_csm_contour(wks,prob,res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
