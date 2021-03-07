@@ -120,25 +120,25 @@ topo = smth9_Wrap(topo, 0.5, 0.25, True)
 ; correction
 ;===================================================================================
 
-; clat = cos(0.01745329*lat)
-; error = x_diff(5,:,:)
-; cld_corr = x_diff(2,:,:)
-; error = mask(error, TOPO.ge.1500, True)
-; cld_corr = mask(cld_corr, TOPO.ge.1500, True)
+clat = cos(0.01745329*lat)
+error = x_diff(5,:,:)
+cld_corr = x_diff(2,:,:)
+error = mask(error, TOPO.ge.1500, True)
+cld_corr = mask(cld_corr, TOPO.ge.1500, True)
 
-; ; error = x_diff(5,{latstr:latend},{lonstr:lonend})
-; ; cld_corr = x_diff(0,{latstr:latend},{lonstr:lonend})
+; error = x_diff(5,{latstr:latend},{lonstr:lonend})
+; cld_corr = x_diff(0,{latstr:latend},{lonstr:lonend})
 
-; upper_term = error*cld_corr
-; uterm = wgt_areaave_Wrap(upper_term, 1.0, 1.0, 0)
-; lower_term = cld_corr*cld_corr
-; lterm = wgt_areaave_Wrap(lower_term, 1.0, 1.0, 0)
-; alpha = uterm/lterm
-; print("alpha = "+alpha)
+upper_term = error*cld_corr
+uterm = wgt_areaave_Wrap(upper_term, 1.0, 1.0, 0)
+lower_term = cld_corr*cld_corr
+lterm = wgt_areaave_Wrap(lower_term, 1.0, 1.0, 0)
+alpha = uterm/lterm
+print("alpha = "+alpha)
 
-; x_diff(2,:,:) = x_diff(2,:,:)*(1+alpha)
-; x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
-; x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
+x_diff(2,:,:) = x_diff(2,:,:)*(1+alpha)
+x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
 ;==========================================================
 ;****************************************************
 ; plot
