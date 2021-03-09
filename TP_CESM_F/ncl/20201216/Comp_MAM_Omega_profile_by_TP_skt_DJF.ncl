@@ -135,6 +135,8 @@ plot_prob = new(1, graphic)
     ;res@lbLabelFontHeightF = 0.02
     res@tiYAxisString = ""
 
+    res@cnFillDrawOrder = "PreDraw"
+
     res@tmYLMode      = "Explicit"
     res@tmYLValues    = (/"1000","850","750","500","300","250","150","100"/) ;
     res@tmYLLabels    = (/"1000","850","750","500","300","250","150","100"/) ;
@@ -174,9 +176,9 @@ plot_prob = new(1, graphic)
  ;----------------------------------------------
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 5.
-res@cnMaxLevelValF = 50.
-res@cnMinLevelValF = -50.
+res@cnLevelSpacingF = 2.
+res@cnMaxLevelValF = 20.
+res@cnMinLevelValF = -20.
 res@cnFillPalette = "temp_diff_18lev" ; "MPL_RdBu"
 
 
@@ -191,9 +193,9 @@ plot_topo(1) = gsn_csm_xy(wks, topo&lon, topo_zonal, res_topo)
 overlay(plot(1), plot_topo(1))
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 1.
-res@cnMaxLevelValF = 10.
-res@cnMinLevelValF = -10.
+res@cnLevelSpacingF = 0.5
+res@cnMaxLevelValF = 5.
+res@cnMinLevelValF = -5.
 res@gsnLeftString = "(c) a-b"
 plot(2) = gsn_csm_pres_hgt(wks, diff_var(:,{lonstr:lonend}), res)
 plot_topo(2) = gsn_csm_xy(wks, topo&lon, topo_zonal, res_topo)

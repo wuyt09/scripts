@@ -14,7 +14,7 @@ lonend = 122
 latstr = 10
 latend = 40
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO","Hist_FAMIP_CMIP6"/) ;
+casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_FAMIP_CMIP6","Hist_PO"/) ;
 ncase = dimsizes(casename)
 year = ispan(1979, 2005, 1)
 nyear = dimsizes(year)
@@ -144,7 +144,7 @@ res@mpMaxLonF = lonend
 res@cnFillOn = True
 res@cnLinesOn = False
 res@cnLineLabelsOn = False
-; res@lbLabelBarOn = False
+res@lbLabelBarOn = False
 res@cnInfoLabelOn = False
 ;res@cnLineDrawOrder = "PostDraw"
 ; res@cnLabelDrawOrder = "PostDraw"
@@ -160,7 +160,7 @@ res@tmYLLabelFontHeightF = 0.025
   vcres                         = True             ; plot mods desired
   vcres@gsnFrame                = False            ; so we can draw time stamp
   vcres@gsnDraw                 = False
-  vcres@vcRefAnnoOrthogonalPosF = -0.65          ; move ref vector up
+  vcres@vcRefAnnoOrthogonalPosF = -0.25          ; move ref vector up
 
   vcres@vcGlyphStyle            = "LineArrow" ;"CurlyVector"     ; turn on curly vectors
   ;vcres@vcMinDistanceF          = 0.017
@@ -198,9 +198,10 @@ res@tmYLLabelFontHeightF = 0.025
 pres = True
 pres@gsnMaximize = True
 pres@gsnPanelMainString = season+"_UV850_Precip"
-; pres@gsnPanelLabelBar = True
-;pres@pmLabelBarOrthogonalPosF = -0.01
+pres@gsnPanelLabelBar = True
+pres@lbLabelFontHeightF = 0.015
+pres@pmLabelBarOrthogonalPosF = -0.01
 
-gsn_panel(wks, plot, (/ncase-1,1/), pres)
+gsn_panel(wks, plot, (/1,ncase-1/), pres)
 
 end

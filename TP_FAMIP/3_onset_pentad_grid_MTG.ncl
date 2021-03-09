@@ -44,7 +44,7 @@ nlev = 17
 pens = 18
 diri = "/home/yangsong3/wuyt/sysu/scripts/TP_FAMIP/"
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_FAMIP_CMIP6"
+casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_FAMIP_CMIP6","Hist_PO"/) ;
 ncase = dimsizes(casename)
 
 u_peak = new((/ncase,nlat,nlon/), float)
@@ -199,6 +199,6 @@ SCS = wgt_areaave(u_peak(:,{latS3:latN3},{lonL3:lonR3}), 1., 1., 0)
   resP@gsnPanelYWhiteSpacePercent = 3   ;图间隔大小
   resP@lbLabelAlignment       = "BoxCenters"
   resP@txFontHeightF = 0.03   ;标题字体大小
-  gsn_panel(wks,plot,(/ncase,1/),resP)               ; now draw as one plot
+  gsn_panel(wks,plot,(/2,2/),resP)               ; now draw as one plot
   frame(wks)   
 end

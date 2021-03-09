@@ -23,7 +23,8 @@ diri = "/home/yangsong3/wuyt/sysu/scripts/TP_FAMIP/"
 
 outpath = diri
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,"Hist_FAMIP_CMIP6"
+; casename = (/"Ctrl_FAMIP","Hist_FAMIP","Hist_PO"/) ;,""
+casename = (/"Hist_FAMIP_CMIP6"/)
 ncase = dimsizes(casename)
 
 do i = 0, ncase-1
