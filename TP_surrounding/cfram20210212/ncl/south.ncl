@@ -52,6 +52,19 @@ t_tropo = dim_sum_n_Wrap(tdp(:,{LEVs:LEVe},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs:LE
 copy_VarCoords(t(:,0,:,:), t_tropo)
 
 t_tropo_JJA = month_to_season(t_tropo, season)
+
+
+fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
+; lsdata = doubletofloat(a->lsm(0,:,:))
+lsdata = fa->lsm(0,::-1,:)
+printVarSummary(lsdata)
+lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t&longitude, t&latitude, 0)
+printVarSummary(lsm)
+delete(lsdata)
+
+lsm1 = conform_dims(dimsizes(t_tropo_JJA), lsm, (/1,2/))
+; t_tropo_JJA = where(lsm1.ge.0.05, t_tropo_JJA, 0) ;t@_FillValue
+
 t_series = wgt_areaave_Wrap(t_tropo_JJA(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 ; printVarSummary(t_series)
 print(t_series)
@@ -149,6 +162,9 @@ printVarSummary(xdp)
 x_tropo = dim_sum_n_Wrap(xdp(:,:,{LEVs:LEVe},:,:), 2)/dim_sum_n_Wrap(dp_base(:,:,{LEVs:LEVe},:,:), 2)
 copy_VarCoords(x(:,:,0,:,:), x_tropo)
 
+lsm2 = conform_dims(dimsizes(x_tropo), lsm, (/2,3/))
+; x_tropo = where(lsm2.ge.0.05, x_tropo, 0) ;UNDEF
+
 x_series = wgt_areaave_Wrap(x_tropo(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 printVarSummary(x_series)
 
@@ -163,7 +179,6 @@ printVarSummary(x_final)
 
 x_total = dim_sum_n_Wrap(x_final, 1)
 printVarSummary(x_total)
-
 
 ;========================================================
 zero = new(nyear, float)
