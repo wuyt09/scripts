@@ -86,6 +86,19 @@ copy_VarCoords(t(:,0,:,:), t_tropo)
 t2m_clm = month_to_season(t_tropo, season)
 printVarSummary(t2m_clm)
 
+fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
+; lsdata = doubletofloat(a->lsm(0,:,:))
+lsdata = fa->lsm(0,::-1,:)
+printVarSummary(lsdata)
+lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t&longitude, t&latitude, 0)
+printVarSummary(lsm)
+
+
+lsm1 = conform_dims(dimsizes(t2m_clm), lsm, (/1,2/))
+t2m_clm = where(lsm1.eq.1, t2m_clm, t@_FillValue) ;
+
+
+
 lines = new((/3,nyear/), float)
 lines(0,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
 lines(1,:) = wgt_areaave_Wrap(t2m_clm(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
@@ -110,8 +123,8 @@ rc = rc*10
 rc@units = "K/decade"
 
 pp = new((/9,nyear/), float)
-; pp(0:2,:) = lines
-pp(3:5,:) = lines_runave
+pp(0:2,:) = lines
+; pp(3:5,:) = lines_runave
 pp(6:8,:) = lines_trend
 
 ; rc = regCoef_n(year, t2m_clm, 0, 0)
@@ -153,6 +166,8 @@ res@vpHeightF = 0.4
 
 res@trXMinF = yrStrt
 res@trXMaxF = yrLast
+res@trYMaxF = 3 ;1.5
+res@trYMinF = -1 ;-0.5
 ; res@tmXBMode = "Explicit"
 ; res@tmXBValues = year
 ; res@tmXBLabels = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
@@ -169,7 +184,7 @@ res@gsnYRefLineThicknessF = 6
 
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
 Colors = (/"red","blue","green4","red","blue","green4","red","blue","green4"/)
-Patterns = (/2,2,2,0,0,0,16,16,16/)
+Patterns = (/0,0,0,2,2,2,16,16,16/)
 res@xyLineThicknessF = 10
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
@@ -195,8 +210,8 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
     gx = (/1981.5,1984.2/)
     text_pos = 1984.5
 
-    interval = 0.2
-    gy1 = (/1.3,1.3/)
+    interval = 0.3
+    gy1 = (/2.7,2.7/)
     gy2 = gy1 - interval
     gy3 = gy2 - interval
 

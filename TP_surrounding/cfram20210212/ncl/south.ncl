@@ -56,14 +56,23 @@ t_tropo_JJA = month_to_season(t_tropo, season)
 
 fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
 ; lsdata = doubletofloat(a->lsm(0,:,:))
-lsdata = fa->lsm(0,::-1,:)
+lsdata = fa->lsm(0,:,:)
 printVarSummary(lsdata)
 lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t&longitude, t&latitude, 0)
 printVarSummary(lsm)
-delete(lsdata)
+; delete(lsdata)
+; fa = addfile("/home/yangsong3/wuyt/data/landsea.nc", "r")
+; lsdata = tofloat(fa->LSMASK(::-1,:))
+; lsdata!0 = "lat"
+; lsdata!1 = "lon"
+; lsdata&lat = fspan(89.5, -89.5, 180)
+; lsdata&lon = fspan(0.5, 359.5, 360)
+; lsm = linint2_Wrap(lsdata&lon, lsdata&lat, lsdata, True, t&longitude, t&latitude, 0)
+; printVarSummary(lsm)
+
 
 lsm1 = conform_dims(dimsizes(t_tropo_JJA), lsm, (/1,2/))
-; t_tropo_JJA = where(lsm1.ge.0.05, t_tropo_JJA, 0) ;t@_FillValue
+t_tropo_JJA = where(lsm1.ge.0.8, t_tropo_JJA, t@_FillValue) ;
 
 t_series = wgt_areaave_Wrap(t_tropo_JJA(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 ; printVarSummary(t_series)
@@ -163,7 +172,7 @@ x_tropo = dim_sum_n_Wrap(xdp(:,:,{LEVs:LEVe},:,:), 2)/dim_sum_n_Wrap(dp_base(:,:
 copy_VarCoords(x(:,:,0,:,:), x_tropo)
 
 lsm2 = conform_dims(dimsizes(x_tropo), lsm, (/2,3/))
-; x_tropo = where(lsm2.ge.0.05, x_tropo, 0) ;UNDEF
+x_tropo = where(lsm2.ge.0.8, x_tropo, UNDEF) ;
 
 x_series = wgt_areaave_Wrap(x_tropo(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 printVarSummary(x_series)
@@ -216,8 +225,8 @@ res@vpWidthF = 0.8
 res@vpHeightF = 0.4
 
 ;---Set axes limits. Add extra space for X max.
-res@trYMinF                  = -2.2
-res@trYMaxF                  = 2.2;(max(d2) + max(d1)+max(d3) + max(d4))*1.2  
+res@trYMinF                  = -2.6
+res@trYMaxF                  = 2.6;(max(d2) + max(d1)+max(d3) + max(d4))*1.2  
 res@trXMinF                  = yrStrt+4
 res@trXMaxF                  = yrLast-4
 
@@ -420,7 +429,7 @@ do i=1,ncities
 
   bres@gsFillColor          = "green3"
   bres@gsEdgeColor          = "green3"
-  bres@gsFillIndex          = 17
+  bres@gsFillIndex          = 0
   bres@gsEdgeThicknessF     = 2.5
 
   dum5(i-1) = gsn_add_polygon(wks,plot_without_xgrid,xbar,ybar,bres)
@@ -464,7 +473,7 @@ do i=1,ncities
 
   bres@gsFillColor          = "wheat3"
   bres@gsEdgeColor          = "wheat3"
-  bres@gsFillIndex          = 5
+  bres@gsFillIndex          = 17
   bres@gsEdgeThicknessF     = 2.5
 
   dum7(i-1) = gsn_add_polygon(wks,plot_without_xgrid,xbar,ybar,bres)
@@ -484,8 +493,8 @@ do i=1,ncities
     ybar_n_min = ybar_n_max
   end if
 
-  bres@gsFillColor          = "magenta1"
-  bres@gsEdgeColor          = "magenta1"
+  bres@gsFillColor          = "plum1"
+  bres@gsEdgeColor          = "plum1"
   bres@gsFillIndex          = 8
   bres@gsEdgeThicknessF     = 2.5
 
@@ -501,8 +510,8 @@ end do
 
 
 ; Create some labelbars for a legend
-lb_colors = (/"coral2","goldenrod2","darkviolet","lightskyblue3","green3","dodgerblue","wheat3","magenta1"/)
-lb_dash = (/0,0,16,1,17,0,5,8/)
+lb_colors = (/"coral2","goldenrod2","darkviolet","lightskyblue3","green3","dodgerblue","wheat3","plum1"/)
+lb_dash = (/0,0,16,1,0,0,17,8/)
 
 lb_x = new((/10,5/), "float")
 ; lb_x(0,:) = (/0.5,0.5,2.,2.,0.5/)
@@ -511,7 +520,7 @@ do i = 1, 9
   lb_x(i,:) = lb_x(i-1,:) + 3.0
 end do
 
-lb_y = (/-1.9, -1.7, -1.7, -1.9, -1.9/)
+lb_y = (/-2.3, -2.1, -2.1, -2.3, -2.3/)
 
 dum_lb = new(10, graphic)
 lb_res = True
@@ -537,7 +546,7 @@ end do
 do i = 8, 9
   text_x(i) = text_x(i-1) + 2.8
 end do
-text_y = -1.8
+text_y = -2.2
 do i = 0, 9
   text_plot(i) = gsn_add_text(wks, plot_without_xgrid, text(i), text_x(i), text_y, text_res)
 end do
@@ -550,7 +559,7 @@ line_plot = new(2, graphic)
 line_x = new((/2,2/), "float")
 line_x(0,:) = (/text_x(8)-1.6,text_x(8)-0.2/)
 line_x(1,:) = (/text_x(9)-1.6,text_x(9)-0.2/)
-line_y = (/-1.8,-1.8/)
+line_y = (/-2.2,-2.2/)
 do i = 0, 1
   line_res@gsLineColor = line_color(i)
   line_res@gsLineDashPattern = line_dash(i)
