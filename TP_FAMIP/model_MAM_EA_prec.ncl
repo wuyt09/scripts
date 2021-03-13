@@ -131,7 +131,7 @@ res@gsnFrame = False
 res@gsnMaximize = True
 
 res@mpOutlineOn = True
-res@mpGeophysicalLineThicknessF = 2
+res@mpGeophysicalLineThicknessF = 5
 res@mpGeophysicalLineColor = "grey25" ;"red" 
 res@mpFillDrawOrder = "PreDraw"
 ; res@mpFillOn = True
@@ -178,7 +178,7 @@ res@tmYLLabelFontHeightF = 0.025
   vcres@gsnRightString = ""
 ;------------------------------------------
 
-  vcres@vcRefMagnitudeF         = 3.0  ; define vector ref mag
+  vcres@vcRefMagnitudeF         = 1.0  ; define vector ref mag
   res@cnLevelSelectionMode = "ManualLevels"
   res@cnLevelSpacingF = 0.2
   res@cnMaxLevelValF = 2.
