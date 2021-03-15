@@ -6,7 +6,7 @@ lonend = 135
 latstr = 5
 latend = 50
 
-season = "JJA"
+season = "MAM"
 yrStrt = 1979
 yrLast = 2014
 yearo = ispan(yrStrt, yrLast, 1)
@@ -30,25 +30,25 @@ pr_obs_ave = dim_avg_n_Wrap(pr_obs, 0)
 pr_obs_var = dim_variance_n_Wrap(pr_obs, 0)
 
 
-diriobs = "/home/yangsong3/data-observation/NCEP_DOE/monthly/"
-ufili = "uwnd.mon.mean.nc"
-vfili = "vwnd.mon.mean.nc"
-fuobs = addfile(diriobs+ufili, "r")
-fvobs = addfile(diriobs+vfili, "r")
-TIME := fuobs->time
-YYYYo := cd_calendar(TIME, -1)/100
-iYYYYo := ind(YYYYo.ge.yrStrt .and. YYYYo.le.yrLast)
-U_OBS = short2flt(fuobs->uwnd(iYYYYo,{LEV},::-1,:))
-V_OBS = short2flt(fvobs->vwnd(iYYYYo,{LEV},::-1,:))
-u_obs = month_to_season(U_OBS, season)
-v_obs = month_to_season(V_OBS, season)
-printVarSummary(u_obs)
-ulat = u_obs&lat
-ulon = u_obs&lon
-u_obs_ave = dim_avg_n_Wrap(u_obs, 0)
-u_obs_var = dim_variance_n_Wrap(u_obs, 0)
-v_obs_ave = dim_avg_n_Wrap(v_obs, 0)
-v_obs_var = dim_variance_n_Wrap(v_obs, 0)
+; diriobs = "/home/yangsong3/data-observation/NCEP_DOE/monthly/"
+; ufili = "uwnd.mon.mean.nc"
+; vfili = "vwnd.mon.mean.nc"
+; fuobs = addfile(diriobs+ufili, "r")
+; fvobs = addfile(diriobs+vfili, "r")
+; TIME := fuobs->time
+; YYYYo := cd_calendar(TIME, -1)/100
+; iYYYYo := ind(YYYYo.ge.yrStrt .and. YYYYo.le.yrLast)
+; U_OBS = short2flt(fuobs->uwnd(iYYYYo,{LEV},::-1,:))
+; V_OBS = short2flt(fvobs->vwnd(iYYYYo,{LEV},::-1,:))
+; u_obs = month_to_season(U_OBS, season)
+; v_obs = month_to_season(V_OBS, season)
+; printVarSummary(u_obs)
+; ulat = u_obs&lat
+; ulon = u_obs&lon
+; u_obs_ave = dim_avg_n_Wrap(u_obs, 0)
+; u_obs_var = dim_variance_n_Wrap(u_obs, 0)
+; v_obs_ave = dim_avg_n_Wrap(v_obs, 0)
+; v_obs_var = dim_variance_n_Wrap(v_obs, 0)
 ;===================================================================
 ; GCM 19 data
 ;===================================================================
@@ -104,39 +104,39 @@ do i = 0, nm-1
 
     delete([/PR_GCMs,PR_GCMx,pr_gcm,pr_gcm_ave/])
 
-    filiu = systemfunc("ls "+dirigcm+"ua_Amon_"+models(i)+"_historical_r1i1p1_*.nc")
-    fu = addfile(filiu, "r")
-    filiv = systemfunc("ls "+dirigcm+"va_Amon_"+models(i)+"_historical_r1i1p1_*.nc")
-    fv = addfile(filiv, "r")
-    TIME := fu->time
-    YYYY := cd_calendar(TIME, -1)/100
-    iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-    U_GCMs := fu->ua(iYYYY,{85000},:,:)
-    U_GCMx = linint2_Wrap(U_GCMs&lon, U_GCMs&lat, U_GCMs, True, ulon, ulat, 0)
-    V_GCMs := fv->va(iYYYY,{85000},:,:)
-    V_GCMx = linint2_Wrap(V_GCMs&lon, V_GCMs&lat, V_GCMs, True, ulon, ulat, 0)
+    ; filiu = systemfunc("ls "+dirigcm+"ua_Amon_"+models(i)+"_historical_r1i1p1_*.nc")
+    ; fu = addfile(filiu, "r")
+    ; filiv = systemfunc("ls "+dirigcm+"va_Amon_"+models(i)+"_historical_r1i1p1_*.nc")
+    ; fv = addfile(filiv, "r")
+    ; TIME := fu->time
+    ; YYYY := cd_calendar(TIME, -1)/100
+    ; iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+    ; U_GCMs := fu->ua(iYYYY,{85000},:,:)
+    ; U_GCMx = linint2_Wrap(U_GCMs&lon, U_GCMs&lat, U_GCMs, True, ulon, ulat, 0)
+    ; V_GCMs := fv->va(iYYYY,{85000},:,:)
+    ; V_GCMx = linint2_Wrap(V_GCMs&lon, V_GCMs&lat, V_GCMs, True, ulon, ulat, 0)
 
-    u_gcm = month_to_season(U_GCMx, season)
-    u_gcm_ave = dim_avg_n_Wrap(u_gcm, 0)
-    ; u_gcm_var = dim_variance_n_Wrap(u_gcm, 0)
-    ; prob_u = ttest(u_obs_ave, u_obs_var, nyro, u_gcm_ave, u_gcm_var, nyr, False, False)
+    ; u_gcm = month_to_season(U_GCMx, season)
+    ; u_gcm_ave = dim_avg_n_Wrap(u_gcm, 0)
+    ; ; u_gcm_var = dim_variance_n_Wrap(u_gcm, 0)
+    ; ; prob_u = ttest(u_obs_ave, u_obs_var, nyro, u_gcm_ave, u_gcm_var, nyr, False, False)
 
-    v_gcm = month_to_season(V_GCMx, season)
-    v_gcm_ave = dim_avg_n_Wrap(v_gcm, 0)
-    ; v_gcm_var = dim_variance_n_Wrap(v_gcm, 0)
-    ; prob_v = ttest(v_obs_ave, v_obs_var, nyro, v_gcm_ave, v_gcm_var, nyr, False, False)
+    ; v_gcm = month_to_season(V_GCMx, season)
+    ; v_gcm_ave = dim_avg_n_Wrap(v_gcm, 0)
+    ; ; v_gcm_var = dim_variance_n_Wrap(v_gcm, 0)
+    ; ; prob_v = ttest(v_obs_ave, v_obs_var, nyro, v_gcm_ave, v_gcm_var, nyr, False, False)
 
-    diff_u5(i,:,:) = u_gcm_ave - u_obs_ave
-    copy_VarCoords(u_obs_ave, diff_u5(i,:,:))
-    diff_v5(i,:,:) = v_gcm_ave - v_obs_ave
-    copy_VarCoords(v_obs_ave, diff_v5(i,:,:))
-    ; prob_uv(i,:,:) = mask(prob_u, (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; diff_u5(i,:,:) = u_gcm_ave - u_obs_ave
+    ; copy_VarCoords(u_obs_ave, diff_u5(i,:,:))
+    ; diff_v5(i,:,:) = v_gcm_ave - v_obs_ave
+    ; copy_VarCoords(v_obs_ave, diff_v5(i,:,:))
+    ; ; prob_uv(i,:,:) = mask(prob_u, (prob_u.le.sig) .and. (prob_v.le.sig), True)
 
-    ; diff_u(i,:,:) = mask(diff_u(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
-    ; diff_v(i,:,:) = mask(diff_v(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; ; diff_u(i,:,:) = mask(diff_u(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; ; diff_v(i,:,:) = mask(diff_v(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
 
-    delete([/U_GCMs,U_GCMx,u_gcm,u_gcm_ave/])
-    delete([/V_GCMs,V_GCMx,v_gcm,v_gcm_ave/])
+    ; delete([/U_GCMs,U_GCMx,u_gcm,u_gcm_ave/])
+    ; delete([/V_GCMs,V_GCMx,v_gcm,v_gcm_ave/])
     print("end of "+models(i))
     print("============================================")
 end do
@@ -175,51 +175,51 @@ do i = 0, nm-1
 
     delete([/PR_GCMs,PR_GCMx,pr_gcm,pr_gcm_ave/])
 
-    filiu = systemfunc("ls "+dirigcm+"ua_Amon_"+models(i)+"_historical_r1i1p1f*_*.nc")
-    fu = addfile(filiu, "r")
-    filiv = systemfunc("ls "+dirigcm+"va_Amon_"+models(i)+"_historical_r1i1p1f*_*.nc")
-    fv = addfile(filiv, "r")
-    TIME := fu->time
-    YYYY := cd_calendar(TIME, -1)/100
-    iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-    U_GCMs := fu->ua(iYYYY,{85000},:,:)
-    U_GCMx = linint2_Wrap(U_GCMs&lon, U_GCMs&lat, U_GCMs, True, ulon, ulat, 0)
-    V_GCMs := fv->va(iYYYY,{85000},:,:)
-    V_GCMx = linint2_Wrap(V_GCMs&lon, V_GCMs&lat, V_GCMs, True, ulon, ulat, 0)
+    ; filiu = systemfunc("ls "+dirigcm+"ua_Amon_"+models(i)+"_historical_r1i1p1f*_*.nc")
+    ; fu = addfile(filiu, "r")
+    ; filiv = systemfunc("ls "+dirigcm+"va_Amon_"+models(i)+"_historical_r1i1p1f*_*.nc")
+    ; fv = addfile(filiv, "r")
+    ; TIME := fu->time
+    ; YYYY := cd_calendar(TIME, -1)/100
+    ; iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+    ; U_GCMs := fu->ua(iYYYY,{85000},:,:)
+    ; U_GCMx = linint2_Wrap(U_GCMs&lon, U_GCMs&lat, U_GCMs, True, ulon, ulat, 0)
+    ; V_GCMs := fv->va(iYYYY,{85000},:,:)
+    ; V_GCMx = linint2_Wrap(V_GCMs&lon, V_GCMs&lat, V_GCMs, True, ulon, ulat, 0)
 
-    u_gcm = month_to_season(U_GCMx, season)
-    u_gcm_ave = dim_avg_n_Wrap(u_gcm, 0)
-    ; u_gcm_var = dim_variance_n_Wrap(u_gcm, 0)
-    ; prob_u = ttest(u_obs_ave, u_obs_var, nyro, u_gcm_ave, u_gcm_var, nyr, False, False)
+    ; u_gcm = month_to_season(U_GCMx, season)
+    ; u_gcm_ave = dim_avg_n_Wrap(u_gcm, 0)
+    ; ; u_gcm_var = dim_variance_n_Wrap(u_gcm, 0)
+    ; ; prob_u = ttest(u_obs_ave, u_obs_var, nyro, u_gcm_ave, u_gcm_var, nyr, False, False)
 
-    v_gcm = month_to_season(V_GCMx, season)
-    v_gcm_ave = dim_avg_n_Wrap(v_gcm, 0)
-    ; v_gcm_var = dim_variance_n_Wrap(v_gcm, 0)
-    ; prob_v = ttest(v_obs_ave, v_obs_var, nyro, v_gcm_ave, v_gcm_var, nyr, False, False)
+    ; v_gcm = month_to_season(V_GCMx, season)
+    ; v_gcm_ave = dim_avg_n_Wrap(v_gcm, 0)
+    ; ; v_gcm_var = dim_variance_n_Wrap(v_gcm, 0)
+    ; ; prob_v = ttest(v_obs_ave, v_obs_var, nyro, v_gcm_ave, v_gcm_var, nyr, False, False)
 
-    diff_u6(i,:,:) = u_gcm_ave - u_obs_ave
-    copy_VarCoords(u_obs_ave, diff_u6(i,:,:))
-    diff_v6(i,:,:) = v_gcm_ave - v_obs_ave
-    copy_VarCoords(v_obs_ave, diff_v6(i,:,:))
-    ; prob_uv(i,:,:) = mask(prob_u, (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; diff_u6(i,:,:) = u_gcm_ave - u_obs_ave
+    ; copy_VarCoords(u_obs_ave, diff_u6(i,:,:))
+    ; diff_v6(i,:,:) = v_gcm_ave - v_obs_ave
+    ; copy_VarCoords(v_obs_ave, diff_v6(i,:,:))
+    ; ; prob_uv(i,:,:) = mask(prob_u, (prob_u.le.sig) .and. (prob_v.le.sig), True)
 
-    ; diff_u(i,:,:) = mask(diff_u(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
-    ; diff_v(i,:,:) = mask(diff_v(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; ; diff_u(i,:,:) = mask(diff_u(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
+    ; ; diff_v(i,:,:) = mask(diff_v(i,:,:), (prob_u.le.sig) .and. (prob_v.le.sig), True)
 
-    delete([/U_GCMs,U_GCMx,u_gcm,u_gcm_ave/])
-    delete([/V_GCMs,V_GCMx,v_gcm,v_gcm_ave/])
+    ; delete([/U_GCMs,U_GCMx,u_gcm,u_gcm_ave/])
+    ; delete([/V_GCMs,V_GCMx,v_gcm,v_gcm_ave/])
     print("end of "+models(i))
     print("============================================")
 end do
 printVarSummary(diff_u6)
 
 diff_pr5_mme = dim_avg_n_Wrap(diff_pr5, 0)
-diff_u5_mme = dim_avg_n_Wrap(diff_u5, 0)
-diff_v5_mme = dim_avg_n_Wrap(diff_v5, 0)
+; diff_u5_mme = dim_avg_n_Wrap(diff_u5, 0)
+; diff_v5_mme = dim_avg_n_Wrap(diff_v5, 0)
 
 diff_pr6_mme = dim_avg_n_Wrap(diff_pr6, 0)
-diff_u6_mme = dim_avg_n_Wrap(diff_u6, 0)
-diff_v6_mme = dim_avg_n_Wrap(diff_v6, 0)
+; diff_u6_mme = dim_avg_n_Wrap(diff_u6, 0)
+; diff_v6_mme = dim_avg_n_Wrap(diff_v6, 0)
 
 ;===================================================================
 ; topo data
@@ -245,7 +245,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "pr_uv850_bias_JJA_mme_CMIP5_CMIP6"
+filiname = "pr_uv850_bias_"+season+"_mme_CMIP5_CMIP6"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(2, graphic)
 plot_topo = plot
@@ -280,9 +280,12 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 1.
-res@cnMaxLevelValF = 10
-res@cnMinLevelValF = -10
+res@cnLevelSpacingF = 0.5
+res@cnMaxLevelValF = 5
+res@cnMinLevelValF = -5
+; res@cnLevelSpacingF = 1.
+; res@cnMaxLevelValF = 10
+; res@cnMinLevelValF = -10
 res@cnFillPalette = "MPL_BrBG"
 res@gsnRightString = "mm/day"
 
@@ -327,8 +330,8 @@ res@gsnLeftString = "CMIP5 MME"
 plot(0) = gsn_csm_contour_map(wks, diff_pr5_mme, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
-plotv(0) = gsn_csm_vector(wks, diff_u5_mme, diff_v5_mme, vecres)
-overlay(plot(0), plotv(0))
+; plotv(0) = gsn_csm_vector(wks, diff_u5_mme, diff_v5_mme, vecres)
+; overlay(plot(0), plotv(0))
 dum1 = gsn_add_polyline(wks,plot(0),glon1,glat1,gres)
 dum2 = gsn_add_polyline(wks,plot(0),glon2,glat2,gres)
 
@@ -336,8 +339,8 @@ res@gsnLeftString = "CMIP6 MME"
 plot(1) = gsn_csm_contour_map(wks, diff_pr6_mme, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
-plotv(1) = gsn_csm_vector(wks, diff_u6_mme, diff_v6_mme, vecres)
-overlay(plot(1), plotv(1))
+; plotv(1) = gsn_csm_vector(wks, diff_u6_mme, diff_v6_mme, vecres)
+; overlay(plot(1), plotv(1))
 dum3 = gsn_add_polyline(wks,plot(1),glon1,glat1,gres)
 dum4 = gsn_add_polyline(wks,plot(1),glon2,glat2,gres)
 
