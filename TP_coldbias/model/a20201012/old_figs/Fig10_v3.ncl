@@ -205,7 +205,7 @@ topo = smth9_Wrap(topo, 0.5, 0.25, True)
 ;=========================================================
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20201012/"
-figname = "Fig8"
+figname = "Fig10_v3"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)

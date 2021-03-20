@@ -20,10 +20,15 @@ nlon = 144
 
 LEV = 300
 
-VT_season = new((/ncase,nlat,nlon/), float)
-VT_season!0 = "case"
-VT_season&case = casename
-UT_season = VT_season
+VT_bar = new((/ncase,nlat,nlon/), float)
+VT_bar!0 = "case"
+VT_bar&case = casename
+VT_ano = VT_bar
+VT_tot = VT_bar
+
+UT_bar = VT_bar
+UT_ano = VT_bar
+UT_tot = VT_bar
 
 do i = 0, ncase-1
     diri = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
@@ -43,83 +48,79 @@ do i = 0, ncase-1
     V = f2->V(iYYYY,{LEV},:,:)
     U = f3->U(iYYYY,{LEV},:,:)
 
-    ; T_season = month_to_season(T, season)
-    ; V_season = month_to_season(V, season)
-    ; U_season = month_to_season(U, season)
+    T_season = month_to_season(T, season)
+    V_season = month_to_season(V, season)
+    U_season = month_to_season(U, season)
 
-    ; T_bar = dim_avg_n_Wrap(T_season, 0)
-    ; V_bar = dim_avg_n_Wrap(V_season, 0)
-    ; U_bar = dim_avg_n_Wrap(U_season, 0)
-    ; VT_season(i,:,:) = V_bar*T_bar
-    ; UT_season(i,:,:) = U_bar*T_bar
+    T_bar = dim_avg_n_Wrap(T_season, 0)
+    V_bar = dim_avg_n_Wrap(V_season, 0)
+    U_bar = dim_avg_n_Wrap(U_season, 0)
+    VT_bar(i,:,:) = V_bar*T_bar
+    UT_bar(i,:,:) = U_bar*T_bar
+    copy_VarCoords(V_bar, VT_bar(i,:,:))
+    copy_VarCoords(V_bar, UT_bar(i,:,:))
 
-    UT = U*T
-    VT = V*T
-    copy_VarCoords(U, UT)
-    copy_VarCoords(V, VT)
-
-    UT_season_med = month_to_season(UT, season)
-    VT_season_med = month_to_season(VT, season)
-
-    UT_season(i,:,:) = dim_avg_n_Wrap(UT_season_med, 0)
-    VT_season(i,:,:) = dim_avg_n_Wrap(VT_season_med, 0)
-
+    T_ano = T_season - conform_dims(dimsizes(T_season), T_bar, (/1,2/))
+    V_ano = V_season - conform_dims(dimsizes(V_season), V_bar, (/1,2/))
+    U_ano = U_season - conform_dims(dimsizes(U_season), V_bar, (/1,2/))
+    VT_ano_med = T_ano*V_ano
+    VT_ano(i,:,:) = (/dim_avg_n_Wrap(VT_ano_med, 0)/)
+    copy_VarCoords(V_bar, VT_ano(i,:,:))
+    UT_ano_med = T_ano*U_ano
+    UT_ano(i,:,:) = (/dim_avg_n_Wrap(UT_ano_med, 0)/)
+    copy_VarCoords(U_bar, UT_ano(i,:,:))
 end do
 
-copy_VarCoords(U(0,:,:), UT_season(0,:,:))
-copy_VarCoords(V(0,:,:), VT_season(0,:,:))
-printVarSummary(VT_season)
+printVarSummary(VT_bar)
 
-diff_vt = VT_season(0:ncase-2,:,:)
-diff_ut = UT_season(0:ncase-2,:,:)
+diff_vt_bar = VT_bar(0:ncase-2,:,:)
+diff_vt_ano = VT_ano(0:ncase-2,:,:)
+diff_ut_bar = UT_bar(0:ncase-2,:,:)
+diff_ut_ano = UT_ano(0:ncase-2,:,:)
 do i = 0, ncase-2
-    diff_vt(i,:,:) = VT_season(i+1,:,:) - VT_season(0,:,:)
-    diff_ut(i,:,:) = UT_season(i+1,:,:) - UT_season(0,:,:)
+    diff_vt_bar(i,:,:) = VT_bar(i+1,:,:) - VT_bar(0,:,:)
+    diff_vt_ano(i,:,:) = VT_ano(i+1,:,:) - VT_ano(0,:,:)
+
+    diff_ut_bar(i,:,:) = UT_bar(i+1,:,:) - UT_bar(0,:,:)
+    diff_ut_ano(i,:,:) = UT_ano(i+1,:,:) - UT_ano(0,:,:)
 end do
-diff_tot = diff_ut+diff_vt
-copy_VarCoords(diff_ut, diff_tot)
 ;==========================================================================
 ; -d（VT）/dy; -d（UT）/dx
 ;==========================================================================
-lat = tofloat(V&lat)
-lon = tofloat(V&lon)
+lat = tofloat(VT_bar&lat)
+lon = tofloat(VT_bar&lon)
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
-dut_dx = VT_season(0:ncase-1,:,:)
-dvt_dy = dut_dx
+dutbar_dx = VT_bar(0:ncase-2,:,:)
+dutano_dx = dutbar_dx
+dvtbar_dy = dutbar_dx
+dvtano_dy = dutbar_dx
 
 dlon = (lon(2)-lon(1))*0.0174533
-do ll=0,ncase-1
+do ll=0,ncase-2
     do i=0,nlat-1                      ; loop over each latitude
         dx = 6378388.*cos(0.0174533*lat(i))*dlon  ; constant at this latitude
-        dut_dx(ll,i,:) = center_finite_diff_n (UT_season(ll,i,:), dx , True,0,0) ; be careful with the dimison downscale
+        dutbar_dx(ll,i,:) = center_finite_diff_n (diff_ut_bar(ll,i,:), dx , True,0,0) ; be careful with the dimison downscale
+        dutano_dx(ll,i,:) = center_finite_diff_n (diff_ut_ano(ll,i,:), dx , True,0,0)
+    end do
 end do
-end do
-dut_dx = dut_dx*(-1000.)
+dutbar_dx = dutbar_dx*(-1000.) 
+dutano_dx = dutano_dx*(-1000.)
 
 dlat = (lat(2)-lat(1))*0.0174533
 dy   = 6378388.*dlat
-do ll=0,ncase-1
-    dvt_dy(ll,:,:) = center_finite_diff_n (VT_season(ll,:,:), dy , False,0,0)
+do ll=0,ncase-2
+    dvtbar_dy(ll,:,:) = center_finite_diff_n (diff_vt_bar(ll,:,:), dy , False,0,0)
+    dvtano_dy(ll,:,:) = center_finite_diff_n (diff_vt_ano(ll,:,:), dy , False,0,0)
 end do
-dvt_dy = dvt_dy*(-1000.)
-printVarSummary(dut_dx)
-printVarSummary(dvt_dy)
+dvtbar_dy = dvtbar_dy*(-1000.)
+dvtano_dy = dvtano_dy*(-1000.)
+printVarSummary(dutano_dx)
+printVarSummary(dvtano_dy)
 
-dtot = dut_dx+dvt_dy
-copy_VarCoords(VT_season(0:ncase-1,:,:), dtot)
-
-diff_dvtdy = dvt_dy(0:ncase-2,:,:)
-diff_dutdx = dut_dx(0:ncase-2,:,:)
-do i = 0, ncase-2
-    diff_dutdx(i,:,:) = dut_dx(i+1,:,:) - dut_dx(0,:,:)
-    diff_dvtdy(i,:,:) = dvt_dy(i+1,:,:) - dvt_dy(0,:,:)
-end do
-copy_VarCoords(dut_dx(0:ncase-2,:,:), diff_dutdx)
-copy_VarCoords(dut_dx(0:ncase-2,:,:), diff_dvtdy)
-diff_dtot = diff_dutdx+diff_dvtdy
-copy_VarCoords(diff_dutdx, diff_dtot)
+dtot = dutano_dx+dutbar_dx+dvtano_dy+dvtbar_dy
+copy_VarCoords(VT_bar(0:ncase-2,:,:), dtot)
 ; exit
 
 ;===========================================================================
@@ -205,7 +206,7 @@ topo = smth9_Wrap(topo, 0.5, 0.25, True)
 ;=========================================================
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20201012/"
-figname = "Fig8"
+figname = "Fig10"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)
@@ -237,8 +238,8 @@ res@cnLinesOn             = False    ; turn of contour lines
 res@cnLineLabelsOn        = False
 res@cnInfoLabelOn         = False
 res@cnFillPalette         = "temp_diff_18lev"
-; res@lbLabelBarOn          = False
-res@pmLabelBarOrthogonalPosF = 0.12
+res@lbLabelBarOn          = False
+res@pmLabelBarOrthogonalPosF = 0.2
 
 res@mpMinLatF            = latstr      ; range to zoom in on
 res@mpMaxLatF            = latend
@@ -286,21 +287,21 @@ res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -0.5
 res@cnMaxLevelValF = 0.5
 res@cnLevelSpacingF = 0.05
-plot(1) = gsn_csm_contour_map(wks, diff_dtot(0,:,:), res)
+plot(1) = gsn_csm_contour_map(wks, dtot(0,:,:), res)
 ; plotc(1) = gsn_csm_contour(wks, sst_DJF(0,:,:), cnres)
 ; overlay(plot(1), plotc(1))
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
 
 res@gsnLeftString = "(d) SEN-ALL6 - CTRL"
-plot(3) = gsn_csm_contour_map(wks, diff_dtot(1,:,:), res)
+plot(3) = gsn_csm_contour_map(wks, dtot(1,:,:), res)
 ; plotc(3) = gsn_csm_contour(wks, sst_DJF(1,:,:), cnres)
 ; overlay(plot(3), plotc(3))
 plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(3), plot_topo(3))
 
 res@gsnLeftString = "(c) SEN-PAC - CTRL"
-plot(2) = gsn_csm_contour_map(wks, diff_dtot(2,:,:), res)
+plot(2) = gsn_csm_contour_map(wks, dtot(2,:,:), res)
 ; plotc(2) = gsn_csm_contour(wks, sst_DJF(2,:,:), cnres)
 ; overlay(plot(2), plotc(2))
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
@@ -319,9 +320,9 @@ overlay(plot(0), plot_topo(0))
 
 pres = True
 pres@gsnMaximize = True
-; pres@gsnPanelLabelBar = True
+pres@gsnPanelLabelBar = True
 ; pres@pmLabelBarOrthogonalPosF = -0.02
-; pres@lbLabelFontHeightF = 0.012
+pres@lbLabelFontHeightF = 0.012
 ; pres@gsnPanelMainString = season+" mean "
 
 gsn_panel(wks, plot, (/2,2/), pres)

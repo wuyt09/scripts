@@ -9,9 +9,9 @@ latend = 50
 
 yrStrt = 198102
 yrLast = 200601
-nyear = 25
 
-casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_IO","Hist_PO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
+
+casename = (/"Ctrl_FAMIP","Hist_FAMIP"/) ;,"Hist_PO","Hist_FAMIP_CMIP6","Hist_IO","Hist_AO","Hist_PIO","Hist_PAO","Hist_IAO"
 ncase = dimsizes(casename)
 
 season = "DJF"
@@ -20,19 +20,17 @@ nlon = 144
 
 LEV = 300
 
-z = new((/ncase,nyear,nlat,nlon/), float)
-z!0 = "case"
-z&case = casename
-v = z
-u = z
-h = z
+VT_season = new((/ncase,nlat,nlon/), float)
+VT_season!0 = "case"
+VT_season&case = casename
+UT_season = VT_season
 
 do i = 0, ncase-1
     diri = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
 
-    fili1 = casename(i)+".cam.h0.Z3.1979-2005.nc"
-    fili2 = casename(i)+".cam.h0.U.1979-2005.nc"
-    fili3 = casename(i)+".cam.h0.V.1979-2005.nc"
+    fili1 = casename(i)+".cam.h0.T.1979-2005.nc"
+    fili2 = casename(i)+".cam.h0.V.1979-2005.nc"    
+    fili3 = casename(i)+".cam.h0.U.1979-2005.nc"
     f1 = addfile(diri+fili1, "r")
     f2 = addfile(diri+fili2, "r")
     f3 = addfile(diri+fili3, "r")
@@ -41,57 +39,44 @@ do i = 0, ncase-1
     YYYY = cd_calendar(TIME, -1)
     iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-    ZX = f1->Z3(iYYYY,{300},:,:)
-    Z_zonal = dim_avg_n_Wrap(ZX, 2)
-    Z = ZX - conform_dims(dimsizes(ZX), Z_zonal, (/0,1/))
-    copy_VarCoords(ZX, Z)
+    T = f1->T(iYYYY,{LEV},:,:)
+    V = f2->V(iYYYY,{LEV},:,:)
+    U = f3->U(iYYYY,{LEV},:,:)
 
-    U = f2->U(iYYYY,{200},:,:)
-    V = f3->V(iYYYY,{200},:,:)
-    H = f1->Z3(iYYYY,{500},:,:)
+    ; T_season = month_to_season(T, season)
+    ; V_season = month_to_season(V, season)
+    ; U_season = month_to_season(U, season)
 
-    z(i,:,:,:) = month_to_season(Z, season)
-    u(i,:,:,:) = month_to_season(U, season)
-    v(i,:,:,:) = month_to_season(V, season)
-    h(i,:,:,:) = month_to_season(H, season)
+    ; T_bar = dim_avg_n_Wrap(T_season, 0)
+    ; V_bar = dim_avg_n_Wrap(V_season, 0)
+    ; U_bar = dim_avg_n_Wrap(U_season, 0)
+    ; VT_season(i,:,:) = V_bar*T_bar
+    ; UT_season(i,:,:) = U_bar*T_bar
+
+    UT = U*T
+    VT = V*T
+    copy_VarCoords(U, UT)
+    copy_VarCoords(V, VT)
+
+    UT_season_med = month_to_season(UT, season)
+    VT_season_med = month_to_season(VT, season)
+
+    UT_season(i,:,:) = dim_avg_n_Wrap(UT_season_med, 0)
+    VT_season(i,:,:) = dim_avg_n_Wrap(VT_season_med, 0)
+
 end do
 
-printVarSummary(z)
+copy_VarCoords(U(0,:,:), UT_season(0,:,:))
+copy_VarCoords(V(0,:,:), VT_season(0,:,:))
+printVarSummary(VT_season)
 
-;=============================================================================
-; ttest
-;=============================================================================
-z_ave = dim_avg_n_Wrap(z, 1)
-z_var = dim_variance_n_Wrap(z, 1)
+diff_vt = VT_season(0:ncase-2,:,:)
+diff_ut = UT_season(0:ncase-2,:,:)
+do i = 0, ncase-2
+    diff_vt(i,:,:) = VT_season(i+1,:,:) - VT_season(0,:,:)
+    diff_ut(i,:,:) = UT_season(i+1,:,:) - UT_season(0,:,:)
+end do
 
-u_ave = dim_avg_n_Wrap(u, 1)
-u_var = dim_variance_n_Wrap(u, 1)
-
-v_ave = dim_avg_n_Wrap(v, 1)
-v_var = dim_variance_n_Wrap(v, 1)
-
-h_ave = dim_avg_n_Wrap(h, 1)
-; h_var = dim_variance_n_Wrap(h, 1)
-
-probz = z_ave(0,:,:)
-probz = ttest(z_ave(0,:,:), z_var(0,:,:), nyear, z_ave(1,:,:), z_var(1,:,:), nyear, False, False)
-
-probu = u_ave(0,:,:)
-probu = ttest(u_ave(0,:,:), u_var(0,:,:), nyear, u_ave(1,:,:), u_var(1,:,:), nyear, False, False)
-
-probv = v_ave(0,:,:)
-probv = ttest(v_ave(0,:,:), v_var(0,:,:), nyear, v_ave(1,:,:), v_var(1,:,:), nyear, False, False)
-printVarSummary(probv)
-
-diff_z = z_ave(0,:,:)
-diff_z = z_ave(1,:,:) - z_ave(0,:,:)
-diff_u = u_ave(0,:,:)
-diff_u = u_ave(1,:,:) - u_ave(0,:,:)
-diff_v = v_ave(0,:,:)
-diff_v = v_ave(1,:,:) - v_ave(0,:,:)
-
-diff_h = h_ave(0,:,:)
-diff_h = h_ave(1,:,:) - h_ave(0,:,:)
 ;=========================================================
 ; outline of tp
 ;=========================================================
@@ -107,9 +92,10 @@ figname = "Fig9"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)
-plot = new(9, graphic)
+plot = new(6, graphic)
 plotc = plot
 plot_topo = plot
+plotc = plot
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -118,7 +104,7 @@ plot_topo = plot
  res_topo@gsnDraw    = False
  res_topo@cnLineLabelsOn         = False
  res_topo@cnLineThicknessF       = 3
- res_topo@cnLineColor            = "gray40"
+ res_topo@cnLineColor            = "grey40"
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
  res_topo@cnLevels               = (/1500/)
@@ -136,7 +122,7 @@ res@cnLineLabelsOn        = False
 res@cnInfoLabelOn         = False
 res@cnFillPalette         = "temp_diff_18lev"
 ; res@lbLabelBarOn          = False
-res@pmLabelBarOrthogonalPosF = 0.2
+; res@pmLabelBarOrthogonalPosF = 0.2
 
 res@mpMinLatF            = latstr      ; range to zoom in on
 res@mpMaxLatF            = latend
@@ -148,134 +134,86 @@ res@tmYLLabelFontHeightF = 0.025
 
 res@gsnStringFontHeightF = 0.035
 
-; ====================================================================================
-cnres = True
-cnres@gsnDraw  = False
-cnres@gsnFrame = False
 
-cnres@cnFillOn = False
-cnres@cnLinesOn = True
-cnres@cnLineLabelsOn = True
-cnres@cnLineLabelFontColor = "red"
-cnres@cnLineLabelInterval = 1
-; cnres@cnLineLabelDensityF = 2
-cnres@cnLineLabelPlacementMode = "Constant"
-cnres@cnLineDashSegLenF = 0.2
-
-cnres@cnLineLabelFontHeightF = 0.02
-cnres@cnLineColor = "purple"
-cnres@cnLineThicknessF = 4
-cnres@cnInfoLabelOn = True
-cnres@cnInfoLabelOrthogonalPosF = -0.65
-cnres@cnInfoLabelFontHeightF = 0.02
-cnres@cnLabelDrawOrder = "PostDraw"
-cnres@gsnContourNegLineDashPattern = 2
-cnres@gsnContourPosLineDashPattern = 0
-cnres@gsnLeftString = ""
-cnres@gsnRightString = ""
-;====================================================================================
-
-; res@gsnRightString = ""
-res@gsnLeftString = "(a) CTRL: U200"
-res@cnFillPalette = "WhiteBlueGreenYellowRed" ;
+res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = 30
-res@cnMaxLevelValF = 60
-res@cnLevelSpacingF = 10.
-plot(0) = gsn_csm_contour_map(wks, u_ave(0,:,:), res)
+res@cnMinLevelValF = -16000
+res@cnMaxLevelValF = 16000
+res@cnLevelSpacingF = 2000
+; res@gsnRightString = "*10~S~-3~N~"
+
+res@gsnLeftString = "(a) CTRL. U_bar * T_bar" ;C/~F34~6~Cy
+plot(0) = gsn_csm_contour_map(wks, UT_season(0,:,:), res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@gsnLeftString = "(b) SEN-ALL: U200"
-plot(1) = gsn_csm_contour_map(wks, u_ave(1,:,:), res)
+res@gsnLeftString = "(b) SEN_ALL. U_bar * T_bar"
+plot(1) = gsn_csm_contour_map(wks, UT_season(1,:,:), res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
 
-res@gsnLeftString = "(c) b-a"
-res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -5
-res@cnMaxLevelValF = 5
-res@cnLevelSpacingF = 0.5
-plot(2) = gsn_csm_contour_map(wks, diff_u, res)
-plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(2), plot_topo(2))
-
-res@gsnLeftString = "(d) CTRL: V200"
-res@cnFillPalette = "temp_diff_18lev" ;WhiteBlueGreenYellowRed
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10 ;30
-res@cnMaxLevelValF = 10 ;60
-res@cnLevelSpacingF = 2. ;10.
-plot(3) = gsn_csm_contour_map(wks, v_ave(0,:,:), res)
+res@cnMinLevelValF = -5000
+res@cnMaxLevelValF = 5000
+res@cnLevelSpacingF = 500
+res@gsnLeftString = "(d) CTRL. V_bar * T_bar" ;C/~F34~6~Cy
+plot(3) = gsn_csm_contour_map(wks, VT_season(0,:,:), res)
 plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(3), plot_topo(3))
 
-res@gsnLeftString = "(e) SEN-ALL: V200"
-plot(4) = gsn_csm_contour_map(wks, v_ave(1,:,:), res)
+res@gsnLeftString = "(e) SEN_ALL. V_bar * T_bar"
+plot(4) = gsn_csm_contour_map(wks, VT_season(1,:,:), res)
 plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(4), plot_topo(4))
 
-res@gsnLeftString = "(f) e-d"
-res@cnFillPalette = "temp_diff_18lev"
+
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -3
-res@cnMaxLevelValF = 3
-res@cnLevelSpacingF = 0.3
-plot(5) = gsn_csm_contour_map(wks, diff_v, res)
+res@cnMinLevelValF = -1600
+res@cnMaxLevelValF = 1600
+res@cnLevelSpacingF = 200
+res@gsnLeftString = "(c) b-a"
+plot(2) = gsn_csm_contour_map(wks, diff_ut(0,:,:), res)
+plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(2), plot_topo(2))
+
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMinLevelValF = -500
+res@cnMaxLevelValF = 500
+res@cnLevelSpacingF = 50
+res@gsnLeftString = "(f) e-d"
+plot(5) = gsn_csm_contour_map(wks, diff_vt(0,:,:), res)
 plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(5), plot_topo(5))
-
-res@gsnRightString = "gpm"
-res@gsnLeftString = "(g) CTRL: H300"
-res@cnFillPalette = "temp_diff_18lev"
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -300
-res@cnMaxLevelValF = 300
-res@cnLevelSpacingF = 30.
-plot(6) = gsn_csm_contour_map(wks, z_ave(0,:,:), res)
-plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(6), plot_topo(6))
-
-cnres@cnLevelSelectionMode = "ManualLevels"
-cnres@cnMinLevelValF = 5200
-cnres@cnMaxLevelValF = 5800
-cnres@cnLevelSpacingF = 100
-plotc(6) = gsn_csm_contour(wks, h_ave(0,:,:), cnres)
-overlay(plot(6), plotc(6))
-
-res@gsnLeftString = "(h) SEN-ALL: H300"
-plot(7) = gsn_csm_contour_map(wks, z_ave(1,:,:), res)
-plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(7), plot_topo(7))
-plotc(7) = gsn_csm_contour(wks, h_ave(1,:,:), cnres)
-overlay(plot(7), plotc(7))
-
-
-res@gsnLeftString = "(i) h-g"
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -50
-res@cnMaxLevelValF = 50
-res@cnLevelSpacingF = 5.
-plot(8) = gsn_csm_contour_map(wks, diff_z, res)
-plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(8), plot_topo(8))
-
-cnres@gsnContourNegLineDashPattern = 16
-cnres@gsnContourPosLineDashPattern = 0
-cnres@cnLevelSelectionMode = "ManualLevels"
-cnres@cnMinLevelValF = -50
-cnres@cnMaxLevelValF = 50
-cnres@cnLevelSpacingF = 10
-plotc(8) = gsn_csm_contour(wks, diff_h, cnres)
-overlay(plot(8), plotc(8))
 
 
 pres = True
 pres@gsnMaximize = True
-;pres@gsnPanelLabelBar = True
-; pres@gsnPanelMainString = season+" mean heat flux: "+LEV+" hPa "
+; pres@gsnPanelLabelBar = True
+; pres@pmLabelBarOrthogonalPosF = -0.02
+; pres@lbLabelFontHeightF = 0.015
+; pres@gsnPanelMainString = season+" mean: "+LEV+" hPa "
 
-gsn_panel(wks, plot, (/3,3/), pres)
+gsn_panel(wks, plot, (/2,3/), pres)
+
+; pres = True
+; ; pres@gsnMaximize = True
+; pres@gsnDraw  = False
+; pres@gsnFrame = False
+
+; height = 0.2
+; pres@gsnDraw = True
+; pres@gsnPanelLabelBar = True
+; pres@lbLabelFontHeightF = 0.012
+; pres@gsnPanelTop = 0.7
+; pres@gsnPanelBottom = pres@gsnPanelTop - height
+; gsn_panel(wks, plot(0:2), (/1,3/), pres)
+
+
+; pres@gsnPanelLabelBar = True
+; pres@gsnPanelTop = pres@gsnPanelBottom
+; pres@gsnPanelBottom = pres@gsnPanelTop - height
+; pres@gsnPanelLabelBar = True
+; pres@lbLabelFontHeightF = 0.012
+; gsn_panel(wks, plot(3:5), (/1,3/), pres)
 
 end
