@@ -208,9 +208,9 @@ res@cnLevelSpacingF = 0.5
 res@gsnRightString = "*10~S~-3~N~"
 
 cnres@cnLevelSelectionMode = "ManualLevels"
-cnres@cnMinLevelValF = -200
-cnres@cnMaxLevelValF = 200
-cnres@cnLevelSpacingF = 100.
+cnres@cnMinLevelValF = -2000
+cnres@cnMaxLevelValF = 2000
+cnres@cnLevelSpacingF = 1000
 
 res@gsnLeftString = "(a) CTRL. -d(V*T)/dy" ;C/~F34~6~Cy
 plot(0) = gsn_csm_contour_map(wks, dvt_dy(0,:,:), res)
@@ -220,9 +220,9 @@ plotc(0) = gsn_csm_contour(wks, VT_season(0,:,:), cnres)
 overlay(plot(0), plotc(0))
 
 cnres@cnLevelSelectionMode = "ManualLevels"
-cnres@cnMinLevelValF = -1000
-cnres@cnMaxLevelValF = 1000
-cnres@cnLevelSpacingF = 500
+cnres@cnMinLevelValF = -20000
+cnres@cnMaxLevelValF = 20000
+cnres@cnLevelSpacingF = 5000
 res@gsnLeftString = "(b) CTRL. -d(U*T)/dx"
 plot(1) = gsn_csm_contour_map(wks, dut_dx(0,:,:), res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
@@ -234,16 +234,16 @@ res@gsnLeftString = "(c) a+b"
 plot(2) = gsn_csm_contour_map(wks, dtot(0,:,:), res)
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2), plot_topo(2))
-plotc(2) = gsn_csm_contour(wks, tot_season(0,:,:), cnres)
-overlay(plot(2), plotc(2))
+; plotc(2) = gsn_csm_contour(wks, tot_season(0,:,:), cnres)
+; overlay(plot(2), plotc(2))
 
 
 
 res@gsnRightString = "*10~S~-3~N~"
 cnres@cnLevelSelectionMode = "ManualLevels"
-cnres@cnMinLevelValF = -2
-cnres@cnMaxLevelValF = 2
-cnres@cnLevelSpacingF = 1.
+cnres@cnMinLevelValF = -200
+cnres@cnMaxLevelValF = 200
+cnres@cnLevelSpacingF = 100
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -0.5
 res@cnMaxLevelValF = 0.5
@@ -255,6 +255,9 @@ overlay(plot(3), plot_topo(3))
 plotc(3) = gsn_csm_contour(wks, diff_vt(0,:,:), cnres)
 overlay(plot(3), plotc(3))
 
+cnres@cnMinLevelValF = -1000
+cnres@cnMaxLevelValF = 1000
+cnres@cnLevelSpacingF = 500
 res@gsnLeftString = "(e) diff. -d(U*T)/dx"
 plot(4) = gsn_csm_contour_map(wks, diff_dutdx(0,:,:), res)
 plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
@@ -266,8 +269,8 @@ res@gsnLeftString = "(f) d+e"
 plot(5) = gsn_csm_contour_map(wks, diff_dtot(0,:,:), res)
 plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(5), plot_topo(5))
-plotc(5) = gsn_csm_contour(wks, diff_tot(0,:,:), cnres)
-overlay(plot(5), plotc(5))
+; plotc(5) = gsn_csm_contour(wks, diff_tot(0,:,:), cnres)
+; overlay(plot(5), plotc(5))
 
 
 ; pres = True

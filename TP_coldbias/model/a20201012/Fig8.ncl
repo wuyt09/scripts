@@ -127,9 +127,17 @@ copy_VarCoords(diff_dutdx, diff_dtot)
 nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
 nvars = dimsizes(nvname)
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram_decomposeT/"
+;===========================================================================
+
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram_decomposeT/" ;cfram20200805
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
+fili3 = diri2+"t_cloud_radsfc_ranc_1.grd"
+fili4 = diri2+"t_wv_radsfc_ranc_1.grd"
 fili5 = diri2+"t_dyn_radsfc_ranc_1.grd"
+
+diri3 = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/model/a20200910/cfram20200917/"
+fili6 = diri3+"t_radsfc_ranc_1.grd"
+
 
 UNDEF = -999.
 x = new((/nvars,nlat,nlon/),float,UNDEF)
@@ -144,62 +152,79 @@ x&lon@units = "degrees_east"
 x@long_name = "forcing"
 x@units     = "W/m2"
 
+cld = x
+wv = x
 dyn = x
+y = x
 
 do nv = 0,nvars-1
     x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
+    cld(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
+    wv(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
     dyn(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
+    y(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
 end do
 
+; if (any(isnan_ieee(x))) then   ; if x got a element is Not A Number, then the Fill_value
+;   value = -999.
+;   replace_ieeenan (x,value,0)
+;   x@_FillValue = value
+; end if
+printVarSummary(x)
+printMinMax(x(0,:,:),1)
+
+
 nx = 2
+title = (/"(a) Cloud","(b) WV","(c) Atm. dyn.","(d) a+b+c","(e) total by Air Temp.","(f) error: e-d"/)
+x_diff = new((/dimsizes(title),nlat,nlon/), float)
+x_diff!0 = "term"
+x_diff&term = title
 
-diff_dyn = x(0,:,:)
-diff_dyn = dyn(nx,:,:)-x(nx,:,:)
-printVarSummary(diff_dyn)
+x_diff(0,:,:) = cld(nx,:,:) - x(nx,:,:)
+x_diff(1,:,:) = wv(nx,:,:) - x(nx,:,:)
+x_diff(2,:,:) = dyn(nx,:,:) - x(nx,:,:)
+x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+x_diff(4,:,:) = y(nx,:,:) - x(nx,:,:)
+x_diff(5,:,:) = x_diff(4,:,:) - x_diff(3,:,:)
+copy_VarCoords(x(0,:,:), x_diff(0,:,:))
+printVarSummary(x_diff)
 
+;=======================================
+; this is for outline of TP
+;=======================================
 
-; ;===========================================================================
-
-; yrStrt = 1979
-; yrLast = 2005
-
-; TS = new((/4,324,nlat,nlon/), float)
-
-; dirisst = "/home/yangsong3/wuyt/sysu/scripts/TP_coldbias/data/"
-; fsst1 = "sst_HadOIBl_bc_1.9x2.5_1850_2012_c130411.nc"
-; fsst2 = "Hist_bias_sst_cmip5_bc_1.9x2.5_c20191204.nc"
-; fsst3 = "Hist_bias_sst_cmip6_bc_1.9x2.5_c20201004.nc"
-; fsst4 = "PO_sst_cmip5_bc_1.9x2.5_c20191204.nc"
-; fs1 = addfile(dirisst+fsst1, "r")
-; fs2 = addfile(dirisst+fsst2, "r")
-; fs3 = addfile(dirisst+fsst3, "r")
-; fs4 = addfile(dirisst+fsst4, "r")
-
-; TIMEs = fs1->time
-; YYYYs = cd_calendar(TIMEs, -1)/100
-; iYYYYs = ind(YYYYs.ge.yrStrt .and. YYYYs.le.yrLast)
-
-; TS(0,:,:,:) = fs1->SST_cpl(iYYYYs,:,:)
-; TS(1,:,:,:) = fs2->SST_cpl(iYYYYs,:,:)
-; TS(2,:,:,:) = fs3->SST_cpl(iYYYYs,:,:)
-; TS(3,:,:,:) = fs4->SST_cpl(iYYYYs,:,:)
-
-; sst_diff = TS(0,:,:,:)
-; sst_DJF = TS(0:2,27,:,:)
-; do i = 0, 2
-;     sst_diff = TS(i+1,:,:,:) - TS(0,:,:,:)
-;     sst_DJFx = month_to_season(sst_diff, "DJF")
-;     sst_DJF(i,:,:) = dim_avg_n_Wrap(sst_DJFx, 0)
-; end do
-
-; printVarSummary(sst_DJF)
-
-;=========================================================
-; outline of tp
-;=========================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
+
+TOPO = linint2_Wrap(topo&lon, topo&lat, topo, True, lon, lat, 0)
+
 topo = smth9_Wrap(topo, 0.5, 0.25, True)
+
+;===================================================================================
+; correction
+;===================================================================================
+
+clat = cos(0.01745329*lat)
+error = x_diff(5,:,:)
+cld_corr = x_diff(2,:,:)
+error = mask(error, TOPO.ge.1500, True)
+cld_corr = mask(cld_corr, TOPO.ge.1500, True)
+
+; error = x_diff(5,{latstr:latend},{lonstr:lonend})
+; cld_corr = x_diff(0,{latstr:latend},{lonstr:lonend})
+
+upper_term = error*cld_corr
+uterm = wgt_areaave_Wrap(upper_term, 1.0, 1.0, 0)
+lower_term = cld_corr*cld_corr
+lterm = wgt_areaave_Wrap(lower_term, 1.0, 1.0, 0)
+alpha = uterm/lterm
+print("alpha = "+alpha)
+
+x_diff(2,:,:) = x_diff(2,:,:)*(1+alpha)
+x_diff(3,:,:) = x_diff(0,:,:) + x_diff(1,:,:) + x_diff(2,:,:)
+x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
+diff_dyn = x_diff(2,:,:)
+
 ;=========================================================
 ; plot
 ;=========================================================
@@ -309,9 +334,9 @@ overlay(plot(2), plot_topo(2))
 res@gsnLeftString = "(a) Atm. dyn."
 res@gsnRightString = "W/m~S~2~N~"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1
+res@cnMinLevelValF = -5
+res@cnMaxLevelValF = 5
+res@cnLevelSpacingF = 0.5
 plot(0) = gsn_csm_contour_map(wks, diff_dyn, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))

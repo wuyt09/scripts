@@ -3,8 +3,8 @@ begin
 
 lonstr = 0
 lonend = 130
-latstr = 10
-latend = 70
+latstr = 15
+latend = 90
 
 
 yrStrt = 1979
@@ -13,7 +13,7 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
 
-LEV = 500
+LEV = (/200,500,850/)
 
 latstr_east = 35
 latend_east = 55
@@ -66,17 +66,17 @@ Hgt@units = "gpm"
 hgt = month_to_season(Hgt, season)
 printVarSummary(hgt)
 
-hgt_zonal = dim_avg_n_Wrap(hgt, 2)
+hgt_zonal = dim_avg_n_Wrap(hgt, 3)
 printVarSummary(hgt_zonal)
 
-x = conform_dims(dimsizes(hgt), hgt_zonal, (/0,1/))
+x = conform_dims(dimsizes(hgt), hgt_zonal, (/0,1,2/))
 hgt_new = hgt - x
 copy_VarCoords(hgt, hgt_new)
 hgt_new&time = year
 printVarSummary(hgt_new)
 
 rc = regCoef_n(year, hgt_new, 0, 0)
-copy_VarCoords(hgt_new(0,:,:), rc)
+copy_VarCoords(hgt_new(0,:,:,:), rc)
 ; hgt_new = hgt
 
 tval = onedtond(rc@tval, dimsizes(rc))
@@ -100,7 +100,7 @@ figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
 figname = "trend_"+season+"_H500_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new(1, graphic)
+plot = new(3, graphic)
 plot_topo = plot
 plot_prob = plot
 dum1 = plot
@@ -159,9 +159,9 @@ res@mpFillOn = True
 res@mpGeophysicalLineThicknessF = 3
 res@mpGeophysicalLineColor = "grey25" ;"red" 
 ; res@mpFillDrawOrder = "PostDraw"
-; res@mpCenterLonF = 180
-; res@mpMinLatF = latstr
-; res@mpMaxLatF = latend
+res@mpCenterLonF = 90
+res@mpMinLatF = latstr
+res@mpMaxLatF = latend
 ; res@mpMinLonF = lonstr
 ; res@mpMaxLonF = lonend
 ; res@mpCenterLonF = (lonstr+lonend)/2
@@ -173,9 +173,10 @@ res@cnLineLabelsOn = False
 res@cnInfoLabelOn = False
 ; res@cnFillMode = "CellFill"
 
-res@gsnStringFontHeightF = 0.025
-res@tmXBLabelFontHeightF = 0.02
-res@tmYLLabelFontHeightF = 0.02
+res@gsnStringFontHeightF = 0.03
+; res@tmXBLabelFontHeightF = 0.03
+; res@tmYLLabelFontHeightF = 0.03
+res@gsnPolarLabelFontHeightF= 0.02
 
 res@cnFillPalette = "BlueWhiteOrangeRed"
 res@cnLevelSelectionMode = "ManualLevels"
@@ -183,7 +184,7 @@ res@cnMinLevelValF = -10
 res@cnMaxLevelValF = 10
 res@cnLevelSpacingF = 2
 
-; res@lbLabelBarOn = False
+res@lbLabelBarOn = False
 
 res@pmLabelBarHeightF = 0.1
 res@pmLabelBarWidthF = 0.7
@@ -209,30 +210,29 @@ gres@gsLineDashPattern = 16
  glon4 = (/lonend_west,lonend_west,lonstr_west,lonstr_west,lonend_west/)
  glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
+do i = 0, 2
+    res@gsnLeftString = LEV(i)+"hPa "+season+" trend"
+    plot(i) = gsn_csm_contour_map_polar(wks, trend(i,:,:), res)
+    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
+    overlay(plot(i), plot_topo(i))
 
-res@gsnLeftString = season+" trend"
-plot(0) = gsn_csm_contour_map_polar(wks, trend, res)
-plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(0), plot_topo(0))
+    plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
+    plot_prob(i) = ShadeLtContour(plot_prob(i),sig,17)
+    overlay(plot(i), plot_prob(i))
 
-plot_prob(0) = gsn_csm_contour(wks,prob,res3)
-plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
-overlay(plot(0), plot_prob(0))
-
-; dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
-dum2(0) = gsn_add_polyline(wks, plot(0), glon2, glat2, gres)
-dum3(0) = gsn_add_polyline(wks, plot(0), glon3, glat3, gres)
-dum4(0) = gsn_add_polyline(wks, plot(0), glon4, glat4, gres)
-
-draw(plot)
+    ; dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
+    dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
+    dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
+    dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
+end do
 
 
-; pres = True
-; pres@gsnMaximize = True
-; pres@gsnPanelLabelBar = True
-; pres@lbLabelFontHeightF = 0.012
+pres = True
+pres@gsnMaximize = True
+pres@gsnPanelLabelBar = True
+pres@lbLabelFontHeightF = 0.012
 ; pres@gsnPanelMainString = "H500"
 
-; ; gsn_panel(wks, plot, (/nx/3+1,3/), pres)
-; gsn_panel(wks, plot, (/4,nx/3/), pres)
+; gsn_panel(wks, plot, (/nx/3+1,3/), pres)
+gsn_panel(wks, plot, (/1,3/), pres)
 end
