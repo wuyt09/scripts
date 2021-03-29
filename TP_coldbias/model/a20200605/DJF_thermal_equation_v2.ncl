@@ -55,11 +55,11 @@ do i = 0, ncase-1
     printVarSummary(Q1_v2)
 
     x = new((/300,4,nlev,nlat,nlon/), float)
-    ; x(:,0,:,:,:) = (/dTdt/)
+    x(:,3,:,:,:) = (/dTdt/)
     x(:,2,:,:,:) = (/Q1_v1/)
-    x(:,0,:,:,:) = (/-1*dTdx/)
-    x(:,1,:,:,:) = (/-1*dTdp/)
-    x(:,3,:,:,:) = x(:,1,:,:,:) + x(:,2,:,:,:) +x(:,0,:,:,:)
+    x(:,0,:,:,:) = (/dTdx/) ;-1*
+    x(:,1,:,:,:) = (/dTdp/) ;-1*
+    ; x(:,3,:,:,:) = x(:,1,:,:,:) + x(:,2,:,:,:) +x(:,0,:,:,:)
     ; x(:,3,:,:,:) = (/Q1_v2/)
     copy_VarCoords(Q1_v2, x(:,0,:,:,:))
 
@@ -110,7 +110,7 @@ figname = season+"_thermal_equation_v2"
 ; lonend = 120
 ; latstr = 10
 ; latend = 50
-leftsti = (/"(a) -dTdxdy","(b) -dTdp","(c) Q1","(d) a+b+c"/) ;,"Q1_v2"
+leftsti = (/"(a) horizontal term","(b) vertical term","(c) Q1","(d) local term"/) ;,"Q1_v2"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(4, graphic)
@@ -141,7 +141,7 @@ res@cnLinesOn             = False    ; turn of contour lines
 res@cnLineLabelsOn        = False
 res@cnInfoLabelOn         = False
 res@cnFillPalette         = "CBR_coldhot"
-;res@lbLabelBarOn          = False
+res@lbLabelBarOn          = False
 
 res@mpMinLatF            = latstr      ; range to zoom in on
 res@mpMaxLatF            = latend
@@ -154,30 +154,30 @@ res@tmYLLabelFontHeightF = 0.025
 res@gsnStringFontHeightF = 0.035
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -20
-res@cnMaxLevelValF = 20
-res@cnLevelSpacingF = 2.
+res@cnMinLevelValF = -100
+res@cnMaxLevelValF = 100
+res@cnLevelSpacingF = 10
 
-do i = 0, 2
+do i = 0, 3
     res@gsnLeftString = leftsti(i)
     plot(i) = gsn_csm_contour_map(wks, vt_diff(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 end do
 
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.1
-res@gsnLeftString = leftsti(3)
-plot(3) = gsn_csm_contour_map(wks, vt_diff(3,:,:), res)
-plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(3), plot_topo(3))
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMinLevelValF = -1
+; res@cnMaxLevelValF = 1
+; res@cnLevelSpacingF = 0.1
+; res@gsnLeftString = leftsti(3)
+; plot(3) = gsn_csm_contour_map(wks, vt_diff(3,:,:), res)
+; plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(3), plot_topo(3))
 
 
 pres = True
 pres@gsnMaximize = True
-;pres@gsnPanelLabelBar = True
+pres@gsnPanelLabelBar = True
 pres@gsnPanelMainString = season+" thermal equation (600hPa to 300hPa)" ;
 ; pres@pmLabelBarOrthogonalPosF = -0.02
 ; pres@lbLabelFontHeightF = 0.015

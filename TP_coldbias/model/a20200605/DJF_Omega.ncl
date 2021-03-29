@@ -129,6 +129,7 @@ res@cnLineLabelsOn        = False
 res@cnInfoLabelOn         = False
 res@cnFillPalette         = "MPL_RdBu"
 ;res@lbLabelBarOn          = False
+res@pmLabelBarOrthogonalPosF = 0.012
 
 res@mpMinLatF            = latstr      ; range to zoom in on
 res@mpMaxLatF            = latend
@@ -140,7 +141,7 @@ res@tmYLLabelFontHeightF = 0.025
 
 res@gsnStringFontHeightF = 0.035
 
-res@gsnRightString = "m/s"
+res@gsnRightString = "Pa/s"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -0.2
 res@cnMaxLevelValF = 0.2

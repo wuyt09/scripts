@@ -218,9 +218,9 @@ res@gsnRightString = "W/m~S~2~N~"
 ; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMaxLevelValF = 10
-res@cnMinLevelValF = -10
-res@cnLevelSpacingF = 1
+res@cnMaxLevelValF = 5
+res@cnMinLevelValF = -5
+res@cnLevelSpacingF = 0.5
 
 do i = 0, dimsizes(title)-1
     res@gsnLeftString = title(i)

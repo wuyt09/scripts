@@ -1,10 +1,10 @@
 
 begin
 
-lonstr = 60
-lonend = 150
-latstr = 15
-latend = 50
+lonstr = 50
+lonend = 120
+latstr = 25
+latend = 40
 
 
 yrStrt = 198102
@@ -43,7 +43,8 @@ do i = 0, ncase-1
     tx = month_to_season(T, season)
     ; tx = mask(tx, TOPO.ge.1500, True)
     ; t(i,:,:) = wgt_areaave_Wrap(tx(:,:,{25:40},{75:105}), 1, 1, 0)
-    t(i,:,:,:) = tx(:,:,{LAT},:)
+    ; t(i,:,:,:) = tx(:,:,{LAT},:)
+    t(i,:,:,:) = dim_avg_n_Wrap(tx(:,:,{latstr:latend},:), 2)
 end do
 
 printVarSummary(t)
@@ -64,6 +65,9 @@ printVarSummary(prob)
 ;=========================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
+topo_z = dim_avg_n_Wrap(topo({latstr:latend},:), 0)
+topo_zonal = 1013.25*(1-topo_z*0.0065/288.15)^5.25145
+copy_VarCoords(topo({LAT},:), topo_zonal)
 ;=========================================================
 ; plot
 ;=========================================================
@@ -117,6 +121,7 @@ title = (/"All Basin", "Pacific Basin" /)
     ; res@lbLabelBarOn = False
     ;res@lbLabelFontHeightF = 0.02
     res@tiYAxisString = ""
+    res@cnFillDrawOrder = "PreDraw"
 
     res@tmYLMode      = "Explicit"
     res@tmYLValues    = (/"1000","850","750","500","300","250"/) ;,"150"
@@ -178,11 +183,15 @@ res@cnFillPalette = "temp_diff_18lev" ; "MPL_RdBu"
 ; gsn_panel(wks, plot, (/1,2/), pres)
 
 res@gsnLeftString = "Air Temp. diff"
-res@gsnRightString = "lat: "+LAT+"~S~o~N~N"
+res@gsnRightString = "lat: "+latstr+"~S~o~N~N - "+latend+"~S~o~N~N"
 plot(0) = gsn_csm_pres_hgt(wks, t_diff(0,:,{lonstr:lonend}), res)
 plot_prob(0) = gsn_csm_contour(wks,prob(0,:,{lonstr:lonend}),res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),0.055,17)
 overlay(plot(0), plot_prob(0))
+
+plot_topo(0) = gsn_csm_xy(wks, topo&lon, topo_zonal, res_topo)
+overlay(plot(0), plot_topo(0))
+
 draw(plot(0))
 
 end
