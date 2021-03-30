@@ -81,7 +81,7 @@ ave5_w  = (tdiff(:,0)+tdiff(:,1)+tdiff(:,11))/3
 ave5_s  = (tdiff(:,5)+tdiff(:,6)+tdiff(:,7))/3
 print(sprintf("%4.2f", ave5_w))
 print(sprintf("%4.2f", ave5_s))
-exit
+
 ;=========================================================
 ; plot 
 ;=========================================================
@@ -260,7 +260,7 @@ plot(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
     res_text@txFontHeightF      = 0.008                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = (/"All Basin","All Basin CMIP6","Indian Only","Pacific Only","Atlantic Only",\
+    Texts  = (/"SEN_ALL","SEN_ALL6","SEN_IND","SEN_PAC","SEN_ATL",\
            "Pacific&Indian","Pacific&Atlantic","Indian&Atlantic"/)
 
 ; ;============================================================
@@ -286,8 +286,8 @@ plot(0) = gsn_csm_xy(wks, ispan(1, 12, 1), tdiff, res)
     dum22 = gsn_add_text(wks, plot(0), Texts(1), text_pos, gy2, res_text)
 
 
-    text_pos = 5.8
-    gx = (/5,5.7/)    
+    text_pos = 6.0
+    gx = (/5.2,5.9/)    
     res_lines@gsLineColor = Colors(3)
     res_lines@gsLineDashPattern = Patterns(3)
     res_lines@xyLineThicknessF = Thick(3)

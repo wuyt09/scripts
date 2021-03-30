@@ -19,17 +19,23 @@ nlev = 17
 nlat = 96
 nlon = 144
 
+LEV = 300
+
 season = "DJF"
 
 vt = new((/ncase,4,96,144/), float)
-diri1 = "/home/yangsong3/data-model/wuyt/TPbias/TEMPv2/"
+diri1 = "/home/yangsong3/data-model/wuyt/TPbias/TEMPv3/"
 
 do i = 0, ncase-1
     diri2 = "/home/yangsong3/data-model/wuyt/TPbias/TPbias_"+casename(i)+"/a20191206/"
-    fili1 = casename(i)+".dTdt.1981_2005.monmean.v2.nc"
-    fili2 = casename(i)+".q1.1981_2005.monmean.v2.nc"
-    fili3 = casename(i)+".VgradT.1981_2005.monmean.v2.nc"
-    fili4 = casename(i)+".Vertical.1981_2005.monmean.v2.nc"
+    fili1 = casename(i)+".dTdt.1981_2005.monmean.nc"
+    fili2 = casename(i)+".q1.1981_2005.monmean.nc"
+    fili3 = casename(i)+".VgradT.1981_2005.monmean.nc"
+    fili4 = casename(i)+".Vertical.1981_2005.monmean.nc"
+    ; fili1 = casename(i)+".dTdt.1981_2005.monmean.v2.nc"
+    ; fili2 = casename(i)+".q1.1981_2005.monmean.v2.nc"
+    ; fili3 = casename(i)+".VgradT.1981_2005.monmean.v2.nc"
+    ; fili4 = casename(i)+".Vertical.1981_2005.monmean.v2.nc"
     fili5 = casename(i)+".cam.h0.Q1.1979-2005.nc"
     fili6 = casename(i)+".cam.h0.PS.1979-2005.nc"
     f1 = addfile(diri1+fili1, "r")
@@ -39,10 +45,10 @@ do i = 0, ncase-1
     f5 = addfile(diri2+fili5, "r")
     f6 = addfile(diri2+fili6, "r")
 
-    dTdt = f1->dsdt
-    Q1_v1 = f2->q1
-    dTdx = f3->adv_s
-    dTdp = f4->dsdp
+    dTdt = f1->dsdt(:,{LEV},:,:)
+    Q1_v1 = f2->q1(:,{LEV},:,:)
+    dTdx = f3->adv_s(:,{LEV},:,:)
+    dTdp = f4->dsdp(:,{LEV},:,:)
     ;dTdp = dTdp*(-1.)
     Q1_v1 = dTdx+dTdt+dTdp
     printVarSummary(Q1_v1)
@@ -50,45 +56,26 @@ do i = 0, ncase-1
     TIME = f6->time
     YYYY = cd_calendar(TIME, -1)
     iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-    Q1_v2 = f5->Q1(iYYYY,:,:,:)
+    Q1_v2 = f5->Q1(iYYYY,{LEV},:,:)
     PS = f6->PS(iYYYY,:,:)
     printVarSummary(Q1_v2)
 
-    x = new((/300,4,nlev,nlat,nlon/), float)
-    x(:,3,:,:,:) = (/dTdt/)
-    x(:,2,:,:,:) = (/Q1_v1/)
-    x(:,0,:,:,:) = (/-1*dTdx/) ;
-    x(:,1,:,:,:) = (/-1*dTdp/) ;
+    x = new((/300,4,nlat,nlon/), float)
+    x(:,3,:,:) = (/dTdt/)
+    x(:,2,:,:) = (/Q1_v1/)
+    x(:,0,:,:) = (/-1*dTdx/) ;
+    x(:,1,:,:) = (/-1*dTdp/) ;
     ; x(:,3,:,:,:) = x(:,1,:,:,:) + x(:,2,:,:,:) +x(:,0,:,:,:)
-    ; x(:,3,:,:,:) = (/Q1_v2/)
-    copy_VarCoords(Q1_v2, x(:,0,:,:,:))
+    ; x(:,2,:,:) = (/Q1_v2/)
+    copy_VarCoords(Q1_v2, x(:,0,:,:))
 
-    x = x*G_CPD/G_G  ; convert units
+    x = x*86400.
 
 
-    lev = Q1_v2&level
-    plev = lev
-    plev = plev*100
-    plev!0 = "lev"
-    plev&lev = lev
-    plev@units = "Pa"
-    levs = 600
-    levt = 300
-
-    ptop = min(plev)
-    psfc = PS
-    dP = dpres_plevel_Wrap(plev, psfc, ptop, 0)
-    dp = conform_dims(dimsizes(x), dP, (/0,2,3,4/))
-    copy_VarCoords(x, dp)
-    xdp = x*dp
-    copy_VarCoords(x, xdp)
-    x0 = dim_sum_n_Wrap(xdp(:,:,{levs:levt},:,:), 2) ;/dim_sum_n_Wrap(dp(:,:,{levs:levt},:,:), 2)
-    ; x0 = dim_sum_n_Wrap(xdp, 2)/dim_sum_n_Wrap(dp, 2)
-    copy_VarCoords(xdp(:,:,0,:,:), x0)
-    vt0 = month_to_season(x0, season)
+    vt0 = month_to_season(x, season)
     vt(i,:,:,:) = dim_avg_n_Wrap(vt0, 0)
 end do
-vt@units = "W/m~S~2~C~"
+vt@units = "K/day"
 printVarSummary(vt)
 
 vt_diff = vt(0,:,:,:)
@@ -104,7 +91,7 @@ topo = ftopo->topo(::-1,:)
 ; plot 
 ;=========================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20200605/"
-figname = season+"_thermal_equation_v2"
+figname = season+"_thermal_equation_v3_"+LEV+"hPa"
 
 ; lonstr = 60
 ; lonend = 120
@@ -141,7 +128,6 @@ res@cnLinesOn             = False    ; turn of contour lines
 res@cnLineLabelsOn        = False
 res@cnInfoLabelOn         = False
 res@cnFillPalette         = "CBR_coldhot"
-res@lbLabelBarOn          = False
 
 res@mpMinLatF            = latstr      ; range to zoom in on
 res@mpMaxLatF            = latend
@@ -154,9 +140,10 @@ res@tmYLLabelFontHeightF = 0.025
 res@gsnStringFontHeightF = 0.035
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -100
-res@cnMaxLevelValF = 100
-res@cnLevelSpacingF = 10.
+res@cnMinLevelValF = -3
+res@cnMaxLevelValF = 3
+res@cnLevelSpacingF = 0.5
+res@lbLabelBarOn          = False
 
 do i = 0, 3
     res@gsnLeftString = leftsti(i)
@@ -165,14 +152,14 @@ do i = 0, 3
     overlay(plot(i), plot_topo(i))
 end do
 
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.1
-res@gsnLeftString = leftsti(3)
-plot(3) = gsn_csm_contour_map(wks, vt_diff(3,:,:), res)
-plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(3), plot_topo(3))
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMinLevelValF = -1
+; res@cnMaxLevelValF = 1
+; res@cnLevelSpacingF = 0.1
+; res@gsnLeftString = leftsti(3)
+; plot(3) = gsn_csm_contour_map(wks, vt_diff(3,:,:), res)
+; plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(3), plot_topo(3))
 
 
 pres = True
@@ -180,7 +167,7 @@ pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@gsnPanelMainString = season+" thermal equation (600hPa to 300hPa)" ;
 ; pres@pmLabelBarOrthogonalPosF = -0.02
-; pres@lbLabelFontHeightF = 0.015
+pres@lbLabelFontHeightF = 0.015
 
 gsn_panel(wks, plot, (/2,2/), pres)
 
