@@ -82,6 +82,14 @@ ave5_s  = (tdiff(:,5)+tdiff(:,6)+tdiff(:,7))/3
 print(sprintf("%4.2f", ave5_w))
 print(sprintf("%4.2f", ave5_s))
 
+
+  a    = addfile("$NCARG_ROOT/lib/ncarg/data/cdf/landsea.nc","r")
+  lsdata = a->LSMASK
+  lsm = landsea_mask(lsdata,diff&lat,diff&lon)
+  diff = mask(diff, conform_dims(dimsizes(diff), lsm, (/1,2/)).ge.1, True)  
+  prob = mask(prob, conform_dims(dimsizes(prob), lsm, (/1,2/)).ge.1, True)
+
+
 ;=========================================================
 ; plot 
 ;=========================================================
@@ -125,11 +133,12 @@ res@cnLineLabelsOn        = False
 res@cnInfoLabelOn         = False
 ;res@lbLabelBarOn          = False
 
-res@mpMinLatF            = latstr      ; range to zoom in on
-res@mpMaxLatF            = latend
-res@mpMinLonF            = lonstr
-res@mpMaxLonF            = lonend
-res@mpCenterLonF         = 180.
+; res@mpMinLatF            = latstr      ; range to zoom in on
+; res@mpMaxLatF            = latend
+; res@mpMinLonF            = lonstr
+; res@mpMaxLonF            = lonend
+; res@mpCenterLonF         = 180.
+res@mpFillDrawOrder  = "PreDraw"
 res@tmXBLabelFontHeightF = 0.025
 res@tmYLLabelFontHeightF = 0.025
 
