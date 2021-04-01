@@ -147,7 +147,7 @@ x_diff(5,:,:) = x_diff(5,:,:)-alpha*x_diff(0,:,:)
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_coldbias/model/a20201012/" ;diri2
 figname = "Fig7"
 wks  = gsn_open_wks("pdf",figpath+figname)
-gsn_define_colormap(wks,"BlueYellowRed") ;temp_diff_18lev
+gsn_define_colormap(wks,"BlueWhiteOrangeRed") ;BlueYellowRed
 
 nplot = dimsizes(title)
 plot = new(nplot, graphic)
@@ -213,14 +213,15 @@ res@gsnRightString = "W/m~S~2~N~"
 
 ;-------------------------------------------------------
 
-; res@cnLevelSelectionMode = "ExplicitLevels"
-; res@cnLevels = (/-5,-4,-3,-2,-1,-0.5,-0.1,0.1,0.5,1,2,3,4,5,6,8,10/)
+res@cnLevelSelectionMode = "ExplicitLevels"
+res@cnLevels = (/-12,-10,-7,-5,-4,-3.5,-3,-2.5,-2,-1.5,-1,-0.5,-0.1,0,0.1,0.5,1,1.5,2,2.5,3,3.5,4,5,7,10,12/)
 ; res@cnFillColors = (/4,5,6,7,8,9,10,11,12,13,14,15,16,17,18/)
-
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMaxLevelValF = 5
-res@cnMinLevelValF = -5
-res@cnLevelSpacingF = 0.5
+; res@cnLevels = (/-12,-9,-7,-5,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,5,7,9,12/) ;
+; res@cnFillColors = (/12,28,44,52,60,69,74,83,91,96,129,146,161,169,178,193,202,210,218,234,250/)
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMaxLevelValF = 5
+; res@cnMinLevelValF = -5
+; res@cnLevelSpacingF = 0.5
 
 do i = 0, dimsizes(title)-1
     res@gsnLeftString = title(i)
@@ -241,7 +242,7 @@ pres@gsnFrame    = True
 pres@gsnDraw     = True
 pres@gsnPanelLabelBar = True
 
-pres@lbLabelFontHeightF = 0.015
+pres@lbLabelFontHeightF = 0.01
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
 

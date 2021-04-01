@@ -67,7 +67,7 @@ do i = 0, ncase-1
     ; ur = -1.*ur
     ; x5 = -1.*x5
     ; x6 = -1.*x6
-    ; x4 = -1.*x4
+    x4 = -1.*x4
 
     TS(i,0,:,:,:) = month_to_season(ur, season)
     TS(i,1,:,:,:) = month_to_season(x3, season)
