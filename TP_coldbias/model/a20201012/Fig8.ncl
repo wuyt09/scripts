@@ -96,14 +96,16 @@ do ll=0,ncase-1
         dut_dx(ll,i,:) = center_finite_diff_n (UT_season(ll,i,:), dx , True,0,0) ; be careful with the dimison downscale
 end do
 end do
-dut_dx = dut_dx*(-1000.)
+dut_dx = dut_dx*(-86400.)
+dut_dx@units = "K/day"
 
 dlat = (lat(2)-lat(1))*0.0174533
 dy   = 6378388.*dlat
 do ll=0,ncase-1
     dvt_dy(ll,:,:) = center_finite_diff_n (VT_season(ll,:,:), dy , False,0,0)
 end do
-dvt_dy = dvt_dy*(-1000.)
+dvt_dy = dvt_dy*(-86400.)
+dvt_dy@units = "K/day"
 printVarSummary(dut_dx)
 printVarSummary(dvt_dy)
 
@@ -303,14 +305,15 @@ cnres@gsnLeftString = ""
 cnres@gsnRightString = ""
 ;====================================================================================
 
-res@gsnRightString = "*10~S~-3~N~"
+res@gsnRightString = "K/day"
 ; res@gsnLeftString = "(a) Diff: -{d[<V>*<T>]/dy + d[<U>*<T>]/dy}"
 res@gsnLeftString = "(b) SEN-ALL - CTRL"
 res@cnFillPalette = "temp_diff_18lev"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -0.5
-res@cnMaxLevelValF = 0.5
-res@cnLevelSpacingF = 0.05
+res@cnMinLevelValF = -50
+res@cnMaxLevelValF = 50
+res@cnLevelSpacingF = 5.
+res@lbLabelFontHeightF = 0.02
 plot(1) = gsn_csm_contour_map(wks, diff_dtot(0,:,:), res)
 ; plotc(1) = gsn_csm_contour(wks, sst_DJF(0,:,:), cnres)
 ; overlay(plot(1), plotc(1))
