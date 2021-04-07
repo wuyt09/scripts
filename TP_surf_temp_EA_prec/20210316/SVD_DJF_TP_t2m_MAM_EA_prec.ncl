@@ -26,66 +26,50 @@ month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec
 nm = dimsizes(month)
 
 ;===================================================================
-ts_obs = new((/nyear*nm,72,128/), float,-99.)
+diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
+fili = "t2m_mon_1x1_1979_2019.nc"
+f1 = addfile(diri+fili, "r")
 
-diriobs = "/home/yangsong3/data-observation/stationChina2000/Grid/t2m/"
-
-do i = 0, nyear-1
-    yr = yrStrt+i
-    do j = 0, 11
-        mn = sprinti("%0.2i", j+1)
-        filiobs = "SURF_CLI_CHN_TEM_MON_GRID_0.5-MEAN-"+yr+mn+".txt"
-        x = asciiread(diriobs+filiobs, -1, "float")
-        ts_obs(i*12+j,:,:) = reshape(x(6:), (/72,128/))
-    end do
-end do
+Time = f1->time
+YYYY = cd_calendar(Time, -1)/100
+iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+time = f1->time(iYYYY)
+ts_obs = short2flt(f1->t2m(iYYYY,::-1,:))
 printVarSummary(ts_obs)
+nlon = dimsizes(ts_obs&longitude)
+nlat = dimsizes(ts_obs&latitude)
 
-ts_obs = ts_obs(:,::-1,:)
-time = ispan(1, nyear*12, 1)
-ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
-
-
-lat = fspan(18.25, 53.75, 72)
-lon = fspan(72.25, 135.75, 128)
-; print(lat)
-; print(lon)
-
-ts_obs!0 = "time"
-ts_obs!1 = "lat"
-ts_obs!2 = "lon"
-ts_obs&time = ispan(1, nyear*nm, 1)
-ts_obs&lat = lat
-ts_obs&lon = lon
-ts_obs&lat@units = "degrees_north"
-ts_obs&lon@units = "degrees_east"
-printVarSummary(ts_obs)
-
+; ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
 ; TP_obs = mask(ts_obs, topo.ge.1500, True)
 ; copy_VarCoords(ts_obs, TP_obs)
-TP_obs_sea = ts_obs(4::12,{latstr:latend},{lonstr:lonend})
-Left = reshape(TP_obs_sea, (/nyear,dimsizes(TP_obs_sea&lon)*dimsizes(TP_obs_sea&lat)/))
+; TP_obs_sea = ts_obs(4::12,{latstr:latend},{lonstr:lonend})
+TS_obs_sea = month_to_season(ts_obs, "DJF")
+TP_obs_sea = TS_obs_sea(:,{latstr:latend},{lonstr:lonend})
+Left = reshape(TP_obs_sea, (/nyear,dimsizes(TP_obs_sea&longitude)*dimsizes(TP_obs_sea&latitude)/))
 
 Left!0 = "time"
 Left!1 = "col"
 printVarSummary(Left)
 ;===================================================================
 
-diri2 = "/home/yangsong3/data-observation/GPCP/"
-filip = "precip.mon.mean.nc"
+diri2 = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
+filip = "tp_mon_1x1_1979_2019.nc"
 
 fp = addfile(diri2+filip, "r")
 Time = fp->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 time_prec = fp->time(iYYYY)
-prec = short2flt(fp->precip(iYYYY,:,:))
+prec = short2flt(fp->tp(iYYYY,::-1,:))
+prec = prec*1000
+prec@units = "mm/day"
+
 printVarSummary(prec)
 
-prec = dtrend_msg_n(time_prec, prec, False, False, 0)
-prec_sea = prec(5::12,:,:)
+; prec = dtrend_msg_n(time_prec, prec, False, False, 0)
+prec_sea = month_to_season(prec, "MAM")
 prec_sea_EA = prec_sea(:,{18:45},{100:130})
-Right = reshape(prec_sea_EA, (/nyear,dimsizes(prec_sea_EA&lat)*dimsizes(prec_sea_EA&lon)/))
+Right = reshape(prec_sea_EA, (/nyear,dimsizes(prec_sea_EA&latitude)*dimsizes(prec_sea_EA&longitude)/))
 
 Right!0 = "time"
 Right!1 = "col"
@@ -110,20 +94,19 @@ print("svdstd_sv: percent variance= "+pcVar)
 printVarSummary(svLeft)
 printVarSummary(svRight)
 
-xL = reshape(svLeft, (/dimsizes(TP_obs_sea&lat),dimsizes(TP_obs_sea&lon)/))
-xR = reshape(svRight, (/dimsizes(prec_sea_EA&lat),dimsizes(prec_sea_EA&lon)/))
+xL = reshape(svLeft, (/dimsizes(TP_obs_sea&latitude),dimsizes(TP_obs_sea&longitude)/))
+xR = reshape(svRight, (/dimsizes(prec_sea_EA&latitude),dimsizes(prec_sea_EA&longitude)/))
 copy_VarCoords(TP_obs_sea(0,:,:), xL)
 copy_VarCoords(prec_sea_EA(0,:,:), xR)
 printVarSummary(xL)
-
 
 lines = new((/2,nyear/), float)
 lines(0,:) = svd@ak
 lines(1,:) = svd@bk
 corr = escorc(lines(0,:), lines(1,:))
 ;======================================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "SVD_May_TP_t2m_OBS_June_EA_prec_GPCP"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_EA_prec/20210316/"
+figname = "SVD_DJF_TP_t2m_MAM_EA_prec"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(2, graphic)
@@ -174,9 +157,11 @@ res@mpMinLonF = lonstr
 res@mpMaxLonF = lonend
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.01
-res@cnMaxLevelValF = 0.05
-res@cnMinLevelValF = -0.05
+res@cnLevelSpacingF = 0.02
+res@cnMaxLevelValF = 0.1
+res@cnMinLevelValF = -0.1
+res@gsnLeftString = "DJF TP t2m"
+res@gsnRightString = sprintf("%4.2f", pcVar)+"%"
 plot(0) = gsn_csm_contour_map(wks, xL, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
@@ -187,16 +172,16 @@ res@mpMinLonF = 106
 res@mpMaxLonF = 122
 res@cnFillPalette = "CBR_drywet"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.05
-res@cnMaxLevelValF = 0.2
-res@cnMinLevelValF = -0.2
+res@cnLevelSpacingF = 0.02
+res@cnMaxLevelValF = 0.1
+res@cnMinLevelValF = -0.1
+res@gsnLeftString = "MAM EA prec"
 plot(1) = gsn_csm_contour_map(wks, xR, res)
 
 
 pres = True
 pres@gsnMaximize = True
 gsn_panel(wks, plot, (/1,2/), pres)
-
 
 
 delete(res)

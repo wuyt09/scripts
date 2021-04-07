@@ -26,42 +26,47 @@ month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec
 nm = dimsizes(month)
 
 ;===================================================================
-ts_obs = new((/nyear*nm,72,128/), float,-99.)
+ts_obs = new((/nyear*nm,163,283/), float,-99.)
 
-diriobs = "/home/yangsong3/data-observation/stationChina2000/Grid/t2m/"
+diriobs = "/home/yangsong3/data-observation/CN05.1/"
 
-do i = 0, nyear-1
-    yr = yrStrt+i
-    do j = 0, 11
-        mn = sprinti("%0.2i", j+1)
-        filiobs = "SURF_CLI_CHN_TEM_MON_GRID_0.5-MEAN-"+yr+mn+".txt"
-        x = asciiread(diriobs+filiobs, -1, "float")
-        ts_obs(i*12+j,:,:) = reshape(x(6:), (/72,128/))
-    end do
-end do
+filit = "CN05.1_Tm_1961_2018_month_025x025.nc"
+filip = "CN05.1_Pre_1961_2018_month_025x025.nc"
+ft = addfile(diriobs+filit, "r")
+fp = addfile(diriobs+filip, "r")
+
+Time = ft->time
+YYYY = ut_calendar(Time, -1)/100
+iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+t_time = ft->time(iYYYY)
+ts_obs = ft->tm(iYYYY,:,:)
+pr_obs = fp->pre(iYYYY,:,:)
+
+ts_obs = where(ismissing(ts_obs), 0, ts_obs)
+pr_obs = where(ismissing(pr_obs), 0, pr_obs)
+ts_obs = dtrend_msg_n(t_time, ts_obs, False, False, 0)
+pr_obs = dtrend_msg_n(t_time, pr_obs, False, False, 0)
+
 printVarSummary(ts_obs)
-
-ts_obs = ts_obs(:,::-1,:)
-time = ispan(1, nyear*12, 1)
-ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
-
-
-lat = fspan(18.25, 53.75, 72)
-lon = fspan(72.25, 135.75, 128)
+; exit()
+; lat = fspan(14.75, 55.25, 163)
+; lon = fspan(69.75, 140.25, 283)
 ; print(lat)
 ; print(lon)
 
-ts_obs!0 = "time"
-ts_obs!1 = "lat"
-ts_obs!2 = "lon"
-ts_obs&time = ispan(1, nyear*nm, 1)
-ts_obs&lat = lat
-ts_obs&lon = lon
-ts_obs&lat@units = "degrees_north"
-ts_obs&lon@units = "degrees_east"
-printVarSummary(ts_obs)
+; ts_obs!0 = "time"
+; ts_obs!1 = "lat"
+; ts_obs!2 = "lon"
+; ts_obs&time = ispan(1, nyear*nm, 1)
+; ts_obs&lat = lat
+; ts_obs&lon = lon
+; ts_obs&lat@units = "degrees_north"
+; ts_obs&lon@units = "degrees_east"
+; printVarSummary(ts_obs)
 
-; TP_obs = mask(ts_obs, topo.ge.1500, True)
+; TOPO = topo({14.75:55.25},{69.25:140.25})
+; TOPOx = linint2_Wrap(TOPO&lon, TOPO&lat, TOPO, False, fspan(69.75, 140.25, 283), fspan(14.75, 55.25, 163), 0)
+; ts_obs = mask(ts_obs, TOPOx.ge.1500, True)
 ; copy_VarCoords(ts_obs, TP_obs)
 TP_obs_sea = ts_obs(4::12,{latstr:latend},{lonstr:lonend})
 Left = reshape(TP_obs_sea, (/nyear,dimsizes(TP_obs_sea&lon)*dimsizes(TP_obs_sea&lat)/))
@@ -71,25 +76,29 @@ Left!1 = "col"
 printVarSummary(Left)
 ;===================================================================
 
-diri2 = "/home/yangsong3/data-observation/GPCP/"
-filip = "precip.mon.mean.nc"
-
-fp = addfile(diri2+filip, "r")
-Time = fp->time
-YYYY = cd_calendar(Time, -1)/100
-iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-time_prec = fp->time(iYYYY)
-prec = short2flt(fp->precip(iYYYY,:,:))
-printVarSummary(prec)
-
-prec = dtrend_msg_n(time_prec, prec, False, False, 0)
-prec_sea = prec(5::12,:,:)
+prec_sea = pr_obs(5::12,:,:)
 prec_sea_EA = prec_sea(:,{18:45},{100:130})
+; prec_sea_EA = prec_sea(:,{22:35},{106:120})
 Right = reshape(prec_sea_EA, (/nyear,dimsizes(prec_sea_EA&lat)*dimsizes(prec_sea_EA&lon)/))
 
 Right!0 = "time"
 Right!1 = "col"
-printVarSummary(Right)
+printVarSummary(Right)  
+;===================================================================
+; check
+; p2d = Right ;(col|:,time|:)
+; p2d_dims = dimsizes(p2d) ; I assume this is time x p1d
+; ntim = p2d_dims(0)
+; np1d = p2d_dims(1)
+; do i=0,np1d-1
+;   pmin = min(p2d(:,i))
+;   pmax = max(p2d(:,i))
+;   print(pmin+" "+pmax)
+;   if(ismissing(pmin) .or. pmin.eq.pmax) then
+;     print("p2d contains all constant values at np1d = " + i)
+;   end if
+; end do
+; exit
 ;===================================================================
 
 nsvd = 1
@@ -122,8 +131,8 @@ lines(0,:) = svd@ak
 lines(1,:) = svd@bk
 corr = escorc(lines(0,:), lines(1,:))
 ;======================================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "SVD_May_TP_t2m_OBS_June_EA_prec_GPCP"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_EA_prec/20210316/"
+figname = "SVD_May_TP_t2m_June_EA_prec_CN051"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(2, graphic)

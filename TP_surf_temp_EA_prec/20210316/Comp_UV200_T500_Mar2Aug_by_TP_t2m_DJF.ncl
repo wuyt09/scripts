@@ -155,7 +155,7 @@ figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_EA_prec/20210316/"
 figname = "Comp_UV200_T500_Mar2Aug_by_TP_t2m_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new(6, graphic)
+plot = new(3, graphic)
 plotv = plot
 plotc = plot
 plot_topo = plot
@@ -254,7 +254,7 @@ res@tmYLLabelFontHeightF = 0.02
 cnres@cnLevelSelectionMode = "ExplicitLevels"
 cnres@cnLevels = (/5883/);12520,12560
 
-do i = 0,5
+do i = 0,2
   ;   res@cnLevelSelectionMode = "ManualLevels"
   ;   res@cnLevelSpacingF = 2.
   ;   res@cnMaxLevelValF = 20.
@@ -286,9 +286,9 @@ do i = 0,5
 
 
     res@cnLevelSelectionMode = "ManualLevels"
-    res@cnLevelSpacingF = 1
-    res@cnMaxLevelValF = 5
-    res@cnMinLevelValF = -5
+    res@cnLevelSpacingF = 0.2
+    res@cnMaxLevelValF = 2
+    res@cnMinLevelValF = -2
     res@cnFillPalette = "CBR_coldhot"
 
     vcres@vcRefMagnitudeF         = 3.0 
@@ -312,7 +312,7 @@ end do
 ;--------------------------------------------------------------------------------  
 
 resP@gsnPanelMainString = "UV200_T500"
-gsn_panel(wks, plot, (/3,2/), resP)
+gsn_panel(wks, plot, (/3,1/), resP)
 
 
 end
