@@ -10,7 +10,7 @@ yrStrt = 1979
 yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
-season = "JJA"
+season = "DJF"
 
 LEVs = 1000
 LEVe = 300

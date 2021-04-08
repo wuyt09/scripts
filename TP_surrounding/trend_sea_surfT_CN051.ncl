@@ -6,7 +6,7 @@ latstr = 20 ;10
 latend = 45 ;60
 
 yrStrt = 1979
-yrLast = 2019
+yrLast = 2018
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
@@ -20,16 +20,15 @@ printVarSummary(topo)
 
 
 ;===================================================================
-diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "t2m_mon_1x1_1979_2019.nc"
-; fili = "skt_mon_1x1_1979_2019.nc"
+diri = "/home/yangsong3/data-observation/CN05.1/"
+fili = "CN05.1_Tm_1961_2018_month_025x025.nc"
 f = addfile(diri+fili, "r")
 
 Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-t2m = short2flt(f->t2m(iYYYY,::-1,:))
+t2m = short2flt(f->tm(iYYYY,::-1,:))
 printVarSummary(t2m)
 
 
@@ -59,7 +58,7 @@ printVarSummary(trend)
 sig = 0.05
 ;===============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
-figname = "trend_sea_surfT_ERA5"
+figname = "trend_sea_surfT_CN051"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(4, graphic)
@@ -117,6 +116,7 @@ res = True
 res@gsnDraw = False
 res@gsnFrame = False
 res@gsnMaximize = True
+res@gsnAddCyclic = False
 
 res@mpOutlineOn = True
 res@mpFillOn = True

@@ -39,7 +39,7 @@ printVarSummary(ts_obs)
 nlon = dimsizes(ts_obs&longitude)
 nlat = dimsizes(ts_obs&latitude)
 
-; ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
+ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
 ; TP_obs = mask(ts_obs, topo.ge.1500, True)
 ; copy_VarCoords(ts_obs, TP_obs)
 ; TP_obs_sea = ts_obs(4::12,{latstr:latend},{lonstr:lonend})
@@ -66,7 +66,7 @@ prec@units = "mm/day"
 
 printVarSummary(prec)
 
-; prec = dtrend_msg_n(time_prec, prec, False, False, 0)
+prec = dtrend_msg_n(time_prec, prec, False, False, 0)
 prec_sea = month_to_season(prec, "MAM")
 prec_sea_EA = prec_sea(:,{18:45},{100:130})
 Right = reshape(prec_sea_EA, (/nyear,dimsizes(prec_sea_EA&latitude)*dimsizes(prec_sea_EA&longitude)/))

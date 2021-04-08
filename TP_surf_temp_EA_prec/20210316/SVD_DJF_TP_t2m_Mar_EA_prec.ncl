@@ -26,85 +26,51 @@ month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec
 nm = dimsizes(month)
 
 ;===================================================================
-ts_obs = new((/nyear*nm,163,283/), float,-99.)
+diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
+fili = "t2m_mon_1x1_1979_2019.nc"
+f1 = addfile(diri+fili, "r")
 
-diriobs = "/home/yangsong3/data-observation/CN05.1/"
-
-filit = "CN05.1_Tm_1961_2018_month_025x025.nc"
-filip = "CN05.1_Pre_1961_2018_month_025x025.nc"
-ft = addfile(diriobs+filit, "r")
-fp = addfile(diriobs+filip, "r")
-
-Time = ft->time
-YYYY = ut_calendar(Time, -1)/100
+Time = f1->time
+YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-t_time = ft->time(iYYYY)
-ts_obs = ft->tm(iYYYY,:,:)
-pr_obs = fp->pre(iYYYY,:,:)
-
-ts_obs = where(ismissing(ts_obs), 0, ts_obs)
-pr_obs = where(ismissing(pr_obs), 0, pr_obs)
-ts_obs = dtrend_msg_n(t_time, ts_obs, False, False, 0)
-pr_obs = dtrend_msg_n(t_time, pr_obs, False, False, 0)
-
+time = f1->time(iYYYY)
+ts_obs = short2flt(f1->t2m(iYYYY,::-1,:))
 printVarSummary(ts_obs)
-; exit()
-; lat = fspan(14.75, 55.25, 163)
-; lon = fspan(69.75, 140.25, 283)
-; print(lat)
-; print(lon)
+nlon = dimsizes(ts_obs&longitude)
+nlat = dimsizes(ts_obs&latitude)
 
-; ts_obs!0 = "time"
-; ts_obs!1 = "lat"
-; ts_obs!2 = "lon"
-; ts_obs&time = ispan(1, nyear*nm, 1)
-; ts_obs&lat = lat
-; ts_obs&lon = lon
-; ts_obs&lat@units = "degrees_north"
-; ts_obs&lon@units = "degrees_east"
-; printVarSummary(ts_obs)
-
-; TOPO = topo({14.75:55.25},{69.25:140.25})
-; TOPOx = linint2_Wrap(TOPO&lon, TOPO&lat, TOPO, False, fspan(69.75, 140.25, 283), fspan(14.75, 55.25, 163), 0)
-; ts_obs = mask(ts_obs, TOPOx.ge.1500, True)
-; copy_VarCoords(ts_obs, TP_obs)
-TP_obs_sea = ts_obs(4::12,{latstr:latend},{lonstr:lonend})
-; TP_obs_sea = ts_obs(4::12,{29:38},{88:102})
-; TP_obs_sea = where(ismissing(TP_obs_sea), 0, TP_obs_sea)
-Left = reshape(TP_obs_sea, (/nyear,dimsizes(TP_obs_sea&lon)*dimsizes(TP_obs_sea&lat)/))
+ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
+TS_obs_sea = month_to_season(ts_obs, "DJF")
+TP_obs_sea = TS_obs_sea(:,{latstr:latend},{lonstr:lonend})
+Left = reshape(TP_obs_sea, (/nyear,dimsizes(TP_obs_sea&longitude)*dimsizes(TP_obs_sea&latitude)/))
 
 Left!0 = "time"
 Left!1 = "col"
 printVarSummary(Left)
 ;===================================================================
 
-prec_sea = pr_obs(5::12,:,:)
+diri2 = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
+filip = "tp_mon_1x1_1979_2019.nc"
+
+fp = addfile(diri2+filip, "r")
+Time = fp->time
+YYYY = cd_calendar(Time, -1)/100
+iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+time_prec = fp->time(iYYYY)
+prec = short2flt(fp->tp(iYYYY,::-1,:))
+prec = prec*1000
+prec@units = "mm/day"
+
+printVarSummary(prec)
+
+prec = dtrend_msg_n(time_prec, prec, False, False, 0)
+prec_sea = prec(3::12,:,:)
 prec_sea_EA = prec_sea(:,{18:45},{100:130})
-; prec_sea_EA = prec_sea(:,{22:38},{106:118})
-; prec_sea_EA = where(ismissing(prec_sea_EA), 0, pr ec_sea_EA)
-right_num = num(.not.(ismissing(TP_obs_sea(0,:,:))))
-print(right_num)
-exit
-Right = reshape(prec_sea_EA, (/nyear,dimsizes(prec_sea_EA&lat)*dimsizes(prec_sea_EA&lon)/))
+Right = reshape(prec_sea_EA, (/nyear,dimsizes(prec_sea_EA&latitude)*dimsizes(prec_sea_EA&longitude)/))
 
 Right!0 = "time"
 Right!1 = "col"
-printVarSummary(Right)  
-;===================================================================
-; check
-p2d = Right ;(col|:,time|:)
-p2d_dims = dimsizes(p2d) ; I assume this is time x p1d
-ntim = p2d_dims(0)
-np1d = p2d_dims(1)
-do i=0,np1d-1
-  pmin = min(p2d(:,i))
-  pmax = max(p2d(:,i))
-  print(pmin+" "+pmax)
-  if(ismissing(pmin) .or. pmin.eq.pmax) then
-    print("p2d contains all constant values at np1d = " + i)
-  end if
-end do
-exit
+printVarSummary(Right)
 ;===================================================================
 
 nsvd = 1
@@ -125,12 +91,11 @@ print("svdstd_sv: percent variance= "+pcVar)
 printVarSummary(svLeft)
 printVarSummary(svRight)
 
-xL = reshape(svLeft, (/dimsizes(TP_obs_sea&lat),dimsizes(TP_obs_sea&lon)/))
-xR = reshape(svRight, (/dimsizes(prec_sea_EA&lat),dimsizes(prec_sea_EA&lon)/))
+xL = reshape(svLeft, (/dimsizes(TP_obs_sea&latitude),dimsizes(TP_obs_sea&longitude)/))
+xR = reshape(svRight, (/dimsizes(prec_sea_EA&latitude),dimsizes(prec_sea_EA&longitude)/))
 copy_VarCoords(TP_obs_sea(0,:,:), xL)
 copy_VarCoords(prec_sea_EA(0,:,:), xR)
 printVarSummary(xL)
-
 
 lines = new((/2,nyear/), float)
 lines(0,:) = svd@ak
@@ -138,7 +103,7 @@ lines(1,:) = svd@bk
 corr = escorc(lines(0,:), lines(1,:))
 ;======================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_EA_prec/20210316/"
-figname = "SVD_May_TP_t2m_June_EA_prec_CN051"
+figname = "SVD_DJF_TP_t2m_Apr_EA_prec"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(2, graphic)
@@ -189,9 +154,11 @@ res@mpMinLonF = lonstr
 res@mpMaxLonF = lonend
 res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.01
-res@cnMaxLevelValF = 0.05
-res@cnMinLevelValF = -0.05
+res@cnLevelSpacingF = 0.02
+res@cnMaxLevelValF = 0.1
+res@cnMinLevelValF = -0.1
+res@gsnLeftString = "DJF TP t2m"
+res@gsnRightString = sprintf("%4.2f", pcVar)+"%"
 plot(0) = gsn_csm_contour_map(wks, xL, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
@@ -201,17 +168,17 @@ res@mpMaxLatF = 40
 res@mpMinLonF = 106
 res@mpMaxLonF = 122
 res@cnFillPalette = "CBR_drywet"
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnLevelSpacingF = 0.05
-; res@cnMaxLevelValF = 0.2
-; res@cnMinLevelValF = -0.2
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnLevelSpacingF = 0.02
+res@cnMaxLevelValF = 0.1
+res@cnMinLevelValF = -0.1
+res@gsnLeftString = "Apr EA prec"
 plot(1) = gsn_csm_contour_map(wks, xR, res)
 
 
 pres = True
 pres@gsnMaximize = True
 gsn_panel(wks, plot, (/1,2/), pres)
-
 
 
 delete(res)

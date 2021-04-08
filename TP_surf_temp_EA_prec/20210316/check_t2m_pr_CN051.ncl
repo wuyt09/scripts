@@ -96,10 +96,10 @@ res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@mpMinLatF = 22 ;latstr
-res@mpMaxLatF = 40 ;latend
-res@mpMinLonF = 106 ;lonstr
-res@mpMaxLonF = 122 ;lonend
+res@mpMinLatF = latstr
+res@mpMaxLatF = latend
+res@mpMinLonF = lonstr
+res@mpMaxLonF = lonend
 res@cnFillPalette = "WhiteYellowOrangeRed"
 ; res@cnLevelSelectionMode = "ManualLevels"
 ; res@cnLevelSpacingF = 0.01
