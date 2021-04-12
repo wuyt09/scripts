@@ -20,13 +20,13 @@ fili = "calc_monsoon_index_JJA_ERA5.txt"
 monsoon_inx = asciiread(fili, (/nyear,6/), "float")
 print(monsoon_inx(nyear-1,:))
 
+monsoon_inx2 = monsoon_inx(:,1:5)
 
-
-hig_monsoon_med = monsoon_inx(hig_ind,:)
-low_monsoon_med = monsoon_inx(low_ind,:)
+hig_monsoon_med = monsoon_inx2(hig_ind,:)
+low_monsoon_med = monsoon_inx2(low_ind,:)
 hig_monsoon = dim_avg_n_Wrap(hig_monsoon_med, 0)
 low_monsoon = dim_avg_n_Wrap(low_monsoon_med, 0)
 
-print(hig_monsoon)
-print(low_monsoon)
+print(inx_name+"    "+sprintf("%4.2f", hig_monsoon))
+print(inx_name+"    "+sprintf("%4.2f", low_monsoon))
 end

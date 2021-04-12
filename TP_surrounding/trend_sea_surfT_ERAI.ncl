@@ -20,8 +20,8 @@ printVarSummary(topo)
 
 
 ;===================================================================
-diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "t2m_mon_1x1_1979_2019.nc"
+diri = "/home/yangsong3/data-observation/wuyt/ERAI/monthly/1x1/"
+fili = "T2m.mon.mean.7916.r1.nc"
 ; fili = "skt_mon_1x1_1979_2019.nc"
 f = addfile(diri+fili, "r")
 
@@ -59,7 +59,7 @@ printVarSummary(trend)
 sig = 0.05
 ;===============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
-figname = "trend_sea_surfT_ERA5"
+figname = "trend_sea_surfT_ERAI"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(4, graphic)

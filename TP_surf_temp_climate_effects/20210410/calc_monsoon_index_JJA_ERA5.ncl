@@ -46,7 +46,6 @@ u_wnp = u(:,{850},:,:)
 u1_wnp = wgt_areaave_Wrap(u_wnp(:,{5:15},{90:130}), 1, 1, 0)
 u2_wnp = wgt_areaave_Wrap(u_wnp(:,{22.5:32.5},{110:140}), 1, 1, 0)
 index_wnp = u1_wnp - u2_wnp
-index_wnp = (-1.) * index_wnp
 copy_VarCoords(u1_wnp, index_wnp)
 printVarSummary(index_wnp)
 
