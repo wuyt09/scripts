@@ -1,16 +1,16 @@
 begin
 
-lonstr = 0 ;60 ;0
-lonend = 180 ;130
-latstr = 10 ;20 ;10
-latend = 70 ;45 ;60
+lonstr = -20
+lonend = 160
+latstr = 0
+latend = 70
 
 yrStrt = 1979
 yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
-season = (/"MAM","JJA","SON","DJF"/)
+season = "JJA"
 ;===================================================================
 ; topo data
 ;===================================================================
@@ -33,11 +33,11 @@ t2m = short2flt(f->t2m(iYYYY,::-1,:))
 printVarSummary(t2m)
 
 
-t2m_clm = month_to_seasonN(t2m, season)
+t2m_clm = month_to_season(t2m, season)
 printVarSummary(t2m_clm)
 
-rc = regCoef_n(year, t2m_clm, 0, 1)
-copy_VarCoords(t2m_clm(:,0,:,:), rc)
+rc = regCoef_n(year, t2m_clm, 0, 0)
+copy_VarCoords(t2m_clm(0,:,:), rc)
 printVarSummary(rc)
 
 tval = onedtond(rc@tval, dimsizes(rc))
@@ -58,17 +58,13 @@ printVarSummary(trend)
 
 sig = 0.05
 ;===============================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/"
-figname = "trend_sea_surfT_ERA5"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210415/"
+figname = "trend_"+season+"_surfT_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new(4, graphic)
+plot = new(1, graphic)
 plot_topo = plot
-plot_prob = plot
-dum1 = plot
-dum2 = plot
-dum3 = plot
-dum4 = plot
+plot_prob = new(1, graphic)
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -80,7 +76,7 @@ dum4 = plot
  res_topo@cnLineColor            = "forestgreen"
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
- res_topo@cnLevels               = (/1500/)
+ res_topo@cnLevels               = (/2000/)
  res_topo@gsnLeftString = ""
  res_topo@gsnRightString = ""
 
@@ -145,48 +141,42 @@ res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -1
 res@cnMaxLevelValF = 1
 res@cnLevelSpacingF = 0.2
-res@lbLabelBarOn = False
+; res@lbLabelBarOn = False
 
-
+res@gsnLeftString = season+" trend ("+yrStrt+"-"+yrLast+")"
+res@pmLabelBarOrthogonalPosF = 0.12
+res@lbLabelFontHeightF = 0.015
 ; res@tiMainString = "surface temperature"
+
+plot(0) = gsn_csm_contour_map(wks, trend, res)
+plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(0), plot_topo(0))
+
+plot_prob(0) = gsn_csm_contour(wks,prob,res3)
+plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
+overlay(plot(0), plot_prob(0))
+
+
 ;-----------------------------------
 gres = True
 gres@gsLineColor = "blue"
 gres@gsLineThicknessF = 5.0
 gres@gsLineDashPattern = 16
- glon1 = (/110,110,70,70,100/)
+ glon1 = (/120,120,85,85,120/)
  glat1 = (/45,60,60,45,45/) ; north
- glon2 = (/120,120,105,105,120/)
- glat2 = (/25,45,45,25,25/) ; east
- glon3 = (/110,110,75,75,110/)
+ glon2 = (/140,140,105,105,140/)
+ glat2 = (/30,45,45,30,30/) ; east
+ glon3 = (/100,100,50,50,100/)
  glat3 = (/10,25,25,10,10/) ; south
- glon4 = (/70,70,30,30,70/)
+ glon4 = (/60,60,-10,-10,60/)
  glat4 = (/30,55,55,30,30/) ; west
 ;-----------------------------------
 
-do i = 0, 3
-    res@gsnLeftString = season(i)+" trend ("+yrStrt+"-"+yrLast+")"
-    plot(i) = gsn_csm_contour_map(wks, trend(i,:,:), res)
-    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plot(i), plot_topo(i))
 
-    plot_prob(i) = gsn_csm_contour(wks,prob(i,:,:),res3)
-    plot_prob(i) = ShadeLtContour(plot_prob(i),sig,17)
-    overlay(plot(i), plot_prob(i))
-
-    dum1(i) = gsn_add_polyline(wks, plot(i), glon1, glat1, gres)
-    dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
-    dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
-    dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
-end do
-
-
-pres = True
-pres@gsnMaximize = True
-pres@gsnPanelLabelBar = True
-; pres@pmLabelBarOrthogonalPosF = 0.12
-pres@lbLabelFontHeightF = 0.015
-
-gsn_panel(wks, plot, (/2,2/), pres)
+dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
+dum2 = gsn_add_polyline(wks, plot(0), glon2, glat2, gres)
+dum3 = gsn_add_polyline(wks, plot(0), glon3, glat3, gres)
+dum4 = gsn_add_polyline(wks, plot(0), glon4, glat4, gres)
+draw(plot(0))
 
 end
