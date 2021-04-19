@@ -88,8 +88,8 @@ lines!0 = "region"
 lines&region = region
 printVarSummary(lines)
 
-; lines_runave = runave_n_Wrap(lines, 5, 0, 2)
-; printVarSummary(lines_runave)
+lines_runave = runave_n_Wrap(lines, 10, 0, 1)
+printVarSummary(lines_runave)
 
 ; rc = regCoef_n(year, lines, 0, 2)
 ; copy_VarCoords(lines(:,:,0), rc)
@@ -127,7 +127,7 @@ printVarSummary(trend)
 ; copy_VarCoords(lines, pp(0,:,:))
 pp = new((/2*5,nyear/), float)
 pp(0:4,:) = lines
-; pp(5:9,:) = lines_trend
+; pp(5:9,:) = lines_runave
 
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210415/"
@@ -165,18 +165,20 @@ res@gsnYRefLineThicknessF = 8
 ; res@tmYLPrecision = 4
 res@tmYROn = False
 res@tiYAxisString = ""
-res@gsnStringFontHeightF = 0.03
+res@gsnStringFontHeightF = 0.025
 
 ;Colors = (/"deeppink2", "blue", "purple","green4","orange2", "black" /);
-Colors = (/"forestgreen","red","orange2","blue","black"/)
-Patterns = (/0,16,16,0,0/)
+Colors = (/"forestgreen","red","orange2","blue","black","forestgreen","red","orange2","blue","black"/)
+; Patterns = (/0,16,16,0,0/)
+Patterns = (/0,0,0,0,0,16,16,16,16,16/)
 
 res@xyLineThicknessF = 10
 res@xyLineColors = Colors
-res@xyDashPattern = 0
+res@xyDashPatterns = Patterns
 
 ; res@gsnRightString = "trend: "+sprintf("%4.2f", trend(j))+" K/decade"
-plot(0) = gsn_csm_xy(wks, year, lines, res)
+res@gsnLeftString = season+" T2m trend ("+yrStrt+"-"+yrLast+")"
+plot(0) = gsn_csm_xy(wks, year, pp, res)
 
 
 ;==================================================================================
