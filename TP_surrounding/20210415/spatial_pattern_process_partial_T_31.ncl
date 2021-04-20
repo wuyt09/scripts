@@ -57,13 +57,14 @@ printVarSummary(t)
 t_tropo_JJA = month_to_season(t, season)
 
 
-fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
-; lsdata = doubletofloat(a->lsm(0,:,:))
-lsdata = fa->lsm(0,:,:)
-printVarSummary(lsdata)
-lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t&longitude, t&latitude, 0)
-printVarSummary(lsm)
+; fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
+; ; lsdata = doubletofloat(a->lsm(0,:,:))
+; lsdata = fa->lsm(0,:,:)
+; printVarSummary(lsdata)
+; lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t&longitude, t&latitude, 0)
+; printVarSummary(lsm)
 ; delete(lsdata)
+
 ; fa = addfile("/home/yangsong3/wuyt/data/landsea.nc", "r")
 ; lsdata = tofloat(fa->LSMASK(::-1,:))
 ; lsdata!0 = "lat"
@@ -74,8 +75,8 @@ printVarSummary(lsm)
 ; printVarSummary(lsm)
 
 
-lsm1 = conform_dims(dimsizes(t_tropo_JJA), lsm, (/1,2/))
-t_tropo_JJA = where(lsm1.ge.0.8, t_tropo_JJA, t@_FillValue) ;
+; lsm1 = conform_dims(dimsizes(t_tropo_JJA), lsm, (/1,2/))
+; t_tropo_JJA = where(lsm1.ge.0.8, t_tropo_JJA, t@_FillValue) ;
 
 t_base = dim_avg_n_Wrap(t_tropo_JJA(0:9,:,:), 0)
 t_warm = dim_avg_n_Wrap(t_tropo_JJA(31:40,:,:), 0)
@@ -154,8 +155,8 @@ printVarSummary(x_atmos)
 
 x_tropo = x_atmos
 
-lsm2 = conform_dims(dimsizes(x_tropo), lsm, (/2,3/))
-x_tropo = where(lsm2.ge.0.8, x_tropo, UNDEF) ;
+; lsm2 = conform_dims(dimsizes(x_tropo), lsm, (/2,3/))
+; x_tropo = where(lsm2.ge.0.8, x_tropo, UNDEF) ;
 
 ; x_series = wgt_areaave_Wrap(x_tropo(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 ; printVarSummary(x_series)
@@ -378,12 +379,12 @@ pres@gsnMaximize = True
 pres@gsnFrame    = True
 pres@gsnDraw     = True
 pres@gsnPanelLabelBar = True
-pres@gsnPanelMainString = "JJA T2m"
+; pres@gsnPanelMainString = "JJA T2m"
 
 pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
-gsn_panel(wks,plot,(/3,4/),pres)
+gsn_panel(wks,plot,(/3,3/),pres)
 
 
 end

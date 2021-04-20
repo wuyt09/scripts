@@ -213,6 +213,7 @@ res = True
 res@gsnDraw = False
 res@gsnFrame = False
 res@gsnMaximize = True
+res@gsnAddCyclic = True
 
 res@mpOutlineOn = True
 res@mpFillOn = True
@@ -239,9 +240,9 @@ res@tmYLLabelFontHeightF = 0.02
 
 res@cnFillPalette = "CBR_drywet"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -20
-res@cnMaxLevelValF = 20
-res@cnLevelSpacingF = 5
+res@cnMinLevelValF = -8
+res@cnMaxLevelValF = 8
+res@cnLevelSpacingF = 1
 
 res@gsnSpreadColors = True
 res@gsnSpreadColorEnd   = 0

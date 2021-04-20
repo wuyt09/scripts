@@ -28,12 +28,12 @@ printVarSummary(t)
 t_tropo_JJA = month_to_season(t, season)
 
 
-fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
-; lsdata = doubletofloat(a->lsm(0,:,:))
-lsdata = fa->lsm(0,:,:)
-printVarSummary(lsdata)
-lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t&longitude, t&latitude, 0)
-printVarSummary(lsm)
+; fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
+; ; lsdata = doubletofloat(a->lsm(0,:,:))
+; lsdata = fa->lsm(0,:,:)
+; printVarSummary(lsdata)
+; lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t&longitude, t&latitude, 0)
+; printVarSummary(lsm)
 ; delete(lsdata)
 ; fa = addfile("/home/yangsong3/wuyt/data/landsea.nc", "r")
 ; lsdata = tofloat(fa->LSMASK(::-1,:))
@@ -44,8 +44,8 @@ printVarSummary(lsm)
 ; lsm = linint2_Wrap(lsdata&lon, lsdata&lat, lsdata, True, t&longitude, t&latitude, 0)
 ; printVarSummary(lsm)
 
-lsm1 = conform_dims(dimsizes(t_tropo_JJA), lsm, (/1,2/))
-t_tropo_JJA = where(lsm1.ge.0.8, t_tropo_JJA, t@_FillValue) ;
+; lsm1 = conform_dims(dimsizes(t_tropo_JJA), lsm, (/1,2/))
+; t_tropo_JJA = where(lsm1.ge.0.8, t_tropo_JJA, t@_FillValue) ;
 
 t_series = wgt_areaave_Wrap(t_tropo_JJA(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 ; printVarSummary(t_series)
@@ -128,8 +128,8 @@ printVarSummary(x_atmos)
 ;===========================================================
 x_tropo = x_atmos
 
-lsm2 = conform_dims(dimsizes(x_tropo), lsm, (/2,3/))
-x_tropo = where(lsm2.ge.0.8, x_tropo, UNDEF) ;
+; lsm2 = conform_dims(dimsizes(x_tropo), lsm, (/2,3/))
+; x_tropo = where(lsm2.ge.0.8, x_tropo, UNDEF) ;
 
 x_series = wgt_areaave_Wrap(x_tropo(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 printVarSummary(x_series)
@@ -182,8 +182,8 @@ res@vpWidthF = 0.8
 res@vpHeightF = 0.4
 
 ;---Set axes limits. Add extra space for X max.
-res@trYMinF                  = -5
-res@trYMaxF                  = 5;(max(d2) + max(d1)+max(d3) + max(d4))*1.2  
+res@trYMinF                  = -3
+res@trYMaxF                  = 3;(max(d2) + max(d1)+max(d3) + max(d4))*1.2  
 res@trXMinF                  = yrStrt+4
 res@trXMaxF                  = yrLast-4
 
@@ -477,7 +477,7 @@ do i = 1, 9
   lb_x(i,:) = lb_x(i-1,:) + 3.0
 end do
 
-lb_y = (/-4.3, -4.1, -4.1, -4.3, -4.3/)
+lb_y = (/-2.8, -2.6, -2.6, -2.8, -2.8/)
 
 dum_lb = new(10, graphic)
 lb_res = True
@@ -503,7 +503,7 @@ end do
 do i = 8, 9
   text_x(i) = text_x(i-1) + 2.8
 end do
-text_y = -4.2
+text_y = -2.7
 do i = 0, 9
   text_plot(i) = gsn_add_text(wks, plot_without_xgrid, text(i), text_x(i), text_y, text_res)
 end do
@@ -516,7 +516,7 @@ line_plot = new(2, graphic)
 line_x = new((/2,2/), "float")
 line_x(0,:) = (/text_x(8)-1.6,text_x(8)-0.2/)
 line_x(1,:) = (/text_x(9)-1.6,text_x(9)-0.2/)
-line_y = (/-4.2,-4.2/)
+line_y = (/-2.7,-2.7/)
 do i = 0, 1
   line_res@gsLineColor = line_color(i)
   line_res@gsLineDashPattern = line_dash(i)
