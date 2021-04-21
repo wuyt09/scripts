@@ -1,8 +1,10 @@
 
 begin
 
-filiname = (/"toa_solarin","surface_solar_downwards","surface_sensible_heat_flux","surface_latent_heat_flux"/) ;"LHFLX","SHFLX",
-varname = (/"tisr","ssrd","sshf","slhf"/)
+; filiname = (/"toa_solarin","surface_solar_downwards","surface_sensible_heat_flux","surface_latent_heat_flux"/) ;"LHFLX","SHFLX",
+; varname = (/"tisr","ssrd","sshf","slhf"/)
+filiname = (/"surface_net_solar","surface_net_thermal"/)
+varname = (/"ssr","str"/)
 nvar = dimsizes(varname)
 
 yrStrt = 1979
@@ -10,7 +12,8 @@ yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
 season = (/"JJA"/)
 
-outname = (/"solarin","ssrd","sshf","slhf"/) ;,
+; outname = (/"solarin","ssrd","sshf","slhf"/) ;,
+outname = (/"ssr","str"/)
 outpath = "./"
 
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"

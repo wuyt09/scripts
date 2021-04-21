@@ -22,10 +22,10 @@ latend_west = 55
 lonstr_west = -10
 lonend_west = 60
 
-latstr_south = 10
+latstr_south = 5 ;10
 latend_south = 25
-lonstr_south = 50
-lonend_south = 100
+lonstr_south = 70 ;50
+lonend_south = 90 ;100
 
 latstr_north = 45
 latend_north = 60
@@ -45,7 +45,10 @@ ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
 printVarSummary(topo)
 
-
+fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
+; lsdata = doubletofloat(a->lsm(0,:,:))
+lsdata = fa->lsm(0,::-1,:)
+printVarSummary(lsdata)
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
 fili = "t2m_mon_1x1_1979_2019.nc"
@@ -69,11 +72,19 @@ printVarSummary(t2m_clm)
 
 lines_west = wgt_areaave_Wrap(t2m_clm(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
 lines_east = wgt_areaave_Wrap(t2m_clm(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
-lines_south = wgt_areaave_Wrap(t2m_clm(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 lines_north = wgt_areaave_Wrap(t2m_clm(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
 
+lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t2m&longitude, t2m&latitude, 0)
+printVarSummary(lsm)
+delete(lsdata)
+lsm1 = conform_dims(dimsizes(t2m_clm), lsm, (/1,2/))
+x_clm = where(lsm1.ge.0.8, t2m_clm, t2m@_FillValue)
+copy_VarCoords(t2m_clm, x_clm)
+lines_south = wgt_areaave_Wrap(x_clm(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
+
 x_mask = mask(t2m_clm, topo.ge.1500, True)
-lines_tp = wgt_areaave_Wrap(t2m_clm(:,{latstr_tp:latend_tp},{lonstr_tp:lonend_tp}), 1., 1., 0)
+copy_VarCoords(t2m_clm, x_mask)
+lines_tp = wgt_areaave_Wrap(x_mask(:,{latstr_tp:latend_tp},{lonstr_tp:lonend_tp}), 1., 1., 0)
 ; lines_tp = wgt_areaave_Wrap(t2m_clm(:,:,{20:latstr_tp},{lonstr_tp:lonstr_tp}), 1., 1., 0)
 
 

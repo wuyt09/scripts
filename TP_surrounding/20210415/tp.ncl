@@ -113,7 +113,7 @@ x@long_name = "partial T"
 x@units     = "K"
 
 do nnn = 0, nn-1
-    fili2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/partial_T_"+(nnn+1)+".grd"
+    fili2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/correct_HS/partial_T_"+(nnn+1)+".grd"
     print(fili2)
     do nv = 0,nvars-1
        do nl = 0,nlev-1
