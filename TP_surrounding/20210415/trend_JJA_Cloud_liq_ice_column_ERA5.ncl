@@ -6,8 +6,8 @@ lonend = 160
 latstr = 0
 latend = 70
 
-yrStrt = 1979
-yrLast = 2019
+yrStrt = 2000
+yrLast = 2018
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
