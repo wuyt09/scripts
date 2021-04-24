@@ -399,7 +399,8 @@ c             pmean=0.5*(pp(l)+pp(l+1))
 !          call S_R_cloudy (u0,as,ss,pts,rad_base,area_c,sw_base,
 !     &            lw_base,water_c,ice_c,iseed,no_cloud_out)
 
-          call S_R (u0,as,ss,pts,rad_base)
+          call S_R_MC_cloud (u0,as,ss,pts,rad_base,area_c,sw_base,
+     &            lw_base)
 
           DO l=1,nv
 c             print*,fuir_tot(l),fdir_tot(l),l

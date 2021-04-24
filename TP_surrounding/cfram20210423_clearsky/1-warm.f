@@ -402,7 +402,8 @@ c             pmean=0.5*(pp(l)+pp(l+1))
 !          write(52,rec=irec52)no_cloud_out
 !          irec52 = irec52+1
 
-          call S_R (u0,as,ss,pts,rad_base)
+          call S_R_MC_cloud (u0,as,ss,pts,rad_base,area_c,sw_base,
+     &              lw_base)
 
           DO l=1,nv
 c             print*,fuir_tot(l),fdir_tot(l),l

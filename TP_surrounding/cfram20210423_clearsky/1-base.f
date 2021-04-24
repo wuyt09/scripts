@@ -214,9 +214,9 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
        open ( unit = 51, file =
      & './baseline_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
-       open ( unit = 52, file =
-     & './base_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
-     & form='unformatted', access = 'direct', recl = 100*100 )
+!       open ( unit = 52, file =
+!     & './base_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
+!     & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"
 
@@ -353,7 +353,8 @@ c             pmean=0.5*(pp(l)+pp(l+1))
  !         call S_R_cloudy (u0,as,ss,pts,rad_base,area_c,sw_base,
  !    &            lw_base,water_c,ice_c,iseed,no_cloud_out)
 
-          call S_R (u0,as,ss,pts,rad_base)   
+          call S_R_MC_cloud (u0,as,ss,pts,rad_base,area_c,sw_base,
+     &             lw_base)   
 
  !         write(52,rec=irec52)no_cloud_out
  !         irec52 = irec52+1
