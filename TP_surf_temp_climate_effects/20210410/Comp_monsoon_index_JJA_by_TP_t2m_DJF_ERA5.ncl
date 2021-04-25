@@ -15,12 +15,12 @@ print(year(hig_ind))
 print(year(low_ind))
 
 
-inx_name = (/"WY","SEASM","SA","Goswami","EA"/)
-fili = "calc_monsoon_index_JJA_ERA5.txt"
-monsoon_inx = asciiread(fili, (/nyear,6/), "float")
+inx_name = (/"WY","SEASM","Goswami","EA"/) ;"SA",
+fili = "calc_monsoon_index_May_ERA5.txt"
+monsoon_inx = asciiread(fili, (/nyear,5/), "float")
 print(monsoon_inx(nyear-1,:))
 
-monsoon_inx2 = monsoon_inx(:,1:5)
+monsoon_inx2 = monsoon_inx(:,1:4)
 
 hig_monsoon_med = monsoon_inx2(hig_ind,:)
 low_monsoon_med = monsoon_inx2(low_ind,:)

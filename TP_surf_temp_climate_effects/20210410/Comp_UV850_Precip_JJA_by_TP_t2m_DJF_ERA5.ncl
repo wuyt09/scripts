@@ -12,7 +12,7 @@ penta = ispan(1, 73, 1)
 nyear = dimsizes(year)
 nmonth = dimsizes(month)
 npenta = dimsizes(penta)
-season = (/"JJA"/)
+season = (/"MAM"/)
 
 fx = "time_series_TP_t2m_DJF_MAM_ERA5.txt"
 x = asciiread(fx, (/nyear,3/), "float")
@@ -35,8 +35,8 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
-filiu = "u_mon_1x1_1979_2019.nc" ;"uwind.monthly.197901-201812.nc"
-filiv = "v_mon_1x1_1979_2019.nc" ;"vwind.monthly.197901-201812.nc"
+filiu = "u_mon_1x1_1979_2020.nc" ;"uwind.monthly.197901-201812.nc"
+filiv = "v_mon_1x1_1979_2020.nc" ;"vwind.monthly.197901-201812.nc"
 filiz = "hgt_mon_1x1_1979_2019.nc" ;"zg.monthly.197901-201812.nc"
 
 diri2 = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
@@ -133,7 +133,7 @@ latstr = 0 ;10
 latend = 60 ;50
 
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210410/"
-figname = "Comp_UV850_Precip_JJA_by_TP_t2m_DJF_ERA5"
+figname = "Comp_UV850_Precip_"+season+"_by_TP_t2m_DJF_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -199,7 +199,7 @@ res@tmYLLabelFontHeightF = 0.02
   vcres@vcRefLengthF            = 0.045            ; define length of vec ref
   
   vcres@vcLineArrowThicknessF   = 3.0
-  vcres@vcLineArrowColor = "purple"
+  ; vcres@vcLineArrowColor = "purple"
   ;vecres@vcLineArrowHeadMinSizeF = 0.008
   ;vecres@vcLineArrowHeadMaxSizeF = 0.3
 

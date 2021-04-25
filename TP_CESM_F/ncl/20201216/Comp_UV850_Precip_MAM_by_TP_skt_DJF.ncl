@@ -35,9 +35,12 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
-filiu = "uwind.monthly.197901-201812.nc"
-filiv = "vwind.monthly.197901-201812.nc"
-filiz = "zg.monthly.197901-201812.nc"
+; filiu = "uwind.monthly.197901-201812.nc"
+; filiv = "vwind.monthly.197901-201812.nc"
+; filiz = "zg.monthly.197901-201812.nc"
+filiu = "u_mon_1x1_1979_2020.nc" ;"uwind.monthly.197901-201812.nc"
+filiv = "v_mon_1x1_1979_2020.nc" ;"vwind.monthly.197901-201812.nc"
+filiz = "hgt_mon_1x1_1979_2019.nc" ;"zg.monthly.197901-201812.nc"
 
 diri2 = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
 filip = "tp_mon_1x1_1979_2019.nc"
@@ -243,7 +246,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
 cnres@cnLevels = (/5883/);12520,12560
 
 
-  res@gsnLeftString = "(a) High DJF TP t2m"
+  res@gsnLeftString = "(a) High DJF TP skt"
   plot(0) = gsn_csm_contour_map_ce(wks, precsea_hig_ave, res)
   cnres@cnLineColor = "red"
   plotc(0) = gsn_csm_contour(wks, zsea_hig_ave, cnres)
@@ -253,7 +256,7 @@ cnres@cnLevels = (/5883/);12520,12560
   overlay(plot(0), plotv(0))
   overlay(plot(0), plot_topo(0))
 
-  res@gsnLeftString = "(b) Low DJF TP t2m"
+  res@gsnLeftString = "(b) Low DJF TP skt"
   plot(1) = gsn_csm_contour_map_ce(wks, precsea_low_ave, res)
   cnres@cnLineColor = "blue"
   plotc(1) = gsn_csm_contour(wks, zsea_low_ave, cnres)

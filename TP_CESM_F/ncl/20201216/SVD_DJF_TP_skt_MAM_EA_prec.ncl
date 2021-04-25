@@ -63,6 +63,7 @@ prec = short2flt(fp->tp(iYYYY,::-1,:))
 prec = prec*1000
 prec@units = "mm/day"
 
+prec = dtrend_msg_n(time, prec, False, False, 0)
 printVarSummary(prec)
 
 prec_sea = month_to_season(prec, "MAM")

@@ -22,18 +22,18 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 nm = dimsizes(month)
-season = "JJA"
+season = "DJF"
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "skt_mon_1x1_1979_2019.nc"
+fili = "t2m_mon_1x1_1979_2019.nc"
 f1 = addfile(diri+fili, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 time = f1->time(iYYYY)
-ts_obs = short2flt(f1->skt(iYYYY,::-1,:))
+ts_obs = short2flt(f1->t2m(iYYYY,::-1,:)) ;skt
 printVarSummary(ts_obs)
 nlon = dimsizes(ts_obs&longitude)
 nlat = dimsizes(ts_obs&latitude)
@@ -67,7 +67,7 @@ print(year(inx_hig))
 print(year(inx_low))
 ;=================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_CESM_F/ncl/20201216/"
-figname = "EOF_"+season+"_TP_skt"
+figname = "EOF_"+season+"_TP_t2m"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 nplot = 2
