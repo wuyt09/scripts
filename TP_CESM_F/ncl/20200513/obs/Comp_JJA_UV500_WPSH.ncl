@@ -5,10 +5,10 @@ yrLast = 2015
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
-season = "JJA"
+season = "May"
 
-indexfili = "./TTT_TP_dtrend_standardize_MAM_JJA_SON_ERAI.txt"
-inx = asciiread(indexfili, (/nyear,3/), "float")
+indexfili = "./TTT_TP_dtrend_standardize_MAM_JJA_SON_DJF_ERAI.txt"
+inx = asciiread(indexfili, (/nyear,4/), "float")
 inx!0 = "year"
 inx&year = year
 
@@ -55,8 +55,8 @@ U = short2flt(fu->u(iYYYY,{LEV},::-1,:)) ;{latstr:latend},{lonstr:lonend}
 V = short2flt(fv->v(iYYYY,{LEV},::-1,:)) ;{latstr:latend},{lonstr:lonend}
 nlat = dimsizes(U&latitude)
 nlon = dimsizes(U&longitude)
-U_SEA = month_to_season(U, season)
-V_SEA = month_to_season(V, season)
+U_SEA = U(4::12,:,:) ;month_to_season(U, season)
+V_SEA = V(4::12,:,:) ;month_to_season(V, season)
 copy_VarCoords(U(0,:,:), U_SEA(0,:,:))
 U_SEA!0 = "time"
 U_SEA&time = year
@@ -73,7 +73,7 @@ fz = addfile(diri+filiz, "r")
 Z = short2flt(fz->z(iYYYY,{LEV},::-1,:)) ;{latstr:latend},{lonstr:lonend}
 Z = Z/9.8
 ; Z_SEA = reshape(Z, (/37,12,nlat,nlon/)) ;month_to_seasonN(Z, season)
-Z_SEA = month_to_season(Z, season)
+Z_SEA = Z(4::12,:,:) ;month_to_season(Z, season)
 copy_VarCoords(U_SEA, Z_SEA)
 Z_clm = dim_avg_n_Wrap(Z_SEA, 0)
 copy_VarCoords(Z(0,:,:), Z_clm)
@@ -266,7 +266,7 @@ resZ@cnLevels = (/5880/)
 ;   overlay(plotz(i), plot_topo(i))
 ; end do
 res@gsnLeftString = "UV500_WPSH"
-
+res@gsnRightString = season
 plotz(0) = gsn_csm_contour_map(wks, z_diff, res)
 resZ@cnLineDashPattern = 0
 resZ@cnLineColor = "red"

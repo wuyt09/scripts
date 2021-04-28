@@ -50,7 +50,7 @@ copy_VarCoords(ts_obs, TS_obs)
 ; copy_VarCoords(ts_obs(0,:,:), TS_obs_sea(0,0,:,:))
 ; TS_obs_sea!1 = "year"
 ; TS_obs_sea&year = year(0:nyear-2)
-TS_obs_sea = month_to_seasonN(ts_obs, season)
+TS_obs_sea = month_to_seasonN(TS_obs, season)
 printVarSummary(TS_obs_sea)
 
 TP_obs = wgt_areaave_Wrap(TS_obs_sea(:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)

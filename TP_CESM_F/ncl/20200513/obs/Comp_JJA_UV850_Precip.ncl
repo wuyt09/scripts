@@ -5,11 +5,11 @@ yrLast = 2015
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
-season = "JJA"
+season = "May" ;"JJA"
 
 ; indexfili = "./TTT_TP_dtrend_standardize_Mar_Apr_ERAI.txt"
-indexfili = "./TTT_TP_dtrend_standardize_MAM_JJA_SON_ERAI.txt"
-inx = asciiread(indexfili, (/nyear,3/), "float")
+indexfili = "./TTT_TP_dtrend_standardize_MAM_JJA_SON_DJF_ERAI.txt"
+inx = asciiread(indexfili, (/nyear,4/), "float")
 inx!0 = "year"
 inx&year = year
 
@@ -63,8 +63,8 @@ U = mask(U, PS.ge.85000, True)
 V = mask(V, PS.ge.85000, True)
 nlat = dimsizes(U&latitude)
 nlon = dimsizes(U&longitude)
-U_SEA = month_to_season(U, season)
-V_SEA = month_to_season(V, season)
+U_SEA = U(4::12,:,:) ;month_to_season(U, season)
+V_SEA = V(4::12,:,:) ;month_to_season(V, season)
 copy_VarCoords(U(0,:,:), U_SEA(0,:,:))
 U_SEA!0 = "time"
 U_SEA&time = year
@@ -84,7 +84,7 @@ Zx = fz->precip(0:443,:,:) ;{latstr:latend},{lonstr:lonend}
 printVarSummary(Zx)
 
 Z = linint2_Wrap(Zx&lon, Zx&lat, Zx, False, U&longitude, U&latitude, 0)
-Z_SEA = month_to_season(Z, season)
+Z_SEA = Z(4::12,:,:) ;month_to_season(Z, season)
 copy_VarCoords(U_SEA, Z_SEA)
 Z_clm = dim_avg_n_Wrap(Z_SEA, 0)
 copy_VarCoords(Z(0,:,:), Z_clm)
@@ -233,6 +233,7 @@ res@gsnRightString = "Comp"
 
 
 res@gsnLeftString = "UV850_Precip"
+res@gsnRightString = season
 plotz(0) = gsn_csm_contour_map_ce(wks, z_diff, res) ;
 plotv(0) = gsn_csm_vector(wks, u_diff, v_diff, vcres)
 overlay(plotz(0), plotv(0))

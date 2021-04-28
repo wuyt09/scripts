@@ -6,7 +6,7 @@ yrLast = 2015
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 ;season = (/"MAM","SON"/)
-season = (/"MAM","JJA","SON"/)
+season = (/"MAM","JJA","SON","DJF"/)
 
 ;================================================================
 filitp = "~/wuyt/data/topo.sfc.1x1.nc"
@@ -86,9 +86,9 @@ printVarSummary(t_std)
 ; write_table("TTT_TP_dtrend_standardize_Mar_Apr_ERAI.txt", "a", [/t_std(0,:),t_std(1,:),t_std(2,:)/], "%10.2f %10.2f %10.2f")
 ; write_table("TTT_TP_dtrend_standardize_MAM_SON_ERAI.txt", "w", [/"MAM","SON"/], "%10s %10s")
 ; write_table("TTT_TP_dtrend_standardize_MAM_SON_ERAI.txt", "a", [/t_std(0,:),t_std(1,:)/], "%10.2f %10.2f")
-write_table("TTT_TP_dtrend_standardize_MAM_JJA_SON_ERAI.txt", "w", [/"MAM","JJA","SON"/], "%10s %10s %10s")
-write_table("TTT_TP_dtrend_standardize_MAM_JJA_SON_ERAI.txt", "a", [/t_std(0,:),t_std(1,:),t_std(2,:)/], "%10.2f %10.2f %10.2f")
-
+write_table("TTT_TP_dtrend_standardize_MAM_JJA_SON_DJF_ERAI.txt", "w", [/"MAM","JJA","SON","DJF"/], "%10s %10s %10s %10s")
+write_table("TTT_TP_dtrend_standardize_MAM_JJA_SON_DJF_ERAI.txt", "a", [/t_std(0,:),t_std(1,:),t_std(2,:),t_std(3,:)/], "%10.2f %10.2f %10.2f %10.2f")
+exit
 ;=================================================================
 ; pp = new((/2,dimsizes(t_std(0,:))/), float)
 ; pp(0,:) = t_std(0,:)

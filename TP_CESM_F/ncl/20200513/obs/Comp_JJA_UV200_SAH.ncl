@@ -5,10 +5,10 @@ yrLast = 2015
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
-season = "JJA"
+season = "JJA" ;"May"
 
-indexfili = "./TTT_TP_dtrend_standardize_MAM_JJA_SON_ERAI.txt"
-inx = asciiread(indexfili, (/nyear,3/), "float")
+indexfili = "./TTT_TP_dtrend_standardize_MAM_JJA_SON_DJF_ERAI.txt"
+inx = asciiread(indexfili, (/nyear,4/), "float")
 inx!0 = "year"
 inx&year = year
 
@@ -55,8 +55,8 @@ U = short2flt(fu->u(iYYYY,{LEV},::-1,:)) ;{latstr:latend},{lonstr:lonend}
 V = short2flt(fv->v(iYYYY,{LEV},::-1,:)) ;{latstr:latend},{lonstr:lonend}
 nlat = dimsizes(U&latitude)
 nlon = dimsizes(U&longitude)
-U_SEA = month_to_season(U, season)
-V_SEA = month_to_season(V, season)
+U_SEA = month_to_season(U, season) ;U(4::12,:,:)
+V_SEA = month_to_season(V, season) ;V(4::12,:,:)
 copy_VarCoords(U(0,:,:), U_SEA(0,:,:))
 U_SEA!0 = "time"
 U_SEA&time = year
@@ -72,7 +72,7 @@ filiz = "hgt.mon.mean.nc"
 fz = addfile(diri+filiz, "r")
 Z = short2flt(fz->z(iYYYY,{LEV},::-1,:)) ;{latstr:latend},{lonstr:lonend}
 Z = Z/9.8
-Z_SEA = month_to_season(Z, season)
+Z_SEA = month_to_season(Z, season) ;Z(4::12,:,:)
 copy_VarCoords(U_SEA, Z_SEA)
 Z_clm = dim_avg_n_Wrap(Z_SEA, 0)
 copy_VarCoords(Z(0,:,:), Z_clm)
@@ -99,7 +99,7 @@ t = dim_sum_n_Wrap(TdP(:,{levs:levt},:,:), 1)/dim_sum_n_Wrap(dP(:,{levs:levt},:,
 copy_VarCoords(T(:,0,:,:), t)
 printMinMax(t, True)
 
-t_SEA = month_to_season(t, season)
+t_SEA = month_to_season(t, season) ;t(4::12,:,:)
 copy_VarCoords(t(0,:,:), t_SEA(0,:,:))
 t_clm = dim_avg_n_Wrap(t_SEA, 0)
 copy_VarCoords(t(0,:,:), t_clm)
@@ -286,6 +286,7 @@ vcres@vcRefMagnitudeF         = 3.0  ; define vector ref mag
 ; res@gsnRightString = "Comp"
 
 res@gsnLeftString = "UV200_SAH_tropoT"
+res@gsnRightString = season
 plotc(0) = gsn_csm_contour_map_ce(wks, t_diff, res)
 resZ@cnLineDashPattern = 0
 resZ@cnLineColor = "red"

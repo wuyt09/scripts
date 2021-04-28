@@ -12,8 +12,9 @@ season = (/"DJF","MAM"/)
 ; topo data
 ;===================================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
-topo = ftopo->topo({14.75:55.25},{69.75:140.25})
+topo = ftopo->topo(::-1,:)
 printVarSummary(topo)
+
 ;===================================================================
 ; OBS grid data
 ;===================================================================
@@ -25,23 +26,21 @@ month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec
 nm = dimsizes(month)
 
 ;===================================================================
-diri = "/home/yangsong3/data-observation/CN05.1/"
-fili = "CN05.1_Tm_1961_2018_month_025x025.nc"
+diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
+fili = "skt_mon_1x1_1979_2019.nc"
 f1 = addfile(diri+fili, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 time = f1->time(iYYYY)
-ts_obs = short2flt(f1->tm(iYYYY,:,:))
+ts_obs = short2flt(f1->skt(iYYYY,::-1,:))
 printVarSummary(ts_obs)
-
-nlon = dimsizes(ts_obs&lon)
-nlat = dimsizes(ts_obs&lat)
+nlon = dimsizes(ts_obs&longitude)
+nlat = dimsizes(ts_obs&latitude)
 
 ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
-TOPO = linint2_Wrap(topo&lon, topo&lat, topo, False, ts_obs&lon, ts_obs&lat, 0)
-TS_obs = mask(ts_obs, TOPO.ge.1500, True)
+TS_obs = mask(ts_obs, topo.ge.1500, True)
 copy_VarCoords(ts_obs, TS_obs)
 ; TS_obs_sea = new((/3,nyear-1,nlat,nlon/), float)
 ; x_med = TS_obs(11::12,:,:)
@@ -62,15 +61,15 @@ printVarSummary(TP_obs_std)
 
 corr = escorc(TP_obs_std(0,:), TP_obs_std(1,:))
 
-write_table("time_series_TP_t2m_DJF_MAM_CN051.txt", "w", [/"YEAR","DJF","MAM"/], "%4s %4s %4s")
-write_table("time_series_TP_t2m_DJF_MAM_CN051.txt", "a", [/year,TP_obs_std(0,:),TP_obs_std(1,:)/], "%0.4i %4.2f %4.2f %4.2f")
+write_table("time_series_TP_skt_DJF_MAM_ERA5.txt", "w", [/"YEAR","DJF","MAM"/], "%4s %4s %4s")
+write_table("time_series_TP_skt_DJF_MAM_ERA5.txt", "a", [/year,TP_obs_std(0,:),TP_obs_std(1,:)/], "%0.4i %4.2f %4.2f %4.2f")
 
 
 ;====================================================================
 ; plot
 ;====================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210410/"
-figname = "calc_time_series_TP_t2m_DJF_MAM_CN051"
+figname = "calc_time_series_TP_skt_DJF_MAM_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(1, graphic)
 
@@ -91,8 +90,6 @@ res@xyDashPatterns = Patterns
 
 res@trXMinF = yrStrt
 res@trXMaxF = yrLast
-res@trYMaxF = 3
-res@trYMinF = -3
 
 res@gsnYRefLine = (/0,1,-1/)
 res@gsnYRefLineColor = "grey40"
@@ -100,9 +97,9 @@ res@gsnYRefLineThicknessF = 5
 res@gsnYRefLineDashPattern = 2
 
 res@gsnRightString = "Corr: "+sprintf("%4.2f", corr)
-res@gsnLeftString = "CN05.1"
+res@gsnLeftString = "ERA5"
 res@gsnStringFontHeightF = 0.03
-res@tiYAxisString = ""
+
 
 plot(0) = gsn_csm_xy(wks, year, TP_obs_std, res)
 
