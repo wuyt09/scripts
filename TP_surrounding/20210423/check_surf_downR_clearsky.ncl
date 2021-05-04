@@ -100,6 +100,13 @@ printMinMax(x(0,:,:),1)
 nx = 2
 cfram_sr = y(nx,:,:) - x(nx,:,:)
 copy_VarCoords(x(nx,:,:), cfram_sr)
+wv(nx,:,:) = wv(nx,:,:) - x(nx,:,:)
+t(nx,:,:) = t(nx,:,:) - x(nx,:,:)
+al(nx,:,:) = al(nx,:,:) -x(nx,:,:)
+co2(nx,:,:) = co2(nx,:,:) - x(nx,:,:)
+solar(nx,:,:) = solar(nx,:,:) - x(nx,:,:)
+o3(nx,:,:) = o3(nx,:,:) - x(nx,:,:)
+co2(nx,:,:) = co2(nx,:,:) - solar(nx,:,:)
 cfram_total = cre_sr+wv(nx,:,:)+t(nx,:,:)+al(nx,:,:)+co2(nx,:,:)+solar(nx,:,:)+o3(nx,:,:)
 copy_VarCoords(x(nx,:,:), cfram_total)
 
