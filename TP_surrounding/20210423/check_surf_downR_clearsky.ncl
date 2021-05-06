@@ -106,7 +106,7 @@ al(nx,:,:) = al(nx,:,:) -x(nx,:,:)
 co2(nx,:,:) = co2(nx,:,:) - x(nx,:,:)
 solar(nx,:,:) = solar(nx,:,:) - x(nx,:,:)
 o3(nx,:,:) = o3(nx,:,:) - x(nx,:,:)
-co2(nx,:,:) = co2(nx,:,:) - solar(nx,:,:)
+; co2(nx,:,:) = co2(nx,:,:) - solar(nx,:,:)
 cfram_total = cre_sr+wv(nx,:,:)+t(nx,:,:)+al(nx,:,:)+co2(nx,:,:)+solar(nx,:,:)+o3(nx,:,:)
 copy_VarCoords(x(nx,:,:), cfram_total)
 
@@ -241,7 +241,7 @@ plot(7) = gsn_csm_contour_map(wks,co2(nx,:,:),res)
 plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(7),plot_topo(7))
 
-res@gsnLeftString = "(i) solar"
+res@gsnLeftString = "(i) Solar"
 plot(8) = gsn_csm_contour_map(wks,solar(nx,:,:),res)
 plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(8),plot_topo(8))
