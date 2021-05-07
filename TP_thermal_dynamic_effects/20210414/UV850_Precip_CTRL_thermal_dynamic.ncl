@@ -16,7 +16,7 @@ ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 
-z = new((/ncase,2,nyear,nlat,nlon/), float)
+z = new((/ncase,3,nyear,nlat,nlon/), float)
 u = z
 v = z
 
@@ -34,23 +34,26 @@ do i = 0, ncase-1
   U = fu->U(:,{LEV},:,:)
   V = fv->V(:,{LEV},:,:)
 
-  z(i,0,:,:,:) = Z(4::12,:,:)
-  z(i,1,:,:,:) = month_to_season(Z, season)
+  z(i,0,:,:,:) = Z(3::12,:,:)
+  z(i,1,:,:,:) = Z(4::12,:,:)
+  z(i,2,:,:,:) = month_to_season(Z, season)
   copy_VarCoords(Z(0,:,:), z(i,0,0,:,:))
 
-  u(i,0,:,:,:) = U(4::12,:,:)
-  u(i,1,:,:,:) = month_to_season(U, season)
+  u(i,0,:,:,:) = U(3::12,:,:)
+  u(i,1,:,:,:) = U(4::12,:,:)
+  u(i,2,:,:,:) = month_to_season(U, season)
   ; copy_VarCoords(U(0,:,:), u(i,0,0,:,:))
 
-  v(i,0,:,:,:) = V(4::12,:,:)
-  v(i,1,:,:,:) = month_to_season(V, season)
+  v(i,0,:,:,:) = V(3::12,:,:)
+  v(i,1,:,:,:) = V(4::12,:,:)
+  v(i,2,:,:,:) = month_to_season(V, season)
   ; copy_VarCoords(V(0,:,:), v(i,0,0,:,:))
 
 end do
 z!0 = "case"
 z&case = casename
 z!1 = "time"
-z&time = (/"May",season/)
+z&time = (/"Apr","May",season/)
 z!2 = "year"
 z&year = year
 printVarSummary(z)
@@ -129,7 +132,7 @@ figname = "UV850_Precip_CTRL_thermal_dynamic"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
-nplot = 6
+nplot = 9
 plot = new(nplot, graphic)
 plotv = plot
 plot_topo = plot
@@ -215,18 +218,24 @@ res@tmYLLabelFontHeightF = 0.02
   res@cnMaxLevelValF    = 20.
   res@cnMinLevelValF    = 2.
 
-  res@gsnLeftString = "May UV850 & Precip"
+  res@gsnLeftString = "Apr UV850 & Precip"
   plot(0) = gsn_csm_contour_map(wks, z_ave(0,0,:,:), res)
   plotv(0) = gsn_csm_vector(wks, u_ave(0,0,:,:), v_ave(0,0,:,:), vcres)
   plot_topo(0) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(0), plotv(0))
   overlay(plot(0), plot_topo(0))
-  res@gsnLeftString = "JJA UV850 & Precip"
+  res@gsnLeftString = "May UV850 & Precip"
   plot(3) = gsn_csm_contour_map(wks, z_ave(0,1,:,:), res)
   plotv(3) = gsn_csm_vector(wks, u_ave(0,1,:,:), v_ave(0,1,:,:), vcres)
   plot_topo(3) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(3), plotv(3))
   overlay(plot(3), plot_topo(3))
+  res@gsnLeftString = "JJA UV850 & Precip"
+  plot(6) = gsn_csm_contour_map(wks, z_ave(0,2,:,:), res)
+  plotv(6) = gsn_csm_vector(wks, u_ave(0,2,:,:), v_ave(0,2,:,:), vcres)
+  plot_topo(6) = gsn_csm_contour(wks, tpmask, res_topo)
+  overlay(plot(6), plotv(6))
+  overlay(plot(6), plot_topo(6))
 
   res@gsnRightString = "Thermal effects"
   vcres@vcRefMagnitudeF = 8.0
@@ -234,18 +243,24 @@ res@tmYLLabelFontHeightF = 0.02
   res@cnLevelSpacingF   = 1.
   res@cnMaxLevelValF    = 10.
   res@cnMinLevelValF    = -10.
-  res@gsnLeftString = "May UV850 & Precip"
+  res@gsnLeftString = "Apr UV850 & Precip"
   plot(1) = gsn_csm_contour_map(wks, diff_z(0,0,:,:), res)
   plotv(1) = gsn_csm_vector(wks, diff_u(0,0,:,:), diff_v(0,0,:,:), vcres)
   plot_topo(1) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(1), plotv(1))
   overlay(plot(1), plot_topo(1))
-  res@gsnLeftString = "JJA UV850 & Precip"
+  res@gsnLeftString = "May UV850 & Precip"
   plot(4) = gsn_csm_contour_map(wks, diff_z(0,1,:,:), res)
   plotv(4) = gsn_csm_vector(wks, diff_u(0,1,:,:), diff_v(0,1,:,:), vcres)
   plot_topo(4) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(4), plotv(4))
   overlay(plot(4), plot_topo(4))
+  res@gsnLeftString = "JJA UV850 & Precip"
+  plot(7) = gsn_csm_contour_map(wks, diff_z(0,2,:,:), res)
+  plotv(7) = gsn_csm_vector(wks, diff_u(0,2,:,:), diff_v(0,2,:,:), vcres)
+  plot_topo(7) = gsn_csm_contour(wks, tpmask, res_topo)
+  overlay(plot(7), plotv(7))
+  overlay(plot(7), plot_topo(7))
 
 
   res@gsnRightString = "Dynamical effects"
@@ -253,22 +268,27 @@ res@tmYLLabelFontHeightF = 0.02
   res@cnLevelSpacingF   = 1.
   res@cnMaxLevelValF    = 10.
   res@cnMinLevelValF    = -10.
-  res@gsnLeftString = "May UV850 & Precip"
+  res@gsnLeftString = "Apr UV850 & Precip"
   plot(2) = gsn_csm_contour_map(wks, diff_z(1,0,:,:), res)
   plotv(2) = gsn_csm_vector(wks, diff_u(1,0,:,:), diff_v(1,0,:,:), vcres)
   plot_topo(2) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(2), plotv(2))
   overlay(plot(2), plot_topo(2))
-
-  res@gsnLeftString = "JJA UV850 & Precip"
+  res@gsnLeftString = "May UV850 & Precip"
   plot(5) = gsn_csm_contour_map(wks, diff_z(1,1,:,:), res)
   plotv(5) = gsn_csm_vector(wks, diff_u(1,1,:,:), diff_v(1,1,:,:), vcres)
   plot_topo(5) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(5), plotv(5))
   overlay(plot(5), plot_topo(5))
+  res@gsnLeftString = "JJA UV850 & Precip"
+  plot(8) = gsn_csm_contour_map(wks, diff_z(1,2,:,:), res)
+  plotv(8) = gsn_csm_vector(wks, diff_u(1,2,:,:), diff_v(1,2,:,:), vcres)
+  plot_topo(8) = gsn_csm_contour(wks, tpmask, res_topo)
+  overlay(plot(8), plotv(8))
+  overlay(plot(8), plot_topo(8))
 
 
   pres = True
   pres@gsnMaximize = True
-  gsn_panel(wks, plot, (/2,3/), pres)
+  gsn_panel(wks, plot, (/3,3/), pres)
 end

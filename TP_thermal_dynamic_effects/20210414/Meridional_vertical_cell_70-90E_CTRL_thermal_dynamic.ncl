@@ -19,7 +19,7 @@ ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 
-u = new((/ncase,2,nyear,nlev,nlat/), float)
+u = new((/ncase,3,nyear,nlev,nlat/), float)
 v = u
 
 do i = 0, ncase-1
@@ -34,19 +34,21 @@ do i = 0, ncase-1
   U = dim_avg_n_Wrap(U_med(:,:,:,{lonW:lonE}), 3)
   V = dim_avg_n_Wrap(V_med(:,:,:,{lonW:lonE}), 3)
 
-  u(i,0,:,:,:) = U(4::12,:,:)
-  u(i,1,:,:,:) = month_to_season(U, season)
+  u(i,0,:,:,:) = U(3::12,:,:)
+  u(i,1,:,:,:) = U(4::12,:,:)
+  u(i,2,:,:,:) = month_to_season(U, season)
   copy_VarCoords(U(0,:,:), u(i,0,0,:,:))
 
-  v(i,0,:,:,:) = V(4::12,:,:)
-  v(i,1,:,:,:) = month_to_season(V, season)
+  v(i,0,:,:,:) = V(3::12,:,:)
+  v(i,1,:,:,:) = V(4::12,:,:)
+  v(i,2,:,:,:) = month_to_season(V, season)
   ; copy_VarCoords(V(0,:,:), v(i,0,0,:,:))
 
 end do
 u!0 = "case"
 u&case = casename
 u!1 = "time"
-u&time = (/"May",season/)
+u&time = (/"Apr","May",season/)
 u!2 = "year"
 u&year = year
 u = u*(-50.)
@@ -116,7 +118,7 @@ figname = "Meridional_vertical_cell_70-90E_CTRL_thermal_dynamic"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
-nplot = 6
+nplot = 9
 plot = new(nplot, graphic)
 plotv = plot
 plot_topo = plot
@@ -198,36 +200,49 @@ res@cnFillPalette = "BlueWhiteOrangeRed"
 res@vcRefMagnitudeF         = 5.  
 
   res@gsnRightString = "CTRL"
-  res@gsnLeftString = "May OMEGA & Vertical Cell"
+  res@gsnLeftString = "Apr OMEGA & Vertical Cell"
   plot(0) = gsn_csm_pres_hgt_vector(wks, u_ave(0,0,{1000:100},{0:60}),\
  v_ave(0,0,{1000:100},{0:60}), u_ave(0,0,{1000:100},{0:60}), res)
 
   plot_topo(0) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
   overlay(plot(0), plot_topo(0))
 
-  res@gsnLeftString = "JJA OMEGA & Vertical Cell"
+  res@gsnLeftString = "May OMEGA & Vertical Cell"
   plot(3) = gsn_csm_pres_hgt_vector(wks, u_ave(0,1,{1000:100},{0:60}),\
  v_ave(0,1,{1000:100},{0:60}), u_ave(0,1,{1000:100},{0:60}), res)
 
   plot_topo(3) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
   overlay(plot(3), plot_topo(3))
 
+  res@gsnLeftString = "JJA OMEGA & Vertical Cell"
+  plot(6) = gsn_csm_pres_hgt_vector(wks, u_ave(0,2,{1000:100},{0:60}),\
+ v_ave(0,2,{1000:100},{0:60}), u_ave(0,2,{1000:100},{0:60}), res)
+
+  plot_topo(6) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
+  overlay(plot(6), plot_topo(6))
+
   res@gsnRightString = "Thermal effects"
   ; res@cnFillPalette = "CBR_coldhot"
   ; res@cnLevelSpacingF   = 1.
   ; res@cnMaxLevelValF    = 10.
   ; res@cnMinLevelValF    = -10.
-  res@gsnLeftString = "May OMEGA & Vertical Cell"
+  res@gsnLeftString = "Apr OMEGA & Vertical Cell"
   plot(1) = gsn_csm_pres_hgt_vector(wks, diff_u(0,0,{1000:100},{0:60}),\
  diff_v(0,0,{1000:100},{0:60}), diff_u(0,0,{1000:100},{0:60}), res)
   plot_topo(1) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
   overlay(plot(1), plot_topo(1))
 
-  res@gsnLeftString = "JJA OMEGA & Vertical Cell"
+  res@gsnLeftString = "May OMEGA & Vertical Cell"
   plot(4) = gsn_csm_pres_hgt_vector(wks, diff_u(0,1,{1000:100},{0:60}),\
  diff_v(0,1,{1000:100},{0:60}), diff_u(0,1,{1000:100},{0:60}), res)
   plot_topo(4) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
   overlay(plot(4), plot_topo(4))
+
+  res@gsnLeftString = "JJA OMEGA & Vertical Cell"
+  plot(7) = gsn_csm_pres_hgt_vector(wks, diff_u(0,2,{1000:100},{0:60}),\
+ diff_v(0,2,{1000:100},{0:60}), diff_u(0,2,{1000:100},{0:60}), res)
+  plot_topo(7) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
+  overlay(plot(7), plot_topo(7))
 
 
   res@gsnRightString = "Dynamical effects"
@@ -235,21 +250,27 @@ res@vcRefMagnitudeF         = 5.
   ; res@cnLevelSpacingF   = 1.
   ; res@cnMaxLevelValF    = 10.
   ; res@cnMinLevelValF    = -10.
-  res@gsnLeftString = "May OMEGA & Vertical Cell"
+  res@gsnLeftString = "Apr OMEGA & Vertical Cell"
   plot(2) = gsn_csm_pres_hgt_vector(wks, diff_u(1,0,{1000:100},{0:60}),\
  diff_v(1,0,{1000:100},{0:60}), diff_u(1,0,{1000:100},{0:60}), res)
   plot_topo(2) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
   overlay(plot(2), plot_topo(2))
 
-  res@gsnLeftString = "JJA OMEGA & Vertical Cell"
+  res@gsnLeftString = "May OMEGA & Vertical Cell"
   plot(5) = gsn_csm_pres_hgt_vector(wks, diff_u(1,1,{1000:100},{0:60}),\
  diff_v(1,1,{1000:100},{0:60}), diff_u(1,1,{1000:100},{0:60}), res)
   plot_topo(5) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
   overlay(plot(5), plot_topo(5))
 
+  res@gsnLeftString = "JJA OMEGA & Vertical Cell"
+  plot(8) = gsn_csm_pres_hgt_vector(wks, diff_u(1,2,{1000:100},{0:60}),\
+ diff_v(1,2,{1000:100},{0:60}), diff_u(1,2,{1000:100},{0:60}), res)
+  plot_topo(8) = gsn_csm_xy(wks, xlat, topo_merid, res_topo)
+  overlay(plot(8), plot_topo(8))
+
 
   pres = True
   pres@gsnMaximize = True
   pres@gsnPanelLabelBar = True
-  gsn_panel(wks, plot, (/2,3/), pres)
+  gsn_panel(wks, plot, (/3,3/), pres)
 end

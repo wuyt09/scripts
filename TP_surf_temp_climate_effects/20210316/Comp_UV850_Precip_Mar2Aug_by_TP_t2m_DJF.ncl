@@ -22,8 +22,9 @@ fx = "time_series_TP_t2m_DJF_MAM_ERA5.txt"
 x = asciiread(fx, (/nyear,3/), "float")
 inx = x(0:nyear-2,1)
 
-hig_ind = ind(inx.ge.1.)
-low_ind = ind(inx.le.-1.)
+barr = 0.7
+hig_ind = ind(inx.ge.barr)
+low_ind = ind(inx.le.-barr)
 print(year(hig_ind))
 print(year(low_ind))
 
@@ -148,10 +149,10 @@ prec_diff = precsea_hig_ave - precsea_low_ave
 ;===================================================================
 lonstr = 20 ;60
 lonend = 180
-latstr = 10
+latstr = 0
 latend = 70 ;55
 
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_EA_prec/20210316/"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210316/"
 figname = "Comp_UV850_Precip_Mar2Aug_by_TP_t2m_DJF"
 wks = gsn_open_wks("pdf", figpath+figname)
 

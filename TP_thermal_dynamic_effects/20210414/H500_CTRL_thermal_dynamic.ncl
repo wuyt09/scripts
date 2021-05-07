@@ -3,7 +3,7 @@ begin
 
 nlat = 96
 nlon = 144
-LEV = 500
+LEV = 200
 season = "JJA"
 
 lonstr = 0
@@ -16,21 +16,22 @@ ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 
-z = new((/ncase,2,nyear,nlat,nlon/), float)
+z = new((/ncase,3,nyear,nlat,nlon/), float)
 do i = 0, ncase-1
   diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/"
   zname = "F2000_"+casename(i)+".plevel.Z3.mon.0601-3012.nc"
   fz = addfile(diri+zname, "r")
   Z = fz->Z3(:,{LEV},:,:)
 
-  z(i,0,:,:,:) = Z(4::12,:,:)
-  z(i,1,:,:,:) = month_to_season(Z, season)
+  z(i,0,:,:,:) = Z(3::12,:,:)
+  z(i,1,:,:,:) = Z(4::12,:,:)
+  z(i,2,:,:,:) = month_to_season(Z, season)
   copy_VarCoords(Z(0,:,:), z(i,0,0,:,:))
 end do
 z!0 = "case"
 z&case = casename
 z!1 = "time"
-z&time = (/"May",season/)
+z&time = (/"Apr","May",season/)
 z!2 = "year"
 z&year = year
 printVarSummary(z)
@@ -86,7 +87,7 @@ figname = "H500_CTRL_thermal_dynamic"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
-nplot = 6
+nplot = 9
 plot = new(nplot, graphic)
 plotv = plot
 plot_topo = plot
@@ -144,51 +145,62 @@ res@tmYLLabelFontHeightF = 0.02
 
   
   res@gsnRightString = "CTRL"
-  res@cnLevelSpacingF   = 50.
-  res@cnMaxLevelValF    = 5940.
-  res@cnMinLevelValF    = 5500.
+  res@cnLevelSpacingF   = 200.
+  res@cnMaxLevelValF    = 13000. ;5940.
+  res@cnMinLevelValF    = 11000. ;5500.
+  res@cnFillPalette = "WhiteYellowOrangeRed"
 
-  res@gsnLeftString = "May H500"
+  res@gsnLeftString = "Apr H"+LEV
   plot(0) = gsn_csm_contour_map(wks, z_ave(0,0,:,:), res)
   plot_topo(0) = gsn_csm_contour(wks, tpmask, res_topo)
-
   overlay(plot(0), plot_topo(0))
-  res@gsnLeftString = "JJA H500"
+  res@gsnLeftString = "May H"+LEV
   plot(3) = gsn_csm_contour_map(wks, z_ave(0,1,:,:), res)
   plot_topo(3) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(3), plot_topo(3))
+  res@gsnLeftString = "JJA H"+LEV
+  plot(6) = gsn_csm_contour_map(wks, z_ave(0,2,:,:), res)
+  plot_topo(6) = gsn_csm_contour(wks, tpmask, res_topo)
+  overlay(plot(6), plot_topo(6))
 
   res@gsnRightString = "Thermal effects"
   res@cnFillPalette = "BlueWhiteOrangeRed"
-  res@cnLevelSpacingF   = 20.
-  res@cnMaxLevelValF    = 100.
-  res@cnMinLevelValF    = -100.
-  res@gsnLeftString = "May H500"
+  res@cnLevelSpacingF   = 50. ;10.
+  res@cnMaxLevelValF    = 200. ;60.
+  res@cnMinLevelValF    = -200. ;-60.
+  res@gsnLeftString = "Apr H"+LEV
   plot(1) = gsn_csm_contour_map(wks, diff_z(0,0,:,:), res)
   plot_topo(1) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(1), plot_topo(1))
-  res@gsnLeftString = "JJA H500"
+  res@gsnLeftString = "May H"+LEV
   plot(4) = gsn_csm_contour_map(wks, diff_z(0,1,:,:), res)
   plot_topo(4) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(4), plot_topo(4))
+  res@gsnLeftString = "JJA H"+LEV
+  plot(7) = gsn_csm_contour_map(wks, diff_z(0,2,:,:), res)
+  plot_topo(7) = gsn_csm_contour(wks, tpmask, res_topo)
+  overlay(plot(7), plot_topo(7))
 
 
   res@gsnRightString = "Dynamical effects"
-  res@cnLevelSpacingF   = 20.
-  res@cnMaxLevelValF    = 100.
-  res@cnMinLevelValF    = -100.
-  res@gsnLeftString = "May H500"
+  res@cnLevelSpacingF   = 50. ;10.
+  res@cnMaxLevelValF    = 200. ;60.
+  res@cnMinLevelValF    = -200. ;-60.
+  res@gsnLeftString = "Apr H"+LEV
   plot(2) = gsn_csm_contour_map(wks, diff_z(1,0,:,:), res)
   plot_topo(2) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(2), plot_topo(2))
-
-  res@gsnLeftString = "JJA H500"
+  res@gsnLeftString = "May H"+LEV
   plot(5) = gsn_csm_contour_map(wks, diff_z(1,1,:,:), res)
   plot_topo(5) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(5), plot_topo(5))
+  res@gsnLeftString = "JJA H"+LEV
+  plot(8) = gsn_csm_contour_map(wks, diff_z(1,2,:,:), res)
+  plot_topo(8) = gsn_csm_contour(wks, tpmask, res_topo)
+  overlay(plot(8), plot_topo(8))
 
 
   pres = True
   pres@gsnMaximize = True
-  gsn_panel(wks, plot, (/2,3/), pres)
+  gsn_panel(wks, plot, (/3,3/), pres)
 end

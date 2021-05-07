@@ -36,8 +36,8 @@ copy_VarCoords(strd_JJA, cre)
 
 yrs1 = 1979
 yre1 = 1988
-yrs2 = 2010 ;1983
-yre2 = 2019 ;1992
+yrs2 = 1989 ;1983
+yre2 = 1998 ;1992
 print("========================================")
 era_sr = dim_avg_n_Wrap(strd_JJA({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(strd_JJA({yrs1:yre1},:,:), 0)
 cre_sr = dim_avg_n_Wrap(cre({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(cre({yrs1:yre1},:,:), 0)
@@ -52,15 +52,17 @@ nlon = dimsizes(lon)
 nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
 nvars = dimsizes(nvname)
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210423_clearsky/"
-fili2 = diri2+"baseline_radsfc_ranc_31.grd"
-fili3 = diri2+"wv_radsfc_ranc_31.grd"
-fili4 = diri2+"ta_radsfc_ranc_31.grd"
-fili5 = diri2+"albedo_radsfc_ranc_31.grd"
-fili6 = diri2+"co2_radsfc_ranc_31.grd"
-fili7 = diri2+"solar_radsfc_ranc_31.grd"
-fili8 = diri2+"o3_radsfc_ranc_31.grd"
-fili9 = diri2+"warm_radsfc_ranc_31.grd"
+; diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210507_clearsky/"
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/"
+fili2 = diri2+"baseline_radsfc_ranc_10.grd"
+fili3 = diri2+"wv_radsfc_ranc_10.grd"
+fili4 = diri2+"ta_radsfc_ranc_10.grd"
+fili5 = diri2+"albedo_radsfc_ranc_10.grd"
+fili6 = diri2+"co2_radsfc_ranc_10.grd"
+fili7 = diri2+"solar_radsfc_ranc_10.grd"
+fili8 = diri2+"o3_radsfc_ranc_10.grd"
+fili9 = diri2+"warm_radsfc_ranc_10.grd"
+fili10 = diri2+"cloud_radsfc_ranc_10.grd"
 
 UNDEF = -999.
 x = new((/nvars,nlat,nlon/),float,UNDEF)
@@ -82,6 +84,7 @@ co2 = x
 solar = x
 o3 = x
 y = x
+cld = x
 
 do nv = 0,nvars-1
     x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
@@ -92,6 +95,7 @@ do nv = 0,nvars-1
     solar(nv,:,:) = fbindirread(fili7,nv,(/nlat,nlon/),"float")
     o3(nv,:,:) = fbindirread(fili8,nv,(/nlat,nlon/),"float")
     y(nv,:,:) = fbindirread(fili9,nv,(/nlat,nlon/),"float")
+    cld(nv,:,:) = fbindirread(fili10, nv, (/nlat,nlon/), "float")
 end do
 printVarSummary(x)
 printMinMax(x(0,:,:),1)
@@ -107,6 +111,7 @@ co2(nx,:,:) = co2(nx,:,:) - x(nx,:,:)
 solar(nx,:,:) = solar(nx,:,:) - x(nx,:,:)
 o3(nx,:,:) = o3(nx,:,:) - x(nx,:,:)
 ; co2(nx,:,:) = co2(nx,:,:) - solar(nx,:,:)
+cld(nx,:,:) = cld(nx,:,:) - x(nx,:,:)
 cfram_total = cre_sr+wv(nx,:,:)+t(nx,:,:)+al(nx,:,:)+co2(nx,:,:)+solar(nx,:,:)+o3(nx,:,:)
 copy_VarCoords(x(nx,:,:), cfram_total)
 
@@ -117,7 +122,7 @@ figname = "check_surf_downR_clearsky"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 gsn_define_colormap(wks, "temp_diff_18lev")
-plot = new(9, graphic)
+plot = new(12, graphic)
 plot_topo = plot
 
 dum1 = plot
@@ -246,11 +251,15 @@ plot(8) = gsn_csm_contour_map(wks,solar(nx,:,:),res)
 plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(8),plot_topo(8))
 
-; res@gsnLeftString = "(i) o3"
-; plot(8) = gsn_csm_contour_map(wks,o3(nx,:,:),res)
-; plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
-; overlay(plot(8),plot_topo(8))
+res@gsnLeftString = "(j) o3"
+plot(9) = gsn_csm_contour_map(wks,o3(nx,:,:),res)
+plot_topo(9) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(9),plot_topo(9))
 
+res@gsnLeftString = "(k) Cloud"
+plot(10) = gsn_csm_contour_map(wks,cld(nx,:,:),res)
+plot_topo(10) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(10),plot_topo(10))
 
 ;-------------------------------------------------------
 
@@ -264,7 +273,7 @@ pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
-gsn_panel(wks,plot,(/3,3/),pres)
+gsn_panel(wks,plot,(/4,3/),pres)
 
 
 end
