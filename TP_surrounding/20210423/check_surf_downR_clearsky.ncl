@@ -48,28 +48,38 @@ lat = strd&latitude
 lon = strd&longitude
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
+
+finfo = addfile("/home/yangsong3/data-observation/ERA5-monthly/pressure/t_mon_1x1_1979_2020.nc", "r")
+level = finfo->level
+printVarSummary(level)
+lev = new(38, double)
+lev(0:36) = level
+lev(37) = 1001
+nlev = dimsizes(lev)
 ;===================================================================================================
-nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
+nvname = (/"rad_conv","sw_conv","lw_conv","lwu","lwd","swu","swd"/)  ; ,"error"
 nvars = dimsizes(nvname)
 
 ; diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210507_clearsky/"
 diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/"
-fili2 = diri2+"baseline_radsfc_ranc_10.grd"
-fili3 = diri2+"wv_radsfc_ranc_10.grd"
-fili4 = diri2+"ta_radsfc_ranc_10.grd"
-fili5 = diri2+"albedo_radsfc_ranc_10.grd"
-fili6 = diri2+"co2_radsfc_ranc_10.grd"
-fili7 = diri2+"solar_radsfc_ranc_10.grd"
-fili8 = diri2+"o3_radsfc_ranc_10.grd"
-fili9 = diri2+"warm_radsfc_ranc_10.grd"
-fili10 = diri2+"cloud_radsfc_ranc_10.grd"
+fili2 = diri2+"baseline_radranc_10.grd"
+fili3 = diri2+"wv_radranc_10.grd"
+fili4 = diri2+"ta_radranc_10.grd"
+fili5 = diri2+"albedo_radranc_10.grd"
+fili6 = diri2+"co2_radranc_10.grd"
+fili7 = diri2+"solar_radranc_10.grd"
+fili8 = diri2+"o3_radranc_10.grd"
+fili9 = diri2+"warm_radranc_10.grd"
+; fili10 = diri2+"cloud_radranc_10.grd"
 
 UNDEF = -999.
-x = new((/nvars,nlat,nlon/),float,UNDEF)
+x = new((/nvars,nlev,nlat,nlon/),float,UNDEF)
 x!0 = "var"
-x!1 = "lat"
-x!2 = "lon"
+x!1 = "lev"
+x!2 = "lat"
+x!3 = "lon"
 x&var = nvname
+x&lev = lev
 x&lat = lat
 x&lon = lon
 x&lat@units = "degrees_north"
@@ -87,33 +97,50 @@ y = x
 cld = x
 
 do nv = 0,nvars-1
-    x(nv,:,:) = fbindirread(fili2,nv,(/nlat,nlon/),"float")
-    wv(nv,:,:) = fbindirread(fili3,nv,(/nlat,nlon/),"float")
-    t(nv,:,:) = fbindirread(fili4,nv,(/nlat,nlon/),"float")
-    al(nv,:,:) = fbindirread(fili5,nv,(/nlat,nlon/),"float")
-    co2(nv,:,:) = fbindirread(fili6,nv,(/nlat,nlon/),"float")
-    solar(nv,:,:) = fbindirread(fili7,nv,(/nlat,nlon/),"float")
-    o3(nv,:,:) = fbindirread(fili8,nv,(/nlat,nlon/),"float")
-    y(nv,:,:) = fbindirread(fili9,nv,(/nlat,nlon/),"float")
-    cld(nv,:,:) = fbindirread(fili10, nv, (/nlat,nlon/), "float")
+    do ilev = 0, nlev-1
+        x(nv,ilev,:,:) = fbindirread(fili2,nv*nlev+ilev,(/nlat,nlon/),"float")
+        wv(nv,ilev,:,:) = fbindirread(fili3,nv*nlev+ilev,(/nlat,nlon/),"float")
+        t(nv,ilev,:,:) = fbindirread(fili4,nv*nlev+ilev,(/nlat,nlon/),"float")
+        al(nv,ilev,:,:) = fbindirread(fili5,nv*nlev+ilev,(/nlat,nlon/),"float")
+        co2(nv,ilev,:,:) = fbindirread(fili6,nv*nlev+ilev,(/nlat,nlon/),"float")
+        solar(nv,ilev,:,:) = fbindirread(fili7,nv*nlev+ilev,(/nlat,nlon/),"float")
+        o3(nv,ilev,:,:) = fbindirread(fili8,nv*nlev+ilev,(/nlat,nlon/),"float")
+        y(nv,ilev,:,:) = fbindirread(fili9,nv*nlev+ilev,(/nlat,nlon/),"float")
+        ; cld(nv,:,:) = fbindirread(fili10, nv*nlev+ilev, (/nlat,nlon/), "float")
+    end do
 end do
 printVarSummary(x)
-printMinMax(x(0,:,:),1)
+; printMinMax(x(0,:,:,:),1)
 
 
+process = (/"wv","t","al","co2","solar","o3","warm","total"/)
 nx = 2
-cfram_sr = y(nx,:,:) - x(nx,:,:)
-copy_VarCoords(x(nx,:,:), cfram_sr)
-wv(nx,:,:) = wv(nx,:,:) - x(nx,:,:)
-t(nx,:,:) = t(nx,:,:) - x(nx,:,:)
-al(nx,:,:) = al(nx,:,:) -x(nx,:,:)
-co2(nx,:,:) = co2(nx,:,:) - x(nx,:,:)
-solar(nx,:,:) = solar(nx,:,:) - x(nx,:,:)
-o3(nx,:,:) = o3(nx,:,:) - x(nx,:,:)
-; co2(nx,:,:) = co2(nx,:,:) - solar(nx,:,:)
-cld(nx,:,:) = cld(nx,:,:) - x(nx,:,:)
-cfram_total = cre_sr+wv(nx,:,:)+t(nx,:,:)+al(nx,:,:)+co2(nx,:,:)+solar(nx,:,:)+o3(nx,:,:)
-copy_VarCoords(x(nx,:,:), cfram_total)
+x_all = new((/dimsizes(process),nlev,nlat,nlon/), float)
+x_all(0,:,:,:) = wv(nx,:,:,:) - x(nx,:,:,:)
+x_all(1,:,:,:) = t(nx,:,:,:) - x(nx,:,:,:)
+x_all(2,:,:,:) = al(nx,:,:,:) - x(nx,:,:,:)
+x_all(3,:,:,:) = co2(nx,:,:,:) - x(nx,:,:,:)
+x_all(4,:,:,:) = solar(nx,:,:,:) - x(nx,:,:,:)
+x_all(5,:,:,:) = o3(nx,:,:,:) - x(nx,:,:,:)
+x_all(6,:,:,:) = y(nx,:,:,:) - x(nx,:,:,:)
+x_all(7,:,:,:) = dim_sum_n(x_all(0:5,:,:,:), 0)
+copy_VarCoords(x(0,:,:,:), x_all(0,:,:,:))
+printVarSummary(x_all)
+
+
+plev = lev
+plev = lev*100.
+plev@units = "Pa"
+psfc = max(plev)
+ptop = min(plev)
+dP = dpres_plevel_Wrap(plev, psfc, ptop, 0)
+dp = conform_dims(dimsizes(x_all), dP, 1)
+
+xall_dp = x_all*dp
+copy_VarCoords(x_all, xall_dp)
+
+x_all_column = dim_sum_n_Wrap(xall_dp, 1)
+printVarSummary(x_all_column)
 
 ;=======================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210423/"
@@ -210,12 +237,12 @@ plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0),plot_topo(0))
 
 res@gsnLeftString = "(b) CFRAM S-R"
-plot(1) = gsn_csm_contour_map(wks,cfram_sr,res)
+plot(1) = gsn_csm_contour_map(wks,x_all_column(6,:,:),res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1),plot_topo(1))
 
 res@gsnLeftString = "(c) CFRAM total"
-plot(2) = gsn_csm_contour_map(wks,cfram_total,res)
+plot(2) = gsn_csm_contour_map(wks,x_all_column(7,:,:),res)
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2),plot_topo(2))
 
@@ -227,39 +254,39 @@ overlay(plot(3),plot_topo(3))
 
 
 res@gsnLeftString = "(e) WV"
-plot(4) = gsn_csm_contour_map(wks,wv(nx,:,:),res)
+plot(4) = gsn_csm_contour_map(wks,x_all_column(0,:,:),res)
 plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(4),plot_topo(4))
 
 res@gsnLeftString = "(f) T"
-plot(5) = gsn_csm_contour_map(wks,t(nx,:,:),res)
+plot(5) = gsn_csm_contour_map(wks,x_all_column(1,:,:),res)
 plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(5),plot_topo(5))
 
 res@gsnLeftString = "(g) AL"
-plot(6) = gsn_csm_contour_map(wks,al(nx,:,:),res)
+plot(6) = gsn_csm_contour_map(wks,x_all_column(2,:,:),res)
 plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(6),plot_topo(6))
 
 res@gsnLeftString = "(h) CO2"
-plot(7) = gsn_csm_contour_map(wks,co2(nx,:,:),res)
+plot(7) = gsn_csm_contour_map(wks,x_all_column(3,:,:),res)
 plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(7),plot_topo(7))
 
 res@gsnLeftString = "(i) Solar"
-plot(8) = gsn_csm_contour_map(wks,solar(nx,:,:),res)
+plot(8) = gsn_csm_contour_map(wks,x_all_column(4,:,:),res)
 plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(8),plot_topo(8))
 
 res@gsnLeftString = "(j) o3"
-plot(9) = gsn_csm_contour_map(wks,o3(nx,:,:),res)
+plot(9) = gsn_csm_contour_map(wks,x_all_column(5,:,:),res)
 plot_topo(9) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(9),plot_topo(9))
 
-res@gsnLeftString = "(k) Cloud"
-plot(10) = gsn_csm_contour_map(wks,cld(nx,:,:),res)
-plot_topo(10) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(10),plot_topo(10))
+; res@gsnLeftString = "(k) Cloud"
+; plot(10) = gsn_csm_contour_map(wks,cld(nx,:,:),res)
+; plot_topo(10) = gsn_csm_contour(wks, topo, res_topo)
+; overlay(plot(10),plot_topo(10))
 
 ;-------------------------------------------------------
 
