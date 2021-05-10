@@ -14,9 +14,11 @@ season = "JJA"
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
 fili0 = "surface_thermal_downwards_mon_1x1_1979_2019.nc"
 fili1 = "surface_thermal_downwards_clear_sky_mon_1x1_1979_2019.nc"
+fili2 = "sur_pressure_mon_1x1_1979_2019.nc"
 
 f1 = addfile(diri+fili0, "r")
 f2 = addfile(diri+fili1, "r")
+f3 = addfile(diri+fili2, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
@@ -26,6 +28,7 @@ strd = short2flt(f1->strd(iYYYY,:,:))
 strd = strd/86400.
 strdc = short2flt(f2->strdc(iYYYY,:,:))
 strdc = strdc/86400.
+ps = short2flt(f3->sp(iYYYY,:,:))
 
 strd_JJA = month_to_season(strd, season)
 strd_JJA&time = year
@@ -33,6 +36,8 @@ strdc_JJA = month_to_season(strdc, season)
 copy_VarCoords(strd_JJA, strdc_JJA)
 cre = strd_JJA - strdc_JJA
 copy_VarCoords(strd_JJA, cre)
+ps_JJA = month_to_season(ps, season)
+ps_JJA&time = year
 
 yrs1 = 1979
 yre1 = 1988
@@ -44,6 +49,10 @@ cre_sr = dim_avg_n_Wrap(cre({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(cre({yrs1:yre1
 copy_VarCoords(strd(0,:,:), era_sr)
 copy_VarCoords(strd(0,:,:), cre_sr)
 
+surf_ps = dim_avg_n_Wrap(ps_JJA, 0) ;dim_avg_n_Wrap(ps_JJA({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(ps_JJA({yrs1:yre1},:,:), 0)
+copy_VarCoords(ps(0,:,:), surf_ps)
+printVarSummary(surf_ps)
+
 lat = strd&latitude
 lon = strd&longitude
 nlat = dimsizes(lat)
@@ -52,16 +61,17 @@ nlon = dimsizes(lon)
 finfo = addfile("/home/yangsong3/data-observation/ERA5-monthly/pressure/t_mon_1x1_1979_2020.nc", "r")
 level = finfo->level
 printVarSummary(level)
-lev = new(38, double)
-lev(0:36) = level
-lev(37) = 1001
-nlev = dimsizes(lev)
+nlev = 38
+lev = new(nlev, integer, "No_FillValue")
+lev(0:nlev-2) = toint(level)
+lev(nlev-1) = 1001
+print(lev)
 ;===================================================================================================
 nvname = (/"rad_conv","sw_conv","lw_conv","lwu","lwd","swu","swd"/)  ; ,"error"
 nvars = dimsizes(nvname)
 
-; diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210507_clearsky/"
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/"
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210506_clearsky/"
+; diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/"
 fili2 = diri2+"baseline_radranc_10.grd"
 fili3 = diri2+"wv_radranc_10.grd"
 fili4 = diri2+"ta_radranc_10.grd"
@@ -126,20 +136,29 @@ x_all(6,:,:,:) = y(nx,:,:,:) - x(nx,:,:,:)
 x_all(7,:,:,:) = dim_sum_n(x_all(0:5,:,:,:), 0)
 copy_VarCoords(x(0,:,:,:), x_all(0,:,:,:))
 printVarSummary(x_all)
+x_atmos = x_all(:,0:nlev-2,:,:)
 
-
-plev = lev
-plev = lev*100.
+plev = level
+plev = plev*100
+plev!0 = "lev"
+plev&lev = level
 plev@units = "Pa"
-psfc = max(plev)
+
+print(surf_ps({35},{120}))
+; plev = lev
+; plev = lev*100
+; plev@units = "Pa"
+; psfc = max(plev)
 ptop = min(plev)
-dP = dpres_plevel_Wrap(plev, psfc, ptop, 0)
-dp = conform_dims(dimsizes(x_all), dP, 1)
+dP = dpres_plevel_Wrap(plev, surf_ps, ptop, 0)
+printVarSummary(dP)
+dp = conform_dims(dimsizes(x_atmos), dP, (/1,2,3/))
 
-xall_dp = x_all*dp
-copy_VarCoords(x_all, xall_dp)
+xall_dp = x_atmos*dp
+copy_VarCoords(x_atmos, xall_dp)
 
-x_all_column = dim_sum_n_Wrap(xall_dp, 1)
+x_all_column = dim_sum_n_Wrap(xall_dp, 1)/dim_sum_n_Wrap(dp, 1)
+copy_VarCoords(x_atmos(:,0,:,:), x_all_column)
 printVarSummary(x_all_column)
 
 ;=======================================================================
@@ -224,12 +243,11 @@ res@tmYROn = False
 ;res@gsnRightStringFontHeightF  = 0.02
 res@gsnStringFontHeightF = 0.035
 
-res@cnLevelSelectionMode = "ManualLevels"
-res@cnMaxLevelValF = 10
-res@cnMinLevelValF = -10
-res@cnLevelSpacingF = 1
-res@lbLabelBarOn         = False 
-; res@lbLabelsOn           = False
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnMaxLevelValF = 10
+; res@cnMinLevelValF = -10
+; res@cnLevelSpacingF = 1
+; res@lbLabelBarOn         = False
 
 res@gsnLeftString = "(a) ERA5 S-R"
 plot(0) = gsn_csm_contour_map(wks,era_sr,res)
