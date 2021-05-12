@@ -69,9 +69,9 @@ c  input data
      & './wv_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
      & form='unformatted', access='direct',recl= IX*IY)
 
-       open ( unit = 14, file =
-     & './cloud_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-     & form='unformatted', access='direct',recl= IX*IY)
+!       open ( unit = 14, file =
+!     & './cloud_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
+!     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 15, file =
      & './co2_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
@@ -139,12 +139,12 @@ c  input data
              enddo
           enddo
 
-          read(14,rec=irec)x !cloud
-          do i = 1, ix
-             do j = 1, iy
-                rht_cloud(i,j,l)=rht_cloud(i,j,l)+x(i,j)!/xnt
-             enddo
-          enddo
+!          read(14,rec=irec)x !cloud
+!          do i = 1, ix
+!             do j = 1, iy
+!                rht_cloud(i,j,l)=rht_cloud(i,j,l)+x(i,j)!/xnt
+!             enddo
+!          enddo
 
           read(15,rec=irec)x !co2
           do i = 1, ix
@@ -186,12 +186,12 @@ c  input data
              enddo
           enddo
 
-          read(14,rec=irec)x ! clouds
-          do i = 1, ix
-             do j = 1, iy
-                rht_cloud_sw(i,j,l)=rht_cloud_sw(i,j,l)+x(i,j)!/xnt
-             enddo
-          enddo
+!          read(14,rec=irec)x ! clouds
+!          do i = 1, ix
+!             do j = 1, iy
+!                rht_cloud_sw(i,j,l)=rht_cloud_sw(i,j,l)+x(i,j)!/xnt
+!             enddo
+!          enddo
 
           read(18,rec=irec)x !warm
           do i = 1, ix
@@ -212,12 +212,12 @@ c  input data
              enddo
           enddo
 
-          read(14,rec=irec)x ! clouds
-          do i = 1, ix
-             do j = 1, iy
-                rht_cloud_lw(i,j,l)=rht_cloud_lw(i,j,l)+x(i,j)!/xnt
-             enddo
-          enddo
+!          read(14,rec=irec)x ! clouds
+!          do i = 1, ix
+!             do j = 1, iy
+!                rht_cloud_lw(i,j,l)=rht_cloud_lw(i,j,l)+x(i,j)!/xnt
+!             enddo
+!          enddo
 
           read(18,rec=irec)x !warm
           do i = 1, ix
