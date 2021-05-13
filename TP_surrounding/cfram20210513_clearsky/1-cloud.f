@@ -31,11 +31,11 @@
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 17, file = './data/o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './data/cc_clear_warm.dat',
+      open ( unit = 18, file = './data/cc_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './data/clwc_clear_warm.dat',
+      open ( unit = 19, file = './data/clwc_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './data/ciwc_clear_warm.dat',
+      open ( unit = 110, file = './data/ciwc_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 111, file = './data/hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
@@ -214,9 +214,9 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
        open ( unit = 51, file =
      & './cloud_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
-!       open ( unit = 52, file =
-!     & './warm_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
-!     & form='unformatted', access = 'direct', recl = 100*100 )
+       open ( unit = 52, file =
+     & './warm_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
+     & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"
 
@@ -395,8 +395,8 @@ c             pmean=0.5*(pp(l)+pp(l+1))
 
  ! cloudy sky calculation
 
-!          read(52,rec=irec52)no_cloud_out
-!          irec52 = irec52+1
+          read(52,rec=irec52)no_cloud_out
+          irec52 = irec52+1
           call S_R_cloudy (u0,as,ss,pts,rad_base,area_c,sw_base,
      &            lw_base,water_c,ice_c,iseed,no_cloud_out)
 

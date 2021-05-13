@@ -31,17 +31,17 @@
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 17, file = './data/o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './data/cc_clear_warm.dat',
+      open ( unit = 18, file = './data/cc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './data/clwc_clear_warm.dat',
+      open ( unit = 19, file = './data/clwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './data/ciwc_clear_warm.dat',
+      open ( unit = 110, file = './data/ciwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 111, file = './data/hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 112, file = './data/t_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 113, file = './data/co2_base.dat',
+      open ( unit = 113, file = './data/co2_warm.dat',
      & form='unformatted', access='direct',recl = nn )
 
       irec = 1
@@ -65,6 +65,24 @@
 
       irec=1
       do k = 1,z1,1
+        read(18,rec=irec)((camt(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+
+      irec=1
+      do k = 1,z1,1
+        read(19,rec=irec)((cliq(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+
+      irec=1
+      do k = 1,z1,1
+        read(110,rec=irec)((cice(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+
+      irec=1
+      do k = 1,z1,1
         read(111,rec=irec)((q(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
@@ -81,28 +99,13 @@
       close(15)
       close(16)
       close(17)
+      close(18)
+      close(19)
+      close(110)
       close(111)
       close(112)
 
       do nnn = 1,nn
-
-      irec=(nnn-1)*37+1
-      do k = 1,z1,1
-        read(18,rec=irec)((camt(i,j,k),i=1,xt),j=1,yt)
-        irec=irec+1
-      enddo
-
-      irec=(nnn-1)*37+1
-      do k = 1,z1,1
-        read(19,rec=irec)((cliq(i,j,k),i=1,xt),j=1,yt)
-        irec=irec+1
-      enddo
-
-      irec=(nnn-1)*37+1
-      do k = 1,z1,1
-        read(110,rec=irec)((cice(i,j,k),i=1,xt),j=1,yt)
-        irec=irec+1
-      enddo
 
       print*,"end of input for case ", nnn
 
@@ -110,7 +113,7 @@
       n2=yt
       n3=z1
       n4=z18
-      co2ts = co2(1)
+      co2ts = co2(nnn)
 
       call baseline(n1,n2,n3,n4,plev,pres,tro3,
      &  tem_a,q,camt,co2ts,cice,cliq,
@@ -118,9 +121,6 @@
       print*,'case ', nnn, 'finished!'
       end do
 
-      close(18)
-      close(19)
-      close(110)
       end program
 
 
@@ -205,18 +205,18 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
 *     OUTPUT
 *
        open ( unit = 22, file =
-     & './cloud_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
+     & './co2_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access='direct',recl= ix*iy )
        open ( unit = 32, file =
-     & './cloud_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
+     & './co2_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access = 'direct',recl = ix*iy )
 
        open ( unit = 51, file =
-     & './cloud_input_'//Trim(AdjustL(mm_ch))//'.dat',
+     & './co2_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
-!       open ( unit = 52, file =
-!     & './warm_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
-!     & form='unformatted', access = 'direct', recl = 100*100 )
+       open ( unit = 52, file =
+     & './base_no_cloud_out_1.dat',
+     & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"
 
@@ -395,8 +395,8 @@ c             pmean=0.5*(pp(l)+pp(l+1))
 
  ! cloudy sky calculation
 
-!          read(52,rec=irec52)no_cloud_out
-!          irec52 = irec52+1
+          read(52,rec=irec52)no_cloud_out
+          irec52 = irec52+1
           call S_R_cloudy (u0,as,ss,pts,rad_base,area_c,sw_base,
      &            lw_base,water_c,ice_c,iseed,no_cloud_out)
 
