@@ -1,7 +1,7 @@
       program base
       implicit none
 
-      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=31
+      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=3
       real             :: plev(1:z1),co2(1:nn),co2ts
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
@@ -31,11 +31,11 @@
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 17, file = './data/o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './data/cc_base.dat',
+      open ( unit = 18, file = './data/cc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './data/clwc_base.dat',
+      open ( unit = 19, file = './data/clwc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './data/ciwc_base.dat',
+      open ( unit = 110, file = './data/ciwc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 111, file = './data/hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )

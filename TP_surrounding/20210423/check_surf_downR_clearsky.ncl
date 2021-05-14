@@ -41,8 +41,8 @@ ps_JJA&time = year
 
 yrs1 = 1979
 yre1 = 1988
-yrs2 = 1994 ;1983
-yre2 = 2003 ;1992
+yrs2 = 1982 ;1983
+yre2 = 1991 ;1992
 print("========================================")
 era_sr = dim_avg_n_Wrap(strd_JJA({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(strd_JJA({yrs1:yre1},:,:), 0)
 cre_sr = dim_avg_n_Wrap(cre({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(cre({yrs1:yre1},:,:), 0)
@@ -62,16 +62,16 @@ nlon = dimsizes(lon)
 nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
 nvars = dimsizes(nvname)
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210506_clearsky/"
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210513_clearsky/"
 ; diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/"
-fili2 = diri2+"baseline_radsfc_ranc_15.grd"
-fili3 = diri2+"wv_radsfc_ranc_15.grd"
-fili4 = diri2+"ta_radsfc_ranc_15.grd"
-fili5 = diri2+"albedo_radsfc_ranc_15.grd"
-fili6 = diri2+"co2_radsfc_ranc_15.grd"
-fili7 = diri2+"solar_radsfc_ranc_15.grd"
-fili8 = diri2+"o3_radsfc_ranc_15.grd"
-fili9 = diri2+"warm_radsfc_ranc_15.grd"
+fili2 = diri2+"baseline_radsfc_ranc_2.grd"
+fili3 = diri2+"wv_radsfc_ranc_2.grd"
+fili4 = diri2+"ta_radsfc_ranc_2.grd"
+fili5 = diri2+"albedo_radsfc_ranc_2.grd"
+fili6 = diri2+"co2_radsfc_ranc_2.grd"
+fili7 = diri2+"solar_radsfc_ranc_2.grd"
+fili8 = diri2+"o3_radsfc_ranc_2.grd"
+fili9 = diri2+"warm_radsfc_ranc_2.grd"
 ; fili10 = diri2+"cloud_radranc_10.grd"
 
 UNDEF = -999.
@@ -208,10 +208,10 @@ res@tmYROn = False
 res@gsnStringFontHeightF = 0.035
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMaxLevelValF = 20
-res@cnMinLevelValF = -20
-res@cnLevelSpacingF = 5
-; res@lbLabelBarOn         = False
+res@cnMaxLevelValF = 3
+res@cnMinLevelValF = -3
+res@cnLevelSpacingF = 0.5
+res@lbLabelBarOn         = False
 
 ; res@gsnLeftString = "(a) ERA5 S-R"
 ; plot(0) = gsn_csm_contour_map(wks,era_sr,res)
@@ -235,9 +235,9 @@ plot(2) = gsn_csm_contour_map(wks,diff,res)
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2),plot_topo(2))
 
-res@cnMaxLevelValF = 5
-res@cnMinLevelValF = -5
-res@cnLevelSpacingF = 1
+; res@cnMaxLevelValF = 5
+; res@cnMinLevelValF = -5
+; res@cnLevelSpacingF = 1
 ; res@gsnLeftString = "(d) Cloud Radiative Effect"
 ; plot(3) = gsn_csm_contour_map(wks,cre_sr,res)
 ; plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
