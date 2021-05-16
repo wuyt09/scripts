@@ -217,7 +217,8 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
      & './albedo_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
        open ( unit = 52, file =
-     & './base_no_cloud_out_1.dat',
+!     & './base_no_cloud_out_1.dat',
+     & './base_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"

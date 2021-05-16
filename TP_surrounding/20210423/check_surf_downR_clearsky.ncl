@@ -41,8 +41,8 @@ ps_JJA&time = year
 
 yrs1 = 1979
 yre1 = 1988
-yrs2 = 1982 ;1983
-yre2 = 1991 ;1992
+yrs2 = 1981 ;1983
+yre2 = 1990 ;1992
 print("========================================")
 era_sr = dim_avg_n_Wrap(strd_JJA({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(strd_JJA({yrs1:yre1},:,:), 0)
 cre_sr = dim_avg_n_Wrap(cre({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(cre({yrs1:yre1},:,:), 0)

@@ -52,7 +52,7 @@ iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
 t = short2flt(f->t2m(iYYYY,:,:))
 printVarSummary(t)
-
+delete(f)
 
 t_tropo_JJA = month_to_season(t, season)
 
@@ -80,6 +80,7 @@ t_tropo_JJA = month_to_season(t, season)
 
 t_base = dim_avg_n_Wrap(t_tropo_JJA(0:9,:,:), 0)
 t_warm = dim_avg_n_Wrap(t_tropo_JJA(31:40,:,:), 0)
+; t_warm = dim_avg_n_Wrap(t_tropo_JJA(1:10,:,:), 0)
 t_new = t_warm - t_base
 copy_VarCoords(t_base, t_new)
 printVarSummary(t_new)
@@ -90,10 +91,10 @@ nvname = (/"albedo","wv","cloud","cloud_sw","cloud_lw","co2","o3","solar",\
            "dyn","atm_dyn","ocean_dyn","shflx","lhflx"/)  ; ,"error"
 nn = 31
 
-f = addfile("/home/yangsong3/data-observation/ERA5-monthly/pressure/t_mon_1x1_1979_2019.nc", "r")
+f = addfile("/home/yangsong3/data-observation/ERA5-monthly/pressure/t_mon_1x1_1979_2020.nc", "r")
 lat  = f->latitude ;(::-1)
 lon  = f->longitude
-level  = f->level
+level  = toint(f->level)
 nlev = 38
 lev = new(nlev, integer, "No_FillValue")
 lev(0:nlev-2) = level
@@ -130,7 +131,8 @@ x@long_name = "partial T"
 x@units     = "K"
 
 ; do nnn = 0, nn-1
-    fili2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/correct_HS/partial_T_"+nn+".grd"
+    ;fili2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/correct_HS/partial_T_"+nn+".grd"
+    fili2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/partial_T_"+nn+".grd"
     print(fili2)
     do nv = 0,nvars-1
        do nl = 0,nlev-1
@@ -177,7 +179,7 @@ printVarSummary(x_total)
 x_inn = x_tropo(0,:,:,:)
 ;=======================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210415/"
-figname = "spatial_pattern_process_partial_T_31"
+figname = "spatial_pattern_process_partial_T_"+nn
 
 wks = gsn_open_wks("pdf", figpath+figname)
 gsn_define_colormap(wks, "temp_diff_18lev")
@@ -384,7 +386,7 @@ pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
-gsn_panel(wks,plot,(/3,3/),pres)
+gsn_panel(wks,plot,(/4,3/),pres)
 
 
 end
