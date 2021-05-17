@@ -1,7 +1,7 @@
       program base
       implicit none
 
-      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=1
+      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=3
       real             :: plev(1:z1),co2(1:nn),co2ts
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
@@ -17,31 +17,31 @@
      &       925.,950.,975.,1000./)
 
 ***********************data input*************************************
-      open ( unit = 11, file = './data/solarin_base.dat',
+      open ( unit = 11, file = './data/solarin_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 12, file = './data/ssrd_base.dat',
+      open ( unit = 12, file = './data/ssrd_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 13, file = './data/ssru_base.dat',
+      open ( unit = 13, file = './data/ssru_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 14, file = './data/t2m_base.dat',
+      open ( unit = 14, file = './data/t2m_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 15, file = './data/huss_base.dat',
+      open ( unit = 15, file = './data/huss_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 16, file = './data/sp_base.dat',
+      open ( unit = 16, file = './data/sp_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 17, file = './data/o3_base.dat',
+      open ( unit = 17, file = './data/o3_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './data/cc_clear_base.dat',
+      open ( unit = 18, file = './data/cc_clear_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './data/clwc_clear_base.dat',
+      open ( unit = 19, file = './data/clwc_clear_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './data/ciwc_clear_base.dat',
+      open ( unit = 110, file = './data/ciwc_clear_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 111, file = './data/hus_base.dat',
+      open ( unit = 111, file = './data/hus_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 112, file = './data/t_base.dat',
+      open ( unit = 112, file = './data/t_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 113, file = './data/co2_base.dat',
+      open ( unit = 113, file = './data/co2_warm.dat',
      & form='unformatted', access='direct',recl = nn )
 
       irec = 1
@@ -49,7 +49,7 @@
       print*,co2
       close(113)
 
-      do nnn = 1,nn
+      do nnn = 2,nn
       irec = nnn
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
@@ -64,50 +64,49 @@
         irec=irec+1
       enddo
 
-      irec = z1*(nnn-1)+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(18,rec=irec)((camt(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec = z1*(nnn-1)+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(19,rec=irec)((cliq(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec = z1*(nnn-1)+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(110,rec=irec)((cice(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec = z1*(nnn-1)+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(111,rec=irec)((q(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec = z1*(nnn-1)+1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      print*,"end of input for job", nnn
-
+      print*,"end of input for job",nnn
+      
       n1=xt
       n2=yt
       n3=z1
       n4=z18
       co2ts = co2(nnn)
 
-      call baseline(n1,n2,n3,n4,plev,pres,tro3,
-     &  tem_a,q,camt,co2ts,cice,cliq,
-     &  solar,swdn_surf,swup_surf,t_surf,hus_s,nnn)
-      print*,'finish of job', nnn
-
+      call baseline(n1,n2,n3,n4,plev,pres,tro3,tem_a,q,camt,co2ts,
+     &  cice,cliq,solar,swdn_surf,swup_surf,t_surf,hus_s,nnn)
+      print*,'finish of job!',nnn
       end do
+
       close(11)
       close(12)
       close(13)
@@ -127,9 +126,8 @@
       include 'cas_fu_radiation.f'
 
 C     NCLFORTSTART
-      subroutine baseline(ix,iy,zd1,zd18,plevel,ps,o3,ta,hus,
-     & cld_amt,co2mass,ice_wat,liq_wat,solar_in,
-     & swdn_sfc,swup_sfc,tsurf,huss,mm)
+      subroutine baseline(ix,iy,zd1,zd18,plevel,ps,o3,ta,hus,cld_amt,
+     1	co2mass,ice_wat,liq_wat,solar_in,swdn_sfc,swup_sfc,tsurf,huss,mm)
 
       INTEGER ix,iy,zd1,zd18,mm
       character*20 mm_ch
@@ -198,27 +196,39 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
 *
       ss = 1360.89
       sbc= 5.67e-8
-
+      
       write(mm_ch,*)mm
       print*,mm_ch
-*-------------------------------------------------------------------------------
+
+*--------------------------------------------------------------------------------
+
+
 *     OUTPUT
 *
-       open ( unit = 22, file =
-     &  './baseline_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
+       open ( unit = 22, file = 
+     &  './warm_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access='direct',recl= ix*iy )
-       open ( unit = 32, file =
-     & './baseline_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
+       open ( unit = 32, file = 
+     &  './warm_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access = 'direct',recl = ix*iy )
 
-       open ( unit = 51, file =
-     & './baseline_input_'//Trim(AdjustL(mm_ch))//'.dat',
+       open ( unit = 51, file = 
+     &  './warm_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
-       open ( unit = 52, file =
-     & './base_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
+       open ( unit = 52, file = 
+     &  './warm_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"
+
+c      do i = 1, ix
+c         do j = 1, iy  !ps is in unit of pa (not in hPa) L/Rv=2.5*1000*1000/461.
+c            qs=(0.622*6.11/ps(i,j))*
+c    &   exp((2.5*(tsair(i,j)-273.16)/(4.61*tsair(i,j)*2.7316/100.)))
+c            huss(i,j)=qs*rhs_air(i,j)/100.
+c         enddo
+c      enddo
+
 
        do i = 1, ix
           do j = 1, iy
@@ -230,6 +240,29 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
              endif
           enddo
        enddo
+
+cai       do i = 1, ix
+cai          do j = 1, iy
+c             if(solar_in(i,j) .lt. 20)
+c     &          print*,"solar ",i,j,solar_in(i,j)
+c             if(swdn_sfc(i,j) .lt. 5)
+c     &          print*,"swdn_sfc ",i,j,swdn_sfc(i,j)
+c             if(swup_sfc(i,j) .gt. 0)
+c     &          print*,"swup_sfc ",i,j,swup_sfc(i,j)
+c             if (tsurf(i,j) .lt. 200)
+c     &          print*,"tsurf ",i,j,tsurf(i,j)
+c             if (ps(i,j) .lt. 500)
+c     &          print*,"ps ",i,j,ps(i,j)
+cai             if(huss(i,j) .gt. 0.1)then
+c                print*,i,j,huss(i,j)
+cai                huss(i,j)=0.
+cai             endif
+c             do k = 1, 26
+c              if(hus(i,j,k) .gt. 0.1)
+c     &           print*,"air q ",i,j,k,hus(i,j,k)
+c           enddo
+cai          enddo
+cai       enddo
 
        irec=1
        write(51,rec=irec)solar_in
@@ -265,7 +298,10 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
        do 2000 ILAT= 1,IY
        do 2000 ILONG= 1,IX
 
-c          print*,ilat,ilong
+c       do 2000 ilat = 52, 52
+c          do 2000 ilong = 123, 124
+          print*,ilat,ilong
+
 
           do 20 i = 1, 100
              pre(i) = 0.0
@@ -307,7 +343,7 @@ c          print*,ilat,ilong
           umch4 = 1.6
           umn2o = 0.28
 
-c          print*,p_surf,ts,umco2
+          print*,p_surf,ts
           do l = 1, nv
              pt(l)=ta(ilong,ilat,l)
              ph(l)=hus(ilong,ilat,l)
@@ -324,6 +360,16 @@ c          print*,p_surf,ts,umco2
                 ice_c(l)=0.0
                 area_c(l)=0.0
              endif
+c             xxx2=liq_wat2(ilong,ilat,l)
+c             xxx3=liq_wat3(ilong,ilat,l)
+c             if(area_c(l) .gt. 0)then !convert from area-average to in_cloud amount
+c	         water_c(l)=water_c(l)/area_c(l)
+c                 ice_c(l)=ice_c(l)/area_c(l)
+c              endif
+c	     print*,l,pt(l),ph(l),pp(l),po(l)
+c            print*,l,water_c(l),xxx2,xxx3,area_c(l),ice_c(l)
+c            xxx1=xxx1*(plev(l+1)-plev(l))*100.*1000/9.81
+c            xxx4=xxx4*(plev(l+1)-plev(l))*100.*1000/9.81
           enddo
 
           pt(nv1) = ts
@@ -375,6 +421,7 @@ c             print*,fuir_tot(l),fdir_tot(l),l
                 rad_conv(ILONG,ILAT,l)=-999
                 sw_conv(ilong,ilat,l)=-999
                 lw_conv(ilong,ilat,l)=-999
+
              enddo
           ENDIF
           LWU(ILONG,ILAT,zd18)=fuir_tot(nv1)
@@ -384,7 +431,6 @@ c             print*,fuir_tot(l),fdir_tot(l),l
           rad_conv(ILONG,ILAT,zd18)=rad_base(nv1)
           sw_conv(ilong,ilat,zd18)=sw_base(nv1)
           lw_conv(ilong,ilat,zd18)=lw_base(nv1)
-c          print*,ilat,ilong,nv1,p_surf,ts,umco2,rad_base(nv1)
  2000  continue
 
        write(888,*)"start to write",job

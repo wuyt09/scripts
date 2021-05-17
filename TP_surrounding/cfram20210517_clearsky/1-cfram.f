@@ -1,6 +1,6 @@
       program main
 
-      INTEGER,PARAMETER :: zd1=37,IX=360,IY=181,zd18=38,nn=3
+      INTEGER,PARAMETER :: zd1=37,IX=360,IY=181,zd18=38,nn=31
 
 c  input data
       real rht_cloud(ix,iy,zd18),rht_base_sw(ix,iy,zd18)
@@ -69,9 +69,9 @@ c  input data
      & './wv_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
      & form='unformatted', access='direct',recl= IX*IY)
 
-!       open ( unit = 14, file =
-!     & './cloud_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
-!     & form='unformatted', access='direct',recl= IX*IY)
+       open ( unit = 14, file =
+     & './cloud_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
+     & form='unformatted', access='direct',recl= IX*IY)
 
        open ( unit = 15, file =
      & './co2_radranc_'//Trim(AdjustL(nn_ch))//'.grd',
@@ -104,14 +104,14 @@ c  input data
        rht_o3(:,:,:)=0.0
        rht_wv(:,:,:)=0.0
        rht_albedo(:,:,:)=0.0
-!       rht_cloud(:,:,:)=0.0
+       rht_cloud(:,:,:)=0.0
        rht_co2(:,:,:)=0.0
        rht_solar(:,:,:)=0.0
        rht_warm(:,:,:)=0.0
        rht_warm_sw(:,:,:)=0.0
        rht_warm_lw(:,:,:)=0.0
-!       rht_cloud_sw(:,:,:)=0.0
-!       rht_cloud_lw(:,:,:)=0.0
+       rht_cloud_sw(:,:,:)=0.0
+       rht_cloud_lw(:,:,:)=0.0
 
        do 100 it = 1, nt
           irec=(it-1)*7*zd18
@@ -139,12 +139,12 @@ c  input data
              enddo
           enddo
 
-!          read(14,rec=irec)x !cloud
-!          do i = 1, ix
-!             do j = 1, iy
-!                rht_cloud(i,j,l)=rht_cloud(i,j,l)+x(i,j)!/xnt
-!             enddo
-!          enddo
+          read(14,rec=irec)x !cloud
+          do i = 1, ix
+             do j = 1, iy
+                rht_cloud(i,j,l)=rht_cloud(i,j,l)+x(i,j)!/xnt
+             enddo
+          enddo
 
           read(15,rec=irec)x !co2
           do i = 1, ix
@@ -186,12 +186,12 @@ c  input data
              enddo
           enddo
 
-!          read(14,rec=irec)x ! clouds
-!          do i = 1, ix
-!             do j = 1, iy
-!                rht_cloud_sw(i,j,l)=rht_cloud_sw(i,j,l)+x(i,j)!/xnt
-!             enddo
-!          enddo
+          read(14,rec=irec)x ! clouds
+          do i = 1, ix
+             do j = 1, iy
+                rht_cloud_sw(i,j,l)=rht_cloud_sw(i,j,l)+x(i,j)!/xnt
+             enddo
+          enddo
 
           read(18,rec=irec)x !warm
           do i = 1, ix
@@ -212,12 +212,12 @@ c  input data
              enddo
           enddo
 
-!          read(14,rec=irec)x ! clouds
-!          do i = 1, ix
-!             do j = 1, iy
-!                rht_cloud_lw(i,j,l)=rht_cloud_lw(i,j,l)+x(i,j)!/xnt
-!             enddo
-!          enddo
+          read(14,rec=irec)x ! clouds
+          do i = 1, ix
+             do j = 1, iy
+                rht_cloud_lw(i,j,l)=rht_cloud_lw(i,j,l)+x(i,j)!/xnt
+             enddo
+          enddo
 
           read(18,rec=irec)x !warm
           do i = 1, ix
@@ -279,9 +279,9 @@ c             PAUSE
           rht_base_lw(i,j,nv1) =rht_base_lw(i,j,zd18)
           rht_albedo(i,j,nv1)  =rht_albedo(i,j,zd18)
           rht_wv(i,j,nv1)      =rht_wv(i,j,zd18)
-!          rht_cloud(i,j,nv1)   =rht_cloud(i,j,zd18)
-!          rht_cloud_sw(i,j,nv1)=rht_cloud_sw(i,j,zd18)
-!          rht_cloud_lw(i,j,nv1)=rht_cloud_lw(i,j,zd18)
+          rht_cloud(i,j,nv1)   =rht_cloud(i,j,zd18)
+          rht_cloud_sw(i,j,nv1)=rht_cloud_sw(i,j,zd18)
+          rht_cloud_lw(i,j,nv1)=rht_cloud_lw(i,j,zd18)
           rht_co2(i,j,nv1)     =rht_co2(i,j,zd18)
           rht_o3(i,j,nv1)      =rht_o3(i,j,zd18)
           rht_solar(i,j,nv1)   =rht_solar(i,j,zd18)
@@ -308,33 +308,33 @@ c          print*,"after albedo"
              dt_wv(i,j,k)=fc(k)
           enddo
 
-!          do k = 1, nv1
-!             fc(k)=rht_cloud(i,j,k)-rht_base(i,j,k)
-!             fc_cloud(i,j,k)=fc(k)
-!          enddo
-!          call delt_gauss(drdt,fc,nv1)
-!          do k = 1, nv1
-!             dt_cloud(i,j,k)=fc(k)
-!          enddo
+          do k = 1, nv1
+             fc(k)=rht_cloud(i,j,k)-rht_base(i,j,k)
+             fc_cloud(i,j,k)=fc(k)
+          enddo
+          call delt_gauss(drdt,fc,nv1)
+          do k = 1, nv1
+             dt_cloud(i,j,k)=fc(k)
+          enddo
 
 c          print*, "after cloud"
-!          do k = 1, nv1
-!             fc(k)=rht_cloud_sw(i,j,k)-rht_base_sw(i,j,k)
-!             fc_cloud_sw(i,j,k)=fc(k)
-!          enddo
-!          call delt_gauss(drdt,fc,nv1)
-!          do k = 1, nv1
-!             dt_cloud_sw(i,j,k)=fc(k)
-!          enddo
+          do k = 1, nv1
+             fc(k)=rht_cloud_sw(i,j,k)-rht_base_sw(i,j,k)
+             fc_cloud_sw(i,j,k)=fc(k)
+          enddo
+          call delt_gauss(drdt,fc,nv1)
+          do k = 1, nv1
+             dt_cloud_sw(i,j,k)=fc(k)
+          enddo
 
-!          do k = 1, nv1
-!             fc(k)=rht_cloud_lw(i,j,k)-rht_base_lw(i,j,k)
-!             fc_cloud_lw(i,j,k)=fc(k)
-!          enddo
-!          call delt_gauss(drdt,fc,nv1)
-!          do k = 1, nv1
-!             dt_cloud_lw(i,j,k)=fc(k)
-!          enddo
+          do k = 1, nv1
+             fc(k)=rht_cloud_lw(i,j,k)-rht_base_lw(i,j,k)
+             fc_cloud_lw(i,j,k)=fc(k)
+          enddo
+          call delt_gauss(drdt,fc,nv1)
+          do k = 1, nv1
+             dt_cloud_lw(i,j,k)=fc(k)
+          enddo
 
           do k = 1, nv1
              fc(k)=rht_co2(i,j,k)-rht_base(i,j,k)
@@ -422,12 +422,12 @@ c          print*, "after cloud"
            fc_albedo(i,j,zd18)=fc_albedo(i,j,nv1)
            dt_wv(i,j,zd18)=dt_wv(i,j,nv1)
            fc_wv(i,j,zd18)=fc_wv(i,j,nv1)
-!           dt_cloud(i,j,zd18)=dt_cloud(i,j,nv1)
-!           fc_cloud(i,j,zd18)=fc_cloud(i,j,nv1)
-!           dt_cloud_sw(i,j,zd18)=dt_cloud_sw(i,j,nv1)
-!           fc_cloud_sw(i,j,zd18)=fc_cloud_sw(i,j,nv1)
-!           dt_cloud_lw(i,j,zd18)=dt_cloud_lw(i,j,nv1)
-!           fc_cloud_lw(i,j,zd18)=fc_cloud_lw(i,j,nv1)
+           dt_cloud(i,j,zd18)=dt_cloud(i,j,nv1)
+           fc_cloud(i,j,zd18)=fc_cloud(i,j,nv1)
+           dt_cloud_sw(i,j,zd18)=dt_cloud_sw(i,j,nv1)
+           fc_cloud_sw(i,j,zd18)=fc_cloud_sw(i,j,nv1)
+           dt_cloud_lw(i,j,zd18)=dt_cloud_lw(i,j,nv1)
+           fc_cloud_lw(i,j,zd18)=fc_cloud_lw(i,j,nv1)
            dt_co2(i,j,zd18)=dt_co2(i,j,nv1)
            fc_co2(i,j,zd18)=fc_co2(i,j,nv1)
            dt_o3(i,j,zd18)=dt_o3(i,j,nv1)
@@ -449,9 +449,9 @@ c          print*, "after cloud"
                 dt_albedo(i,j,l)=-999
                 dt_wv(i,j,l)=-999
                 dt_co2(i,j,l)=-999
-!                dt_cloud(i,j,l)=-999
-!                dt_cloud_sw(i,j,l)=-999
-!                dt_cloud_lw(i,j,l)=-999
+                dt_cloud(i,j,l)=-999
+                dt_cloud_sw(i,j,l)=-999
+                dt_cloud_lw(i,j,l)=-999
                 dt_o3(i,j,l)=-999
                 dt_solar(i,j,l)=-999
                 dt_dyn(i,j,l)=-999
@@ -485,17 +485,17 @@ c          print*, "after cloud"
        call out3d(fc_wv,ix,iy,zd18,52,irec)
        irec=irec+zd18
 
-!       call out3d(dt_cloud,ix,iy,zd18,51,irec)
-!       call out3d(fc_cloud,ix,iy,zd18,52,irec)
-!       irec=irec+zd18
+       call out3d(dt_cloud,ix,iy,zd18,51,irec)
+       call out3d(fc_cloud,ix,iy,zd18,52,irec)
+       irec=irec+zd18
 
-!       call out3d(dt_cloud_sw,ix,iy,zd18,51,irec)
-!       call out3d(fc_cloud_sw,ix,iy,zd18,52,irec)
-!       irec=irec+zd18
+       call out3d(dt_cloud_sw,ix,iy,zd18,51,irec)
+       call out3d(fc_cloud_sw,ix,iy,zd18,52,irec)
+       irec=irec+zd18
 
-!       call out3d(dt_cloud_lw,ix,iy,zd18,51,irec)
-!       call out3d(fc_cloud_lw,ix,iy,zd18,52,irec)
-!       irec=irec+zd18
+       call out3d(dt_cloud_lw,ix,iy,zd18,51,irec)
+       call out3d(fc_cloud_lw,ix,iy,zd18,52,irec)
+       irec=irec+zd18
 
        call out3d(dt_co2,ix,iy,zd18,51,irec)
        call out3d(fc_co2,ix,iy,zd18,52,irec)

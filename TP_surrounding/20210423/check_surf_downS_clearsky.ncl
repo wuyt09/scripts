@@ -12,32 +12,27 @@ year = ispan(yrStrt, yrLast, 1)
 season = "JJA"
 
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili0 = "surface_thermal_downwards_mon_1x1_1979_2019.nc"
-fili1 = "surface_thermal_downwards_clear_sky_mon_1x1_1979_2019.nc"
-fili2 = "sur_pressure_mon_1x1_1979_2019.nc"
+fili0 = "surface_solar_downwards_mon_1x1_1979_2019.nc"
+fili1 = "surface_solar_downwards_clear_sky_mon_1x1_1979_2019.nc"
 
 f1 = addfile(diri+fili0, "r")
 f2 = addfile(diri+fili1, "r")
-f3 = addfile(diri+fili2, "r")
 
 Time = f1->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-strd = short2flt(f1->strd(iYYYY,:,:))
-strd = strd/86400.
-strdc = short2flt(f2->strdc(iYYYY,:,:))
-strdc = strdc/86400.
-ps = short2flt(f3->sp(iYYYY,:,:))
+ssrd = short2flt(f1->ssrd(iYYYY,:,:))
+ssrd = ssrd/86400.
+ssrdc = short2flt(f2->ssrdc(iYYYY,:,:))
+ssrdc = ssrdc/86400.
 
-strd_JJA = month_to_season(strd, season)
+strd_JJA = month_to_season(ssrd, season)
 strd_JJA&time = year
-strdc_JJA = month_to_season(strdc, season)
+strdc_JJA = month_to_season(ssrdc, season)
 copy_VarCoords(strd_JJA, strdc_JJA)
 cre = strd_JJA - strdc_JJA
 copy_VarCoords(strd_JJA, cre)
-ps_JJA = month_to_season(ps, season)
-ps_JJA&time = year
 
 yrs1 = 1979
 yre1 = 1988
@@ -46,15 +41,12 @@ yre2 = 1991 ;1992
 print("========================================")
 era_sr = dim_avg_n_Wrap(strd_JJA({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(strd_JJA({yrs1:yre1},:,:), 0)
 cre_sr = dim_avg_n_Wrap(cre({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(cre({yrs1:yre1},:,:), 0)
-copy_VarCoords(strd(0,:,:), era_sr)
-copy_VarCoords(strd(0,:,:), cre_sr)
+copy_VarCoords(ssrd(0,:,:), era_sr)
+copy_VarCoords(ssrd(0,:,:), cre_sr)
 
-surf_ps = dim_avg_n_Wrap(ps_JJA, 0) ;dim_avg_n_Wrap(ps_JJA({yrs2:yre2},:,:), 0) - dim_avg_n_Wrap(ps_JJA({yrs1:yre1},:,:), 0)
-copy_VarCoords(ps(0,:,:), surf_ps)
-printVarSummary(surf_ps)
 
-lat = strd&latitude
-lon = strd&longitude
+lat = ssrd&latitude
+lon = ssrd&longitude
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
@@ -62,7 +54,7 @@ nlon = dimsizes(lon)
 nvname = (/"rad_conv","lwu","lwd","swu","swd","lwu_toa","lwd_toa","swu_toa","swd_toa"/)  ; ,"error"
 nvars = dimsizes(nvname)
 
-diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210506_clearsky/"
+diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210423_clearsky/"
 ; diri2 = "/home/yangsong3/wuyt/sysu/scripts/TP_surrounding/cfram20210212/"
 fili2 = diri2+"baseline_radsfc_ranc_1.grd"
 ; fili3 = diri2+"wv_radsfc_ranc_31.grd"
@@ -119,7 +111,7 @@ printVarSummary(x)
 
 
 process = (/"wv","t","al","co2","solar","o3","cre","warm","total"/)
-nx = 2
+nx = 4
 x_all = new((/dimsizes(process),nlat,nlon/), float)
 x_all(0,:,:) = wv(nx,:,:) - x(nx,:,:)
 x_all(1,:,:) = t(nx,:,:) - x(nx,:,:)
@@ -135,7 +127,7 @@ printVarSummary(x_all)
 
 ;=======================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210423/"
-figname = "check_surf_downR_clearsky"
+figname = "check_surf_downS_clearsky"
 
 
 wks = gsn_open_wks("pdf", figpath+figname)
@@ -286,6 +278,11 @@ plot(3) = gsn_csm_contour_map(wks,x_all(5,:,:),res)
 plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(3),plot_topo(3))
 
+res@gsnLeftString = "(j) Solar"
+plot(9) = gsn_csm_contour_map(wks,x_all(4,:,:),res)
+plot_topo(9) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(9),plot_topo(9))
+
 ; res@gsnLeftString = "(k) Cloud"
 ; plot(10) = gsn_csm_contour_map(wks,cld(nx,:,:),res)
 ; plot_topo(10) = gsn_csm_contour(wks, topo, res_topo)
@@ -298,12 +295,12 @@ pres@gsnMaximize = True
 pres@gsnFrame    = True
 pres@gsnDraw     = True
 pres@gsnPanelLabelBar = True
-pres@gsnPanelMainString = "surface downwelling LW:"+yrs2+"-"+yre2+" minus "+yrs1+"-"+yre1
+pres@gsnPanelMainString = "surface downwelling SW:"+yrs2+"-"+yre2+" minus "+yrs1+"-"+yre1
 
 pres@lbLabelFontHeightF = 0.015
 pres@pmLabelBarWidthF = 0.8    ;plot manager 
 pres@pmLabelBarHeightF = 0.06
-gsn_panel(wks,plot,(/3,3/),pres)
+gsn_panel(wks,plot,(/4,3/),pres)
 
 
 end
