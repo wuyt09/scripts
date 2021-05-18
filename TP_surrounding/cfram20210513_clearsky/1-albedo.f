@@ -1,7 +1,7 @@
       program base
       implicit none
 
-      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=3
+      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=31
       real             :: plev(1:z1),co2(1:nn),co2ts
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
@@ -101,7 +101,7 @@
       close(111)
       close(112)
 
-      do nnn = 1,nn
+      do nnn = 4,nn
 
       irec = nnn
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
@@ -217,8 +217,7 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
      & './albedo_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
        open ( unit = 52, file =
-!     & './base_no_cloud_out_1.dat',
-     & './base_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
+     & './base_no_cloud_out_1.dat',
      & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"

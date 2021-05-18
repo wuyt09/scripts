@@ -1,6 +1,6 @@
 
 #varname=("albedo" "cloud" "co2" "drdt" "o3" "solar" "ta" "ts" "wv")
-varname=("albedo" "co2" "o3" "solar" "ta" "wv")
+varname=("albedo" "co2" "o3" "solar" "ta" "wv" "warm")
 #varname=("cloud")
 size=${#varname[*]}
 for ((i=0; i<${size}; i++))

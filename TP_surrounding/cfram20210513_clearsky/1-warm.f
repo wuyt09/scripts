@@ -1,7 +1,7 @@
       program base
       implicit none
 
-      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=3
+      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=31
       real             :: plev(1:z1),co2(1:nn),co2ts
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
@@ -49,7 +49,7 @@
       print*,co2
       close(113)
 
-      do nnn = 1,nn
+      do nnn = 4,nn
       irec = nnn
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
