@@ -50,12 +50,13 @@ STR  = short2flt(f4->str(iYYYY,:,:))
 STR  = STR/86400.
 SLHF = short2flt(f5->slhf(iYYYY,:,:))
 SLHF = SLHF/86400.
-SLHF = SLHF*(-1)
+; SLHF = SLHF*(-1)
 SSHF = short2flt(f6->sshf(iYYYY,:,:))
 SSHF = SSHF/86400.
-SSHF = SSHF*(-1)
+; SSHF = SSHF*(-1)
 
 SSRU = SSRD - SSR
+SSRU = SSRU*(-1)
 copy_VarCoords(SSRD, SSRU)
 STRU = STRD - STR
 copy_VarCoords(STRD, STRU)
@@ -97,6 +98,11 @@ lines(1,:,:) = x_region_runave
 copy_VarCoords(x_region, lines(0,:,:))
 printVarSummary(lines)
 
+corr = new(6, float)
+corr(0) = 1
+do i = 0, 4
+    corr(i+1) = escorc_n(lines(1,0,:), lines(1,i+1,:), 0, 0)
+end do
 ;=======================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
 figname = "ERA5_surf_energy_budget_SOUTH"
@@ -132,6 +138,7 @@ res@xyDashPatterns = Patterns
 
 do i = 0, 5
     res@gsnLeftString = Left(i)+" "+var(i)
+    res@gsnCenterString = sprintf("%4.2f", corr(i))
     plot(i) = gsn_csm_xy(wks, year ,lines(:,i,:), res)
 end do
 
