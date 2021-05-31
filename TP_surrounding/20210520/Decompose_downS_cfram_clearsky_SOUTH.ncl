@@ -7,7 +7,7 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
 
-latstr = 15
+latstr = 10
 latend = 25
 lonstr = 50
 lonend = 100
