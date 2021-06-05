@@ -7,10 +7,10 @@ year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
 
-latstr = 30
-latend = 55
-lonstr = -10
-lonend = 60
+latstr = 25
+latend = 40
+lonstr = 75
+lonend = 105
 
 ;===================================================================
 ; topo data
@@ -19,14 +19,10 @@ ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo ;(::-1,:)
 printVarSummary(topo)
 
-fa      = addfile ("/home/yangsong3/wuyt/data/lsm_1279l4_0.1x0.1.grb_v4_unpack.nc","r")
-; lsdata = doubletofloat(a->lsm(0,:,:))
-lsdata = fa->lsm(0,:,:)
-printVarSummary(lsdata)
 ;=============================================================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili1 = "surface_solar_downwards_mon_1x1_1979_2019.nc"
-fili2 = "surface_solar_downwards_clear_sky_mon_1x1_1979_2019.nc"
+fili1 = "surface_thermal_downwards_mon_1x1_1979_2019.nc"
+fili2 = "surface_thermal_downwards_clear_sky_mon_1x1_1979_2019.nc"
 ; fili3 = "surface_net_thermal_mon_1x1_1979_2019.nc"
 ; fili4 = "surface_net_thermal_clear_sky_mon_1x1_1979_2019.nc"
 
@@ -39,21 +35,14 @@ f2 = addfile(diri+fili2, "r")
 ; f3 = addfile(diri+fili3, "r")
 ; f4 = addfile(diri+fili4, "r")
 
-STRD = short2flt(f1->ssrd(iYYYY,:,:))
+STRD = short2flt(f1->strd(iYYYY,:,:))
 STRD = STRD/86400.
-STRDC = short2flt(f2->ssrdc(iYYYY,:,:))
+STRDC = short2flt(f2->strdc(iYYYY,:,:))
 STRDC = STRDC/86400.
 ; STR  = short2flt(f3->str(iYYYY,:,:))
 ; STR  = STR/86400.
 ; STRC  = short2flt(f4->strc(iYYYY,:,:))
 ; STRC  = STRC/86400.
-
-lat = STRD&latitude
-lon = STRD&longitude
-
-lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, lon, lat, 0)
-printVarSummary(lsm)
-delete(lsdata)
 
 STRD_CRE = STRD - STRDC
 copy_VarCoords(STRD, STRD_CRE)
@@ -67,22 +56,20 @@ printVarSummary(strd_cre)
 
 obs = runave_n_Wrap(strd, 10, 0, 0)
 printVarSummary(obs)
-lsm2 = conform_dims(dimsizes(obs), lsm, (/1,2/))
-obs = where(lsm2.ge.0.8, obs, obs@_FillValue)
-
+obs = mask(obs, topo.ge.1500, True)
 obs_region = wgt_areaave_Wrap(obs(:,{latstr:latend},{lonstr:lonend}), 1., 1., 0)
 printVarSummary(obs_region)
 
 cloud = runave_n_Wrap(strd_cre, 10, 0, 0)
-cloud = where(lsm2.ge.0.8, cloud, cloud@_FillValue)
 printVarSummary(cloud)
+cloud = mask(cloud, topo.ge.1500, True)
 cloud_region = wgt_areaave_Wrap(cloud(:,{latstr:latend},{lonstr:lonend}), 1., 1., 0)
 printVarSummary(cloud_region)
 ; print(cloud_region)
 
 ;================================================================================
 nn = 31
-nx = 4
+nx = 2
 lat = cloud&latitude
 lon = cloud&longitude
 nlat = dimsizes(lat)
@@ -112,10 +99,10 @@ x@units     = "W/m2"
 do nnn = 0, nn-1
     n = nnn+1
     fili1 = diri2+"baseline_radsfc_ranc_1.grd"
-    fili2 = diri2+"solar_radsfc_ranc_"+n+".grd"
+    fili2 = diri2+"co2_radsfc_ranc_"+n+".grd"
     fili3 = diri2+"o3_radsfc_ranc_"+n+".grd"
     fili4 = diri2+"wv_radsfc_ranc_"+n+".grd"
-    fili5 = diri2+"albedo_radsfc_ranc_"+n+".grd"
+    fili5 = diri2+"ta_radsfc_ranc_"+n+".grd"
     fili6 = diri2+"warm_radsfc_ranc_"+n+".grd"
 
     do nv = 0, nvars-1
@@ -142,16 +129,20 @@ copy_VarCoords(x_new(:,0,:,:), error)
 
 x_new(:,5,:,:) = where(abs(error).ge.5, x_new(:,5,:,:) - error, x_new(:,5,:,:))
 
-lsm1 = conform_dims(dimsizes(x_new), lsm, (/2,3/))
-x_new = where(lsm1.ge.0.8, x_new, x_new@_FillValue)
+; error = x_new(:,5,:,:) - dim_sum_n_Wrap(x_new(:,1:4,:,:), 1) + 3*x_new(:,0,:,:)
+; copy_VarCoords(x_new(:,0,:,:), error)
+; error_TP = error(29,{latstr:latend},{lonstr:lonend}) ;wgt_areaave_Wrap(error(:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
+; print(error_TP)
+; exit
 
+x_new = mask(x_new, topo.ge.1500, True)
 x_region = wgt_areaave_Wrap(x_new(:,:,{latstr:latend},{lonstr:lonend}), 1., 1., 0)
 printVarSummary(x_region)
 
 yrs = 1984
 yre = 2014
 year_new = ispan(yrs, yre, 1)
-process = (/"Solar","Aerosol","WV","Albedo","CRE","Sum of a-e"/)
+process = (/"CO2","O3","WV","Air Temp","CRE","Sum of a-e"/)
 np = dimsizes(process)
 lines = new((/nn,np/), float)
 lines!0 = "time"
@@ -166,21 +157,16 @@ lines(:,4) = cloud_region(5:35)
 lines(:,4) = lines(:,4) - cloud_region(4)
 
 cfram_total = dim_sum_n_Wrap(lines(:,0:4), 1)
-; lines(:,5) = x_region(:,5) - x_region(:,0) - cfram_total ;
-lines(:,5) = cfram_total
+lines(:,5) = cfram_total ;x_region(:,5) - x_region(:,0) - cfram_total
 obs_total = obs_region(5:35)
 obs_total = obs_total - obs_region(4)
 ; lines(:,5) = obs_total - cfram_total
-
-lines(:,1) = obs_total - cfram_total ;replace the O3 term to areosol term
-cfram_total = dim_sum_n_Wrap(lines(:,0:4), 1)
-lines(:,5) = cfram_total ;x_region(:,5) - x_region(:,0) - cfram_total
 printVarSummary(lines)
 
 
 ;=======================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
-figname = "Decompose_downS_cfram_clearsky_WEST"
+figname = "Decompose_downR_cfram_clearsky_TP"
 
 Left = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)"/)
 
@@ -204,8 +190,8 @@ res@gsnRightString = "W/m~S~2~N~"
 
 res@trXMinF = yrs-1
 res@trXMaxF = yre+1
-res@trYMinF = -1
-res@trYMaxF = 13
+res@trYMinF = -0.5
+res@trYMaxF = 8
 
 res@gsnXYBarChart = True
 res@gsnYRefLine = 0
@@ -239,6 +225,6 @@ overlay(plot(5), plotc(0))
 
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = "Decompose surface downward SW: West region"
+pres@gsnPanelMainString = "Decompose surface downward LW: TP region"
 gsn_panel(wks, plot, (/2,3/), pres)
 end

@@ -23,9 +23,9 @@ lonstr_west = -10
 lonend_west = 60
 
 latstr_south = 10
-latend_south = 25
-lonstr_south = 50
-lonend_south = 100
+latend_south = 28
+lonstr_south = 70
+lonend_south = 90
 
 latstr_north = 45
 latend_north = 60
@@ -70,10 +70,6 @@ printVarSummary(t2m)
 t2m_clm = month_to_season(t2m, season)
 printVarSummary(t2m_clm)
 
-lines_west = wgt_areaave_Wrap(t2m_clm(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
-lines_east = wgt_areaave_Wrap(t2m_clm(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
-lines_north = wgt_areaave_Wrap(t2m_clm(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
-
 lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, t2m&longitude, t2m&latitude, 0)
 printVarSummary(lsm)
 delete(lsdata)
@@ -81,6 +77,9 @@ lsm1 = conform_dims(dimsizes(t2m_clm), lsm, (/1,2/))
 x_clm = where(lsm1.ge.0.8, t2m_clm, t2m@_FillValue)
 copy_VarCoords(t2m_clm, x_clm)
 lines_south = wgt_areaave_Wrap(x_clm(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
+lines_west = wgt_areaave_Wrap(x_clm(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
+lines_east = wgt_areaave_Wrap(x_clm(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
+lines_north = wgt_areaave_Wrap(x_clm(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
 
 x_mask = mask(t2m_clm, topo.ge.1500, True)
 copy_VarCoords(t2m_clm, x_mask)
@@ -141,7 +140,7 @@ pp(0:4,:) = lines
 ; pp(5:9,:) = lines_runave
 
 ;===============================================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210415/"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
 figname = "time_series_"+season+"_surfT_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 

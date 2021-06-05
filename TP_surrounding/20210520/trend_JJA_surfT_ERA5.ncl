@@ -76,7 +76,7 @@ plot_prob = new(1, graphic)
  res_topo@cnLineColor            = "forestgreen"
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
- res_topo@cnLevels               = (/2000/)
+ res_topo@cnLevels               = (/1500/)
  res_topo@gsnLeftString = ""
  res_topo@gsnRightString = ""
 
@@ -168,8 +168,8 @@ gres@gsLineDashPattern = 16
  glat2 = (/30,45,45,30,30/) ; east
  ; glon3 = (/100,100,50,50,100/)
  ; glat3 = (/10,25,25,10,10/) ; south
- glon3 = (/100,100,50,50,100/)
- glat3 = (/10,25,25,10,10/) ; south
+ glon3 = (/90,90,70,70,90/)
+ glat3 = (/10,28,28,10,10/) ; south
  glon4 = (/60,60,-10,-10,60/)
  glat4 = (/30,55,55,30,30/) ; west
 ;-----------------------------------
