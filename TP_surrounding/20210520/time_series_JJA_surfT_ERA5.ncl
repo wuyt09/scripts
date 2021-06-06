@@ -1,10 +1,10 @@
 
 begin
 
-lonstr = 0
-lonend = 130
-latstr = 10
-latend = 60
+lonstr = -20
+lonend = 160
+latstr = 0
+latend = 70
 
 yrStrt = 1979
 yrLast = 2019

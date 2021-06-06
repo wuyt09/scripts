@@ -14,7 +14,6 @@ season = "JJA"
 
 LEVs = 1000
 LEVe = 300
-LEV = 500
 
 latstr_east = 30
 latend_east = 45
@@ -52,11 +51,11 @@ printVarSummary(topo)
 
 ;===================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
-filiz = "t_mon_1x1_1979_2020.nc" ;"temp.monthly.197901-201812.nc"
+filiq = "q_mon_1x1_1979_2019.nc" ;"temp.monthly.197901-201812.nc"
 filiu = "u_mon_1x1_1979_2020.nc"
 filiv = "v_mon_1x1_1979_2020.nc"
 
-f = addfile(diri+filiz, "r")
+f = addfile(diri+filiq, "r")
 fu = addfile(diri+filiu, "r")
 fv = addfile(diri+filiv, "r")
 
@@ -64,9 +63,9 @@ Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-t = short2flt(f->t(iYYYY,{LEV},::-1,:))
-u = short2flt(fu->u(iYYYY,{LEV},::-1,:))
-v = short2flt(fv->v(iYYYY,{LEV},::-1,:))
+t = short2flt(f->q(iYYYY,::-1,::-1,:))
+u = short2flt(fu->u(iYYYY,::-1,::-1,:))
+v = short2flt(fv->v(iYYYY,::-1,::-1,:))
 printVarSummary(t)
 
 lat = t&latitude
@@ -74,16 +73,55 @@ lon = t&longitude
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
-qu_clm = month_to_season(u, season)
-qv_clm = month_to_season(v, season)
-t2m_clm = month_to_season(t, season)
+filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
+fps = addfile(filips, "r")
+ps = short2flt(fps->sp(iYYYY,::-1,:))
+printVarSummary(ps)
+
+
+plev = tofloat(t&level)
+plev = plev*100
+plev!0 = "lev"
+plev&lev = t&level
+plev@units = "Pa"
+; print(plev)
+
+dp = dpres_plevel_Wrap(plev, ps, min(plev), 0) ;LEVs(i)*100
+; dP = dpres_plevel_Wrap(plev, max(plev), min(plev), 0)
+; dp = conform_dims(dimsizes(t), dP, 1)
+; copy_VarCoords(t, dp)
+printVarSummary(dp)
+; print(dp(90,:,{35},{90}))
+; exit
+
+qudp = t*u*dp
+qvdp = t*v*dp
+copy_VarCoords(t, qudp)
+copy_VarCoords(t, qvdp)
+printVarSummary(qudp)
+
+
+qu = dim_sum_n_Wrap(qudp, 1) ;(:,{LEVs:LEVe},:,:) /dim_sum_n_Wrap(dp(:,{LEVs:LEVe},:,:), 1)
+qv = dim_sum_n_Wrap(qvdp, 1) ;(:,{LEVs:LEVe},:,:)
+qu = qu/9.81
+qv = qv/9.81
+copy_VarCoords(t(:,0,:,:), qu)
+copy_VarCoords(t(:,0,:,:), qv)
+
+qdiv = uv2dv_cfd(qu, qv, lat, lon, 0)
+qdiv = qdiv*1.e+6
+copy_VarCoords(t(:,0,:,:), qdiv)
+
+qu_clm = month_to_season(qu, season)
+qv_clm = month_to_season(qv, season)
+t2m_clm = month_to_season(qdiv, season)
 printVarSummary(t2m_clm)
 
 
 rc_qu = regCoef_n(year, qu_clm, 0, 0)
 rc_qv = regCoef_n(year, qv_clm, 0, 0)
-copy_VarCoords(u(0,:,:), rc_qu)
-copy_VarCoords(v(0,:,:), rc_qv)
+copy_VarCoords(qu(0,:,:), rc_qu)
+copy_VarCoords(qv(0,:,:), rc_qv)
 
 rc = regCoef_n(year, t2m_clm, 0, 0)
 copy_VarCoords(t2m_clm(0,:,:), rc)
@@ -110,22 +148,17 @@ prob@long_name = "probability"
 
 trend = rc*10
 copy_VarCoords(rc, trend)
-; trend@units = "K/decade"
+trend@units = "K/decade"
 printVarSummary(trend)
 
-trend_u = rc_qu*10
-trend_v = rc_qv*10
-copy_VarCoords(rc_qu, trend_u)
-copy_VarCoords(rc_qv, trend_v)
 sig = 0.05
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
-figname = "trend_"+season+"_UV500_H500_ERA5"
+figname = "trend_"+season+"_WVflux_sfc_300hPa_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(1, graphic)
 plotv = plot
-plotv1 = plot
 plot_topo = plot
 plot_prob = new(1, graphic)
 dum1 = plot
@@ -200,16 +233,19 @@ res@cnLineLabelsOn = False
 res@cnInfoLabelOn = False
 ; res@cnFillMode = "CellFill"
 
-res@gsnStringFontHeightF = 0.025
+res@gsnStringFontHeightF = 0.022
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@cnFillPalette = "BlueWhiteOrangeRed"
+res@cnFillPalette = "CBR_drywet"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -0.5
-res@cnMaxLevelValF = 0.5
-res@cnLevelSpacingF = 0.1
+res@cnMinLevelValF = -10
+res@cnMaxLevelValF = 10
+res@cnLevelSpacingF = 2
 
+res@gsnSpreadColors = True
+res@gsnSpreadColorEnd   = 0
+res@gsnSpreadColorStart = 10
 ; res@lbLabelBarOn = False
 
 res@pmLabelBarHeightF = 0.1
@@ -242,7 +278,6 @@ res@gsnRightString = "" ;g/m~S~2~N~/s
   vcres@gsnRightString = ""
   
   vcres@vcRefMagnitudeF         = 10.0 
-  vcres@vcLineArrowColor = "black" ;gray
 ;------------------------------------------
 ;=====================================================
 ;-----------------------------------
@@ -261,26 +296,20 @@ gres@gsLineDashPattern = 16
  glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
 
-res@gsnLeftString = "UV500 & H500"
-res@gsnCenterString = season ;+" trend ("+LEV+"hPa)"
-res@gsnRightString = "10~S~-1~N~"
+res@gsnLeftString = "WV flux and its divergence"
+res@gsnCenterString = season ;+" trend ("+LEVs+"-"+LEVe+"hPa)"
+res@gsnRightString = "10~S~-1~"
 plot(0) = gsn_csm_contour_map(wks, trend, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
+
+plotv(0) = gsn_csm_vector(wks, rc_qu, rc_qv, vcres)
+overlay(plot(0), plotv(0))
+
 plot_prob(0) = gsn_csm_contour(wks,prob,res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
 overlay(plot(0), plot_prob(0))
-
-
-plotv(0) = gsn_csm_vector(wks, trend_u, trend_v, vcres)
-overlay(plot(0), plotv(0))
-
-; trend_u = mask(trend_u, prob_qu.le.sig .and. prob_qv.le.sig, True)
-; trend_v = mask(trend_v, prob_qu.le.sig .and. prob_qv.le.sig, True)
-; vcres@vcLineArrowColor = "black"
-; plotv1(0) = gsn_csm_vector(wks, trend_u, trend_v, vcres)
-; overlay(plot(0), plotv1(0))
 
 dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
 dum2 = gsn_add_polyline(wks, plot(0), glon2, glat2, gres)

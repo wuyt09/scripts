@@ -6,35 +6,101 @@ lonend = 160
 latstr = 0
 latend = 70
 
-yrStrt = 1980
+yrStrt = 1979
 yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
-
+nyear = dimsizes(year)
 season = "JJA"
 
+LEVs = 1000
+LEVe = 300
+
+latstr_east = 30
+latend_east = 45
+lonstr_east = 105
+lonend_east = 140
+
+latstr_west = 30
+latend_west = 55
+lonstr_west = -10
+lonend_west = 60
+
+latstr_south = 10
+latend_south = 28
+lonstr_south = 70
+lonend_south = 90
+
+latstr_north = 45
+latend_north = 60
+lonstr_north = 85
+lonend_north = 120
+
+latstr_tp = 25 ;28
+latend_tp = 40 ;38
+lonstr_tp = 75 ;80
+lonend_tp = 105
+
+region = (/"West","East","South","North","TP"/)
 ;===================================================================
 ; topo data
 ;===================================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
 printVarSummary(topo)
-;===================================================================
-diri = "/home/yangsong3/data-observation/MERRA2/monthly/aod/"
-fili = "aod.198001-202103.mon.nc4"
 
+
+;===================================================================
+diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
+fili = "t_mon_1x1_1979_2020.nc" ;"temp.monthly.197901-201812.nc"
 f = addfile(diri+fili, "r")
 
 Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-x = f->AODANA(iYYYY,:,:)
-printVarSummary(x)
 
-t2m_clm = month_to_season(x, season)
+t = short2flt(f->t(iYYYY,::-1,::-1,:))
+printVarSummary(t)
+
+lat = t&latitude
+lon = t&longitude
+nlat = dimsizes(lat)
+nlon = dimsizes(lon)
+
+filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
+fps = addfile(filips, "r")
+ps = short2flt(fps->sp(iYYYY,::-1,:))
+printVarSummary(ps)
+
+
+plev = tofloat(t&level)
+plev = plev*100
+plev!0 = "lev"
+plev&lev = t&level
+plev@units = "Pa"
+; print(plev)
+
+dp = dpres_plevel_Wrap(plev, ps, min(plev), 0) ;LEVs(i)*100
+; dP = dpres_plevel_Wrap(plev, max(plev), min(plev), 0)
+; dp = conform_dims(dimsizes(t), dP, 1)
+; copy_VarCoords(t, dp)
+printVarSummary(dp)
+; print(dp(90,:,{35},{90}))
+; exit
+
+tdp = t*dp
+copy_VarCoords(t, tdp)
+printVarSummary(tdp)
+
+
+; t_tropo = dim_sum_n_Wrap(tdp(:,{LEVs:LEVe},:,:), 1)/dim_sum_n_Wrap(dp(:,{LEVs:LEVe},:,:), 1)
+t_tropo = dim_sum_n_Wrap(tdp, 1)/dim_sum_n_Wrap(dp, 1)
+copy_VarCoords(t(:,0,:,:), t_tropo)
+
+t2m_clm = month_to_season(t_tropo, season)
+printVarSummary(t2m_clm)
 
 rc = regCoef_n(year, t2m_clm, 0, 0)
 copy_VarCoords(t2m_clm(0,:,:), rc)
-printVarSummary(rc)
 
 tval = onedtond(rc@tval, dimsizes(rc))
 df   = onedtond(rc@nptxy, dimsizes(rc))
@@ -46,21 +112,25 @@ copy_VarCoords(rc, prob)
 rc@long_name = "regression coefficient"
 prob@long_name = "probability"
 
+
 trend = rc*10
 copy_VarCoords(rc, trend)
-trend@units = "1/decade"
+trend@units = "K/decade"
 printVarSummary(trend)
 
 sig = 0.05
-
-;===============================================================
+;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
-figname = "trend_"+season+"_AOD_MERRA2"
+figname = "trend_"+season+"_tropoT_sfc_300hPa_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(1, graphic)
 plot_topo = plot
 plot_prob = new(1, graphic)
+dum1 = plot
+dum2 = plot
+dum3 = plot
+dum4 = plot
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -120,6 +190,7 @@ res@mpMinLatF = latstr
 res@mpMaxLatF = latend
 res@mpMinLonF = lonstr
 res@mpMaxLonF = lonend
+res@mpCenterLonF = (lonstr+lonend)/2
 
 
 res@cnFillOn = True
@@ -132,18 +203,37 @@ res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@cnFillPalette = "BlueWhiteOrangeRed"
+res@cnFillPalette = "CBR_coldhot"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -0.1
-res@cnMaxLevelValF = 0.1
-res@cnLevelSpacingF = 0.02
+res@cnMinLevelValF = -0.3
+res@cnMaxLevelValF = 0.3
+res@cnLevelSpacingF = 0.05
 ; res@lbLabelBarOn = False
 
-res@gsnLeftString = "AOD "+season+" trend ("+yrStrt+"-"+yrLast+")"
-res@pmLabelBarOrthogonalPosF = 0.12
-res@lbLabelFontHeightF = 0.015
-; res@tiMainString = "surface temperature"
+res@pmLabelBarHeightF = 0.1
+res@pmLabelBarWidthF = 0.7
+res@pmLabelBarOrthogonalPosF = 0.1
 
+
+;-----------------------------------
+gres = True
+gres@gsLineColor = "blue"
+gres@gsLineThicknessF = 5.0
+gres@gsLineDashPattern = 16
+
+ glon1 = (/lonend_north,lonend_north,lonstr_north,lonstr_north,lonend_north/)
+ glat1 = (/latstr_north,latend_north,latend_north,latstr_north,latstr_north/) ; north
+ glon2 = (/lonend_east,lonend_east,lonstr_east,lonstr_east,lonend_east/)
+ glat2 = (/latstr_east,latend_east,latend_east,latstr_east,latstr_east/) ; east
+ glon3 = (/lonend_south,lonend_south,lonstr_south,lonstr_south,lonend_south/)
+ glat3 = (/latstr_south,latend_south,latend_south,latstr_south,latstr_south/) ; south
+ glon4 = (/lonend_west,lonend_west,lonstr_west,lonstr_west,lonend_west/)
+ glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
+;-----------------------------------
+
+res@gsnLeftString = "Air Temp. " ;("+LEVs+"-"+LEVe+" hPa)
+res@gsnCenterString = season;+" trend ("+LEVs+"-"+LEVe+"hPa)"
+res@gsnRightString = "K/decade"
 plot(0) = gsn_csm_contour_map(wks, trend, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
@@ -152,28 +242,12 @@ plot_prob(0) = gsn_csm_contour(wks,prob,res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
 overlay(plot(0), plot_prob(0))
 
-
-;-----------------------------------
-gres = True
-gres@gsLineColor = "blue"
-gres@gsLineThicknessF = 5.0
-gres@gsLineDashPattern = 16
- glon1 = (/120,120,85,85,120/)
- glat1 = (/45,60,60,45,45/) ; north
- glon2 = (/140,140,105,105,140/)
- glat2 = (/30,45,45,30,30/) ; east
- ; glon3 = (/100,100,50,50,100/)
- ; glat3 = (/10,25,25,10,10/) ; south
- glon3 = (/100,100,50,50,100/)
- glat3 = (/10,25,25,10,10/) ; south
- glon4 = (/60,60,-10,-10,60/)
- glat4 = (/30,55,55,30,30/) ; west
-;-----------------------------------
-
-
 dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
 dum2 = gsn_add_polyline(wks, plot(0), glon2, glat2, gres)
 dum3 = gsn_add_polyline(wks, plot(0), glon3, glat3, gres)
 dum4 = gsn_add_polyline(wks, plot(0), glon4, glat4, gres)
+
+
 draw(plot(0))
+
 end
