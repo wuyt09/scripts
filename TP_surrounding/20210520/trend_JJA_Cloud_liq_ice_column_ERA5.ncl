@@ -208,7 +208,7 @@ res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@cnFillPalette = "BlueWhiteOrangeRed"
+res@cnFillPalette = "MPL_RdBu"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -0.01
 res@cnMaxLevelValF = 0.01

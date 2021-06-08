@@ -30,32 +30,13 @@ iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 x = f->AODANA(iYYYY,:,:)
 printVarSummary(x)
 
-t2m_clm = month_to_season(x, season)
-
-rc = regCoef_n(year, t2m_clm, 0, 0)
-copy_VarCoords(t2m_clm(0,:,:), rc)
-printVarSummary(rc)
-
-tval = onedtond(rc@tval, dimsizes(rc))
-df   = onedtond(rc@nptxy, dimsizes(rc))
-b    = tval
-b    = 0.5
-prob = betainc(df/(df+tval^2), df/2.0, b)
-copy_VarCoords(rc, prob)
-
-rc@long_name = "regression coefficient"
-prob@long_name = "probability"
-
-trend = rc*10
-copy_VarCoords(rc, trend)
-trend@units = "1/decade"
-printVarSummary(trend)
-
-sig = 0.05
+t2m_clmx = month_to_season(x, season)
+t2m_clm = dim_avg_n_Wrap(t2m_clmx, 0)
+printVarSummary(t2m_clm)
 
 ;===============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
-figname = "trend_"+season+"_AOD_MERRA2"
+figname = "Clim_"+season+"_AOD_MERRA2"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(1, graphic)
@@ -132,26 +113,21 @@ res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@cnFillPalette = "BlueWhiteOrangeRed"
+res@cnFillPalette = "WhiteBlue"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -0.1
-res@cnMaxLevelValF = 0.1
-res@cnLevelSpacingF = 0.02
+res@cnMinLevelValF = 0.1
+res@cnMaxLevelValF = 1
+res@cnLevelSpacingF = 0.1
 ; res@lbLabelBarOn = False
 
-res@gsnLeftString = "AOD "+season+" trend ("+yrStrt+"-"+yrLast+")"
+res@gsnLeftString = "AOD "+season+" Clim ("+yrStrt+"-"+yrLast+")"
 res@pmLabelBarOrthogonalPosF = 0.12
 res@lbLabelFontHeightF = 0.015
 ; res@tiMainString = "surface temperature"
 
-plot(0) = gsn_csm_contour_map(wks, trend, res)
+plot(0) = gsn_csm_contour_map(wks, t2m_clm, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
-
-plot_prob(0) = gsn_csm_contour(wks,prob,res3)
-plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
-overlay(plot(0), plot_prob(0))
-
 
 ;-----------------------------------
 gres = True

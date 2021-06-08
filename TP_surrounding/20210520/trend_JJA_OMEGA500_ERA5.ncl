@@ -2,9 +2,9 @@
 begin
 
 lonstr = 0
-lonend = 130
-latstr = 15
-latend = 90
+lonend = 160
+latstr = 0
+latend = 70
 
 
 yrStrt = 1979
@@ -51,7 +51,7 @@ printVarSummary(topo)
 ;===================================================================
 
 diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
-fili = "hgt_mon_1x1_1979_2019.nc"
+fili = "w_mon_1x1_1979_2020.nc"
 
 f = addfile(diri+fili, "r")
 
@@ -59,7 +59,7 @@ Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-Hgt = short2flt(f->z(iYYYY,{LEV},:,:))
+Hgt = short2flt(f->w(iYYYY,{LEV},:,:))
 Hgt = Hgt/9.8
 Hgt@units = "gpm"
 
@@ -89,7 +89,7 @@ copy_VarCoords(rc, prob)
 rc@long_name = "regression coefficient"
 prob@long_name = "probability"
 
-trend = rc*10
+trend = rc*10^5
 copy_VarCoords(rc, trend)
 ; trend@units = "K/decade"
 printVarSummary(trend)
@@ -97,7 +97,7 @@ printVarSummary(trend)
 sig = 0.05
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
-figname = "trend_"+season+"_H500_polar_ERA5"
+figname = "trend_"+season+"_OMEGA500_ERA5"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(3, graphic)
@@ -162,10 +162,10 @@ res@mpGeophysicalLineColor = "grey25" ;"red"
 res@mpCenterLonF = 90
 res@mpMinLatF = latstr
 res@mpMaxLatF = latend
-; res@mpMinLonF = lonstr
-; res@mpMaxLonF = lonend
+res@mpMinLonF = lonstr
+res@mpMaxLonF = lonend
 ; res@mpCenterLonF = (lonstr+lonend)/2
-res@gsnPolar = "NH"
+; res@gsnPolar = "NH"
 
 res@cnFillOn = True
 res@cnLinesOn = False
@@ -174,14 +174,14 @@ res@cnInfoLabelOn = False
 ; res@cnFillMode = "CellFill"
 
 res@gsnStringFontHeightF = 0.03
-; res@tmXBLabelFontHeightF = 0.03
-; res@tmYLLabelFontHeightF = 0.03
-res@gsnPolarLabelFontHeightF= 0.02
+res@tmXBLabelFontHeightF = 0.03
+res@tmYLLabelFontHeightF = 0.03
+; res@gsnPolarLabelFontHeightF= 0.02
 
 res@cnFillPalette = "BlueWhiteOrangeRed"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
+res@cnMinLevelValF = -8
+res@cnMaxLevelValF = 8
 res@cnLevelSpacingF = 2
 
 res@lbLabelBarOn = False
@@ -191,7 +191,7 @@ res@pmLabelBarWidthF = 0.7
 res@pmLabelBarOrthogonalPosF = 0.1
 
 
-; res@gsnLeftString = "Clim"
+res@gsnRightString = "10~S~-4~N~ Pa/s/decade"
 ; plot(0) = gsn_csm_contour_map(wks, hgt_clm, res)
 
 
@@ -211,8 +211,8 @@ gres@gsLineDashPattern = 16
  glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
 do i = 0, 2
-    res@gsnLeftString = LEV(i)+"hPa "+season+" trend"
-    plot(i) = gsn_csm_contour_map_polar(wks, trend(i,:,:), res)
+    res@gsnLeftString = LEV(i)+"hPa"
+    plot(i) = gsn_csm_contour_map(wks, trend(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
 
@@ -220,7 +220,7 @@ do i = 0, 2
     plot_prob(i) = ShadeLtContour(plot_prob(i),sig,17)
     overlay(plot(i), plot_prob(i))
 
-    dum1 = gsn_add_polyline(wks, plot(0), glon1, glat1, gres)
+    dum1(i) = gsn_add_polyline(wks, plot(i), glon1, glat1, gres)
     dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
     dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
     dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
@@ -231,7 +231,7 @@ pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-; pres@gsnPanelMainString = "H500"
+pres@gsnPanelMainString = "OMEGA "+season+" trend"
 
 ; gsn_panel(wks, plot, (/nx/3+1,3/), pres)
 gsn_panel(wks, plot, (/1,3/), pres)
