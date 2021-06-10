@@ -138,6 +138,8 @@ lines(2,2,:) = ssrd_west
 lines(2,3,:) = ssrd_north
 lines(2,4,:) = ssrd_east
 
+; lines(3,:,:) = lines(2,:,:) + lines(1,:,:)
+
 lines_runave = runave_n(lines, 10, 0, 2)
 printVarSummary(lines_runave)
 
@@ -146,7 +148,14 @@ line(0,:,:,:) = lines
 line(1,:,:,:) = lines_runave
 printVarSummary(line)
 
-
+tt = line(0,0,:,:)
+tt(0,:) = line(1,1,0,:) - line(1,2,0,:)
+tt(1,:) = line(1,1,1,:) - line(1,2,1,:)
+tt(2,:) = line(1,1,2,:) + line(1,2,2,:)
+tt(3,:) = line(1,1,3,:) + line(1,2,3,:)
+tt(4,:) = line(1,1,4,:) + line(1,2,4,:)
+corr = escorc_n(line(1,0,:,:), tt, 1, 1)
+print(sprintf("%4.2f", corr))
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
 figname = "Fig2"
@@ -184,8 +193,8 @@ res@gsnStringFontHeightF = 0.035
 res@tmXBLabelFontHeightF = 0.025
 res@tmYLLabelFontHeightF = 0.025
 
-Colors = (/"black","purple"/)
-Patterns = (/0,16/)
+Colors = (/"black","purple","green4"/)
+Patterns = (/0,16,16/)
 
 res@xyLineThicknessF = 10
 res@xyLineColors = Colors
@@ -199,13 +208,16 @@ do i = 0, 2
     do j = 0, 4
         res@gsnLeftString = Left(j+i*5)+" "+Right(j+i*5)
         res@gsnRightString = region(j)
+        if (i.eq.0) then
+            res@gsnCenterString = sprintf("%4.2f", corr(j))
+        end if
         plot(j+i*5) = gsn_csm_xy(wks, year, line(:,i,j,:), res)
+        res@gsnCenterString = ""
     end do
 end do
 
 pres = True
 pres@gsnMaximize = True
-
 gsn_panel(wks, plot, (/3,5/), pres)
 
 end
