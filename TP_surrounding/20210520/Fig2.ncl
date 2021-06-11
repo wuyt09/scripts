@@ -109,6 +109,7 @@ strd_north = wgt_areaave_Wrap(strd(:,{latstr_north:latend_north},{lonstr_north:l
 ssrd_west = wgt_areaave_Wrap(ssrd(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
 ssrd_east = wgt_areaave_Wrap(ssrd(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
 ssru_south = wgt_areaave_Wrap(ssru(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
+ssrd_south = wgt_areaave_Wrap(ssrd(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 ssrd_north = wgt_areaave_Wrap(ssrd(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
 
 stru = mask(stru, topo.ge.1500, True)
@@ -133,7 +134,7 @@ lines(1,3,:) = strd_north
 lines(1,4,:) = strd_east
 
 lines(2,0,:) = ssru_tp
-lines(2,1,:) = ssru_south
+lines(2,1,:) = ssrd_south ;- ssru_south
 lines(2,2,:) = ssrd_west
 lines(2,3,:) = ssrd_north
 lines(2,4,:) = ssrd_east
@@ -150,7 +151,7 @@ printVarSummary(line)
 
 tt = line(0,0,:,:)
 tt(0,:) = line(1,1,0,:) - line(1,2,0,:)
-tt(1,:) = line(1,1,1,:) - line(1,2,1,:)
+tt(1,:) = line(1,1,1,:) + line(1,2,1,:)
 tt(2,:) = line(1,1,2,:) + line(1,2,2,:)
 tt(3,:) = line(1,1,3,:) + line(1,2,3,:)
 tt(4,:) = line(1,1,4,:) + line(1,2,4,:)

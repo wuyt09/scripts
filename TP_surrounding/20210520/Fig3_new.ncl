@@ -55,6 +55,8 @@ fili5 = "surface_solar_downwards_mon_1x1_1979_2019.nc"
 fili6 = "surface_solar_downwards_clear_sky_mon_1x1_1979_2019.nc"
 fili7 = "surface_net_solar_mon_1x1_1979_2019.nc"
 fili8 = "surface_net_solar_clear_sky_mon_1x1_1979_2019.nc"
+fili9 = "surface_latent_heat_flux_mon_1x1_1979_2019.nc"
+fili0 = "surface_sensible_heat_flux_mon_1x1_1979_2019.nc"
 
 f1 = addfile(diri+fili1, "r")
 Time = f1->time
@@ -68,6 +70,8 @@ f5 = addfile(diri+fili5, "r")
 f6 = addfile(diri+fili6, "r")
 f7 = addfile(diri+fili7, "r")
 f8 = addfile(diri+fili8, "r")
+f9 = addfile(diri+fili9, "r")
+f0 = addfile(diri+fili0, "r")
 
 STRD = short2flt(f1->strd(iYYYY,:,:))
 STRD = STRD/86400.
@@ -86,6 +90,11 @@ SSR  = short2flt(f7->ssr(iYYYY,:,:))
 SSR  = SSR/86400.
 SSRC  = short2flt(f8->ssrc(iYYYY,:,:))
 SSRC  = SSRC/86400.
+
+SLHF  = short2flt(f9->slhf(iYYYY,:,:))
+SLHF  = SLHF/86400.
+SSHF  = short2flt(f0->sshf(iYYYY,:,:))
+SSHF  = SSHF/86400.
 
 
 STRU = STRD - STR
@@ -128,6 +137,11 @@ ssru_cre = month_to_season(SSRU_CRE, season)
 ssru_cre&time = year
 
 
+slhf = month_to_season(SLHF, season)
+slhf&time = year
+sshf = month_to_season(SSHF, season)
+sshf&time = year
+
 lat = STRD&latitude
 lon = STRD&longitude
 
@@ -142,6 +156,8 @@ ssrd = where(lsm1.ge.0.8, ssrd, ssrd@_FillValue)
 ssrd_cre = where(lsm1.ge.0.8, ssrd_cre, ssrd_cre@_FillValue)
 ssru = where(lsm1.ge.0.8, ssru, ssru@_FillValue)
 ssru_cre = where(lsm1.ge.0.8, ssru_cre, ssru_cre@_FillValue)
+slhf = where(lsm1.ge.0.8, slhf, slhf@_FillValue)
+sshf = where(lsm1.ge.0.8, sshf, sshf@_FillValue)
 delete(lsm1)
 
 
@@ -152,6 +168,8 @@ obs_ssrd = runave_n_Wrap(ssrd, 10, 0, 0)
 obs_ssrd_cre = runave_n_Wrap(ssrd_cre, 10, 0, 0)
 obs_ssru = runave_n_Wrap(ssru, 10, 0, 0)
 obs_ssru_cre = runave_n_Wrap(ssru_cre, 10, 0, 0)
+obs_slhf = runave_n_Wrap(slhf, 10, 0, 0)
+obs_sshf = runave_n_Wrap(sshf, 10, 0, 0)
 ;================================================================================
 nn = 31
 nlat = dimsizes(lat)
@@ -440,10 +458,13 @@ S_dR_obs = wgt_areaave_Wrap(obs_strd(:,{latstr_south:latend_south},{lonstr_south
 S_dR_obs_cre = wgt_areaave_Wrap(obs_strd_cre(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 S_uS_obs = wgt_areaave_Wrap(obs_ssru(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 S_uS_obs_cre = wgt_areaave_Wrap(obs_ssru_cre(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
+S_dS_obs = wgt_areaave_Wrap(obs_ssrd(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
+S_dS_obs_cre = wgt_areaave_Wrap(obs_ssrd_cre(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 
 
 S_dR = wgt_areaave_Wrap(x_dR(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 S_uS = wgt_areaave_Wrap(x_uS(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
+S_dS = wgt_areaave_Wrap(x_dS(:,:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 
 S_dR_co2 = S_dR(:,1) - S_dR(:,0)
 S_dR_ta  = S_dR(:,2) - S_dR(:,0)
@@ -457,27 +478,37 @@ S_uS_sol = S_uS(:,5) - S_uS(:,0)
 S_uS_al  = S_uS(:,6) - S_uS(:,0)
 S_uS_cld = S_uS_obs_cre(5:35) - S_uS_obs_cre(4)
 
+S_dS_o3  = S_dS(:,3) - S_dS(:,0)
+S_dS_wv  = S_dS(:,4) - S_dS(:,0)
+S_dS_sol = S_dS(:,5) - S_dS(:,0)
+S_dS_al  = S_dS(:,6) - S_dS(:,0)
+S_dS_cld = S_dS_obs_cre(5:35) - S_dS_obs_cre(4)
+
 S_dR_total = S_dR_co2+S_dR_ta+S_dR_o3+S_dR_wv+S_dR_cld
 copy_VarCoords(S_dR(:,0), S_dR_total)
 S_uS_total = S_uS_o3+S_uS_wv+S_uS_sol+S_uS_al+S_uS_cld
 copy_VarCoords(S_uS(:,0), S_uS_total)
+S_dS_total = S_dS_o3+S_dS_wv+S_dS_sol+S_dS_al+S_dS_cld
+copy_VarCoords(S_dS(:,0), S_dS_total)
 
 S_dR_total_obs = S_dR_obs(5:35) - S_dR_obs(4)
 S_uS_total_obs = S_uS_obs(5:35) - S_uS_obs(4)
+S_dS_total_obs = S_dS_obs(5:35) - S_dS_obs(4)
 
 S_dR_areo = S_dR_total_obs - S_dR_total
 S_uS_areo = S_uS_total_obs - S_uS_total
+S_dS_areo = S_dS_total_obs - S_dS_total
 
 
 title = (/"CRE","WV","Aerosol","Air Temp.","Albedo","CO2","Solar"/)
 s_lines = new((/7,nyearn/), float)
-s_lines(0,:) = S_dR_cld - S_uS_cld
-s_lines(1,:) = S_dR_wv - S_uS_wv
-s_lines(2,:) = S_dR_areo - S_uS_areo
+s_lines(0,:) = S_dR_cld + S_dS_cld ;- S_uS_cld
+s_lines(1,:) = S_dR_wv + S_uS_wv;- S_uS_wv 
+s_lines(2,:) = S_dR_areo + S_dS_areo ;- S_uS_areo
 s_lines(3,:) = S_dR_ta
-s_lines(4,:) = (-1.) * S_uS_al
+s_lines(4,:) = S_dS_al ;(-1.) * S_uS_al
 s_lines(5,:) = S_dR_co2
-s_lines(6,:) = (-1.) * S_uS_sol
+s_lines(6,:) = S_dS_sol ;(-1.) * S_uS_sol
 ;==================================================================================================
 zero = new(nyearn, float)
 zero = 0.
@@ -550,7 +581,7 @@ d7(4,:) = s_lines(6,:)
 
 ;==================================================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
-figname = "Fig3"
+figname = "Fig3_south"
 
 delete(year)
 year = year_new
@@ -569,7 +600,7 @@ res@vpWidthF = 0.8
 res@vpHeightF = 0.4
 
 ;---Set axes limits. Add extra space for X max.
-res@trYMinF                  = -5
+res@trYMinF                  = -10
 res@trYMaxF                  = 20;(max(d2) + max(d1)+max(d3) + max(d4))*1.2  
 res@trXMinF                  = yrStrt+4
 res@trXMaxF                  = yrLast-4
