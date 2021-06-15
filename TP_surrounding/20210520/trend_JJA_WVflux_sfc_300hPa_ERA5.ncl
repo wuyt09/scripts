@@ -213,6 +213,7 @@ res = True
 res@gsnDraw = False
 res@gsnFrame = False
 res@gsnMaximize = True
+res@gsnAddCyclic = True
 
 res@mpOutlineOn = True
 res@mpFillOn = True

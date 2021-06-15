@@ -685,13 +685,13 @@ end if
 y(:,0,:) = test
 ;==================================================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
-figname = "Fig3_new"
+figname = "Fig3_6p"
 
 delete(year)
 year = year_new
 
 wks = gsn_open_wks("pdf", figpath+figname)
-nplot = nA
+nplot = 6
 plot_without_xgrid = new(nplot, graphic)
 plot_without_xgrid_xy = plot_without_xgrid
 
@@ -714,8 +714,8 @@ res@trXMaxF                  = yrLast-4
 ; res@tmXBValues               = ispan(1,ncities,1)
 ; res@tmXBLabels               = cities
 res@tmXBLabelJust            = "BottomCenter"
-res@tmXBLabelFontHeightF     = 0.016
-
+res@tmXBLabelFontHeightF     = 0.025
+res@tmYLLabelFontHeightF     = 0.025
 
 res@gsnScale                 = True    ; Make labels on axes same size
 
@@ -735,9 +735,9 @@ res@tmXTMajorOutwardLengthF  = 0.
 ;---Create blank plot without Y grid lines
 ; plot_without_xgrid = gsn_csm_blank_plot(wks,res)
 res@gsnRightString = " "
-res@gsnStringFontHeightF = 0.025
+res@gsnStringFontHeightF = 0.035
 ; res@tiXAxisString = "Year"
-res@tiYAxisFontHeightF = 0.015
+res@tiYAxisFontHeightF = 0.03
 res@tiYAxisString = "W/m~S~2~N~"
 
 res@gsnYRefLine = 0.0
@@ -865,10 +865,10 @@ do i=1,ncities
     ybar_n_min = ybar_n_max
   end if
 
-  ; bres@gsFillColor          = "gold1"
-  ; bres@gsEdgeColor          = "gold1"
-  bres@gsFillColor          = "goldenrod1"
-  bres@gsEdgeColor          = "goldenrod1"
+  bres@gsFillColor          = "gold1"
+  bres@gsEdgeColor          = "gold1"
+  ; bres@gsFillColor          = "goldenrod1"
+  ; bres@gsEdgeColor          = "goldenrod1"
   bres@gsFillIndex           = 0
   bres@gsEdgeThicknessF     = 2.5
   
@@ -1007,8 +1007,8 @@ do i=1,ncities
     ybar_n_min = ybar_n_max
   end if
 
-  bres@gsFillColor          = "gray1"
-  bres@gsEdgeColor          = "gray1"
+  bres@gsFillColor          = "gray0"
+  bres@gsEdgeColor          = "gray0"
   bres@gsFillIndex          = 8
   bres@gsEdgeThicknessF     = 2.5
 
@@ -1044,60 +1044,77 @@ do i=1,ncities
 
 end do
 print("=================")
-; Create some labelbars for a legend
-lb_colors = (/"coral2","goldenrod1","darkviolet","firebrick1","green3","plum1","gray1","dodgerblue"/) ;"wheat3",
-lb_dash = (/0,0,16,1,0,0,17,8,14/)
-
-lb_x = new((/10,5/), "float")
-; lb_x(0,:) = (/0.5,0.5,2.,2.,0.5/)
-lb_x(0,:) = (/1983.5,1983.5,1985.,1985.,1983.5/)
-do i = 1, 8
-  lb_x(i,:) = lb_x(i-1,:) + 4.0
 end do
 
-; lb_y = (/-11.8, -11.6, -11.6, -11.8, -11.8/)
-lb_y = (/-12.4, -11.0, -11.0, -12.4, -12.4/)
+
+; Create some labelbars for a legend
+lb_colors = (/"coral2","goldenrod1","darkviolet","firebrick1","green3","plum1","wheat3","gray0","dodgerblue"/) ;
+lb_dash = (/0,0,16,0,0,0,17,8,14/)
+
+text = (/"CRE","WV","Aero","Ta","AL","CO2","Solar","SH","LH"/) ;,"ERA5 upR","Cfram total"(/"AL","WV","CLD","CO2","ATM","HS","Sum","ERA5"/)
+
+;***********************************************
+; legend resources
+;***********************************************
+; lb_x(0,:) = (/1983.5,1983.5,1985.,1985.,1983.5/)
+lb_x1 = (/0.72,0.76,0.76,0.72,0.72/)
+lb_x2 = (/0.82,0.86,0.86,0.82,0.82/)
+
+lb_y = new((/10,5/), "float")
+lb_y(0,:) = (/0.47, 0.47, 0.48, 0.48, 0.47/)
+do i = 1, 8
+  lb_y(i,:) = lb_y(i-1,:) - 0.02
+end do
 
 lb_res = True
 lb_res@gsEdgesOn = True
-lb_res@gsEdgeThicknessF = 2.5
-do i = 0, 7
+lb_res@gsEdgeThicknessF = 3
+do i = 0, 4
   lb_res@gsFillColor = lb_colors(i)
   lb_res@gsEdgeColor = lb_colors(i)
   lb_res@gsFillIndex = lb_dash(i)
-  dum_lb(ll,i) = gsn_add_polygon(wks, plot_without_xgrid(ll), lb_x(i,:), lb_y, lb_res)
+  gsn_polygon_ndc(wks, lb_x1, lb_y(i,:), lb_res)
+end do
+do i = 5, 8
+  lb_res@gsFillColor = lb_colors(i)
+  lb_res@gsEdgeColor = lb_colors(i)
+  lb_res@gsFillIndex = lb_dash(i)
+  gsn_polygon_ndc(wks, lb_x2, lb_y(i-5,:), lb_res)
 end do
 
-text = (/"CRE","WV","Aero","Ta","AL","CO2","SH","LH","ERA5 upR","Cfram total"/) ;"Solar",(/"AL","WV","CLD","CO2","ATM","HS","Sum","ERA5"/)
 text_res = True
-text_res@txFontHeightF = 0.025
+text_res@txFontHeightF = 0.012
 text_res@txJust             = "CenterLeft"
-text_plot = new(11, graphic)
-text_x = new(11, "float")
-text_x(0) = 1985.1
-do i = 1, 7
-  text_x(i) = text_x(i-1) + 4.0
+; text_plot = new(11, graphic)
+text_y = new(11, "float")
+text_y(0) = 0.475
+do i = 1, 8
+  text_y(i) = text_y(i-1) - 0.02
 end do
 ; do i = 8, 9
 ;   text_x(i) = text_x(i-1) + 3.0
 ; end do
-text_y = -11.7
-do i = 0, 7
-  text_plot(i) = gsn_add_text(wks, plot_without_xgrid(ll), text(i), text_x(i), text_y, text_res)
+text_x1 = 0.77
+text_x2 = 0.87
+do i = 0, 4
+  gsn_text_ndc(wks, text(i), text_x1, text_y(i), text_res)
+end do
+do i = 5, 8
+  gsn_text_ndc(wks, text(i), text_x2, text_y(i-5), text_res)
 end do
 
-line_color = (/"red","black"/)
-line_dash = (/0,0/) ;16
-line_th = (/5.0,5.0/)
-line_res = True
-line_y = new((/2,2/), "float")
-line_x = (/1984,1987/)
+; line_color = (/"red","black"/)
+; line_dash = (/0,0/) ;16
+; line_th = (/5.0,5.0/)
+; line_res = True
+; line_y = new((/2,2/), "float")
+; line_x = (/1984,1987/)
 
-line_y(0,:) = (/15.7,15.7/)
-line_y(1,:) = (/10.7,10.7/)
-text_x(8) = 1987.4
-text_x(9) = text_x(8)
-text_y1 = (/15.7,10.7/)
+; line_y(0,:) = (/15.7,15.7/)
+; line_y(1,:) = (/10.7,10.7/)
+; text_x(8) = 1987.4
+; text_x(9) = text_x(8)
+; text_y1 = (/15.7,10.7/)
 
 
 ; text_res@txFontHeightF = 0.025
@@ -1110,7 +1127,7 @@ text_y1 = (/15.7,10.7/)
 ; end do
 ; overlay(plot_without_xgrid(ll), plot_without_xgrid_xy(ll))
 ; delete(dum_lb)
-end do
+
 print("***********************")
 
 pres = True

@@ -33,7 +33,7 @@ latend_tp = 40 ;38
 lonstr_tp = 75 ;80
 lonend_tp = 105
 
-region = (/"TP","South","West","East","North"/)
+region = (/"West","North","East","TP","South"/)
 ;===================================================================
 ; topo data
 ;===================================================================
@@ -48,10 +48,9 @@ lsdata = fa->lsm(0,:,:)
 printVarSummary(lsdata)
 ;=============================================================================================================
 diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili1 = "surface_solar_downwards_mon_1x1_1979_2019.nc"
-fili2 = "surface_thermal_downwards_mon_1x1_1979_2019.nc"
-fili3 = "surface_net_solar_mon_1x1_1979_2019.nc"
-fili4 = "surface_net_thermal_mon_1x1_1979_2019.nc"
+fili1 = "surface_thermal_downwards_mon_1x1_1979_2019.nc"
+fili2 = "surface_net_thermal_mon_1x1_1979_2019.nc"
+fili3 = "t2m_mon_1x1_1979_2019.nc"
 
 f1 = addfile(diri+fili1, "r")
 Time = f1->time
@@ -60,40 +59,28 @@ iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
 f2 = addfile(diri+fili2, "r")
 f3 = addfile(diri+fili3, "r")
-f4 = addfile(diri+fili4, "r")
 
-SSRD = short2flt(f1->ssrd(iYYYY,:,:))
-SSRD = SSRD/86400.
-STRD = short2flt(f2->strd(iYYYY,:,:))
+STRD = short2flt(f1->strd(iYYYY,:,:))
 STRD = STRD/86400.
-SSR  = short2flt(f3->ssr(iYYYY,:,:))
-SSR  = SSR/86400.
-STR  = short2flt(f4->str(iYYYY,:,:))
+STR  = short2flt(f2->str(iYYYY,:,:))
 STR  = STR/86400.
+T2M  = short2flt(f3->t2m(iYYYY,:,:))
 
-SSRU = SSRD - SSR
-SSRU = SSRU*(-1)
-copy_VarCoords(SSRD, SSRU)
 STRU = STRD - STR
 copy_VarCoords(STRD, STRU)
-printVarSummary(SSRU)
+printVarSummary(STRU)
 
-
-ssrd = month_to_season(SSRD, season)
-ssru = month_to_season(SSRU, season)
-strd = month_to_season(STRD, season)
 stru = month_to_season(STRU, season)
+t2m = month_to_season(T2M, season)
 
-lat = SSRD&latitude
-lon = SSRD&longitude
+lat = STRD&latitude
+lon = STRD&longitude
 lsm = linint2_Wrap(lsdata&longitude, lsdata&latitude, lsdata, True, lon, lat, 0)
 printVarSummary(lsm)
 delete(lsdata)
-lsm1 = conform_dims(dimsizes(ssrd), lsm, (/1,2/))
+lsm1 = conform_dims(dimsizes(stru), lsm, (/1,2/))
 
-ssrd = where(lsm1.ge.0.8, ssrd, ssrd@_FillValue)
-ssru = where(lsm1.ge.0.8, ssru, ssru@_FillValue)
-strd = where(lsm1.ge.0.8, strd, strd@_FillValue)
+t2m  = where(lsm1.ge.0.8, t2m, t2m@_FillValue)
 stru = where(lsm1.ge.0.8, stru, stru@_FillValue)
 
 stru_west = wgt_areaave_Wrap(stru(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
@@ -101,83 +88,54 @@ stru_east = wgt_areaave_Wrap(stru(:,{latstr_east:latend_east},{lonstr_east:lonen
 stru_south = wgt_areaave_Wrap(stru(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
 stru_north = wgt_areaave_Wrap(stru(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
 
-strd_west = wgt_areaave_Wrap(strd(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
-strd_east = wgt_areaave_Wrap(strd(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
-strd_south = wgt_areaave_Wrap(strd(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
-strd_north = wgt_areaave_Wrap(strd(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
-
-ssrd_west = wgt_areaave_Wrap(ssrd(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
-ssrd_east = wgt_areaave_Wrap(ssrd(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
-ssru_south = wgt_areaave_Wrap(ssru(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
-ssrd_south = wgt_areaave_Wrap(ssrd(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
-ssrd_north = wgt_areaave_Wrap(ssrd(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
+t2m_west = wgt_areaave_Wrap(t2m(:,{latstr_west:latend_west},{lonstr_west:lonend_west}), 1., 1., 0)
+t2m_east = wgt_areaave_Wrap(t2m(:,{latstr_east:latend_east},{lonstr_east:lonend_east}), 1., 1., 0)
+t2m_south = wgt_areaave_Wrap(t2m(:,{latstr_south:latend_south},{lonstr_south:lonend_south}), 1., 1., 0)
+t2m_north = wgt_areaave_Wrap(t2m(:,{latstr_north:latend_north},{lonstr_north:lonend_north}), 1., 1., 0)
 
 stru = mask(stru, topo.ge.1500, True)
-strd = mask(strd, topo.ge.1500, True)
-ssru = mask(ssru, topo.ge.1500, True)
+t2m  = mask(t2m, topo.ge.1500, True)
 stru_tp = wgt_areaave_Wrap(stru(:,{latstr_tp:latend_tp},{lonstr_tp:lonend_tp}), 1., 1., 0)
-strd_tp = wgt_areaave_Wrap(strd(:,{latstr_tp:latend_tp},{lonstr_tp:lonend_tp}), 1., 1., 0)
-ssru_tp = wgt_areaave_Wrap(ssru(:,{latstr_tp:latend_tp},{lonstr_tp:lonend_tp}), 1., 1., 0)
-printVarSummary(ssru_tp)
+t2m_tp  = wgt_areaave_Wrap(t2m(:,{latstr_tp:latend_tp},{lonstr_tp:lonend_tp}), 1., 1., 0)
+printVarSummary(stru_tp)
 
 lines = new((/3,5,nyear/), float)
-lines(0,0,:) = stru_tp
-lines(0,1,:) = stru_south
-lines(0,2,:) = stru_west
-lines(0,3,:) = stru_north
-lines(0,4,:) = stru_east
+lines(2,0,:) = t2m_west ;- t2m_west(0)
+lines(2,1,:) = t2m_north ;- t2m_north(0)
+lines(2,2,:) = t2m_east ;- t2m_east(0
+lines(2,3,:) = t2m_tp ;- t2m_tp(0)
+lines(2,4,:) = t2m_south ;- t2m_south(0))
 
-lines(1,0,:) = strd_tp
-lines(1,1,:) = strd_south
-lines(1,2,:) = strd_west
-lines(1,3,:) = strd_north
-lines(1,4,:) = strd_east
+lines(0,0,:) = stru_west ;- stru_west(0)
+lines(0,1,:) = stru_north ;- stru_north(0)
+lines(0,2,:) = stru_east ;- stru_east(0)
+lines(0,3,:) = stru_tp ;- stru_tp(0)
+lines(0,4,:) = stru_south ;- stru_south(0)
 
-lines(2,0,:) = ssru_tp
-lines(2,1,:) = ssrd_south ;- ssru_south
-lines(2,2,:) = ssrd_west
-lines(2,3,:) = ssrd_north
-lines(2,4,:) = ssrd_east
+lines_runave = runave_n(lines(0,:,:), 10, 0, 1)
+lines(1,:,:) = (/lines_runave/)
+; printVarSummary(lines_runave)
 
-; lines(3,:,:) = lines(2,:,:) + lines(1,:,:)
-
-lines_runave = runave_n(lines, 10, 0, 2)
-printVarSummary(lines_runave)
-
-line = new((/2,3,5,nyear/), float)
-line(0,:,:,:) = lines
-line(1,:,:,:) = lines_runave
-printVarSummary(line)
-
-tt = line(0,0,:,:)
-tt(0,:) = line(1,1,0,:) - line(1,2,0,:)
-tt(1,:) = line(1,1,1,:) + line(1,2,1,:)
-tt(2,:) = line(1,1,2,:) + line(1,2,2,:)
-tt(3,:) = line(1,1,3,:) + line(1,2,3,:)
-tt(4,:) = line(1,1,4,:) + line(1,2,4,:)
-corr = escorc_n(line(1,0,:,:), tt, 1, 1)
-print(sprintf("%4.2f", corr))
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210520/"
 figname = "Fig2"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-Left = (/"(a)","(b)","(c)","(d)","(e)","(f)","(g)","(h)","(i)","(j)","(k)","(l)","(m)","(n)","(o)"/)
-Right = (/"upR","upR","upR","upR","upR","downR","downR","downR","downR","downR","upS","upS","downS","downS","downS"/)
+Left = (/"(a)","(b)","(c)","(d)","(e)"/)
 
-plot = new(15, graphic)
+plot = new(6, graphic)
 
 res = True
 res@gsnDraw  = False
 res@gsnFrame = False
 ; res@gsnMaximize = True
 
-res@vpWidthF = 0.6
+res@vpWidthF = 0.8
 res@vpHeightF = 0.4
 
 res@trXMinF = yrStrt
 res@trXMaxF = yrLast
-res@tmXTOn = False
+; res@tmXTOn = False
 
 res@gsnYRefLine = 0
 res@gsnYRefLineColor = "gray25"
@@ -193,11 +151,12 @@ res@tiYAxisString = ""
 res@gsnStringFontHeightF = 0.035
 res@tmXBLabelFontHeightF = 0.025
 res@tmYLLabelFontHeightF = 0.025
+res@tmYLPrecision = 4
 
-Colors = (/"black","purple","green4"/)
-Patterns = (/0,16,16/)
+Colors = (/"black","purple"/)
+Patterns = (/0,16/)
 
-res@xyLineThicknessF = 10
+res@xyLineThicknessF = 5
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
@@ -205,20 +164,78 @@ res@xyDashPatterns = Patterns
 ; res@gsnLeftString = season+" T2m trend ("+yrStrt+"-"+yrLast+")"
 ; plot(0) = gsn_csm_xy(wks, year, pp, res)
 
+res2 = True
+res2@xyLineColor = "firebrick2"
+res2@xyDashPattern = 0
+res2@xyLineThicknessF = 5
+res2@tiYAxisString = ""
+res2@tmYRPrecision = 4
+res2@tmYRLabelFontHeightF = 0.025
+
+
+res@gsnLeftString = "(a) West region ("+lonstr_west+"-"+lonend_west+"E, "+latstr_west+"-"+latend_west+"N)"
+res@trYMinF = 420
+res@trYMaxF = 456
+res2@trYMinF = 294
+res2@trYMaxF = 300
+plot(0) = gsn_csm_xy2(wks, year, lines(0:1,0,:), lines(2,0,:), res, res2)
+
+res@gsnLeftString = "(b) North region ("+lonstr_north+"-"+lonend_north+"E, "+latstr_north+"-"+latend_north+"N)"
+res@trYMinF = 380
+res@trYMaxF = 410
+res2@trYMinF = 287
+res2@trYMaxF = 295
+plot(1) = gsn_csm_xy2(wks, year, lines(0:1,1,:), lines(2,1,:), res, res2)
+
+res@gsnLeftString = "(c) East region ("+lonstr_east+"-"+lonend_east+"E, "+latstr_east+"-"+latend_east+"N)"
+res@trYMinF = 415
+res@trYMaxF = 445
+res2@trYMinF = 294
+res2@trYMaxF = 300
+plot(2) = gsn_csm_xy2(wks, year, lines(0:1,2,:), lines(2,2,:), res, res2)
+
+res@gsnLeftString = "(d) TP region ("+lonstr_tp+"-"+lonend_tp+"E, "+latstr_tp+"-"+latend_tp+"N)"
+res@trYMinF = 360
+res@trYMaxF = 380
+res2@trYMinF = 281
+res2@trYMaxF = 286
+plot(3) = gsn_csm_xy2(wks, year, lines(0:1,3,:), lines(2,3,:), res, res2)
+
+res@gsnLeftString =  "(e) South region ("+lonstr_south+"-"+lonend_south+"E, "+latstr_south+"-"+latend_south+"N)"
+res@trYMinF = 445
+res@trYMaxF = 485
+res2@trYMinF = 298
+res2@trYMaxF = 308
+plot(4) = gsn_csm_xy2(wks, year, lines(0:1,4,:), lines(2,4,:), res, res2)
+
+;===========================================================
+; legend
+;===========================================================
+lb_colors = (/"black","purple","firebrick2"/)
+lb_pattern = (/0,16,0/)
+xpos = (/0.72,0.76/)
+ypos = (/0.45,0.42,0.39/)
+gsres = True
+gsres@gsLineThicknessF = 5
+
 do i = 0, 2
-    do j = 0, 4
-        res@gsnLeftString = Left(j+i*5)+" "+Right(j+i*5)
-        res@gsnRightString = region(j)
-        if (i.eq.0) then
-            res@gsnCenterString = sprintf("%4.2f", corr(j))
-        end if
-        plot(j+i*5) = gsn_csm_xy(wks, year, line(:,i,j,:), res)
-        res@gsnCenterString = ""
-    end do
+    gsres@gsLineColor = lb_colors(i)
+    gsres@gsLineDashPattern = lb_pattern(i)
+    gsn_polyline_ndc(wks, xpos, (/ypos(i),ypos(i)/), gsres)
+end do
+
+Text = (/"Surface upward LW","10-yr running average upward LW","T2m"/)
+txres = True
+txres@txFontHeightF = 0.01
+txres@txJust             = "CenterLeft"
+tx_xpos = 0.77
+tx_ypos = ypos
+do i = 0, 2
+    gsn_text_ndc(wks, Text(i), tx_xpos, tx_ypos(i), txres)
 end do
 
 pres = True
 pres@gsnMaximize = True
-gsn_panel(wks, plot, (/3,5/), pres)
+gsn_panel(wks, plot, (/2,3/), pres)
 
 end
