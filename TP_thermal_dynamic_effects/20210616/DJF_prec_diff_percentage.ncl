@@ -3,7 +3,7 @@ begin
 
 nlat = 96
 nlon = 144
-season = (/"JJA","DJF"/)
+season = "DJF"
 
 lonstr = -20
 lonend = 160
@@ -15,7 +15,7 @@ ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
 
-z = new((/ncase,2,nyear,nlat,nlon/), float)
+z = new((/ncase,nyear,nlat,nlon/), float)
 
 do i = 0, ncase-1
   diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/"
@@ -25,8 +25,7 @@ do i = 0, ncase-1
   Z = Z*1000*86400
   Z@units = "mm/day"
 
-  z(i,:,:,:,:) = month_to_seasonN(Z, season)
-  ; copy_VarCoords(Z(0,:,:), z(i,0,0,:,:))
+  z(i,:,:,:) = month_to_season(Z, season)
 end do
 
 z!0 = "case"
@@ -34,30 +33,38 @@ z&case = casename
 z&time = year
 printVarSummary(z)
 
-Clim = dim_avg_n_Wrap(z(0,:,:,:,:), 1)
+Clim = dim_avg_n_Wrap(z(0,:,:,:), 0)
 
 ;=========================ttest================================================
-var = dim_variance_n_Wrap(z, 2)
-ave = dim_avg_n_Wrap(z, 2)
+var = dim_variance_n_Wrap(z, 1)
+ave = dim_avg_n_Wrap(z, 1)
 
 sig = 0.05
-prob_h = ttest(ave(0,:,:,:), var(0,:,:,:), nyear, ave(1,:,:,:), var(1,:,:,:), nyear, False, False)
-copy_VarCoords(ave(0,:,:,:), prob_h)
-prob_d = ttest(ave(0,:,:,:), var(0,:,:,:), nyear, ave(2,:,:,:), var(2,:,:,:), nyear, False, False)
-copy_VarCoords(ave(0,:,:,:), prob_d)
-prob_t = ttest(ave(0,:,:,:), var(0,:,:,:), nyear, ave(3,:,:,:), var(3,:,:,:), nyear, False, False)
-copy_VarCoords(ave(0,:,:,:), prob_t)
+prob_h = ttest(ave(0,:,:), var(0,:,:), nyear, ave(1,:,:), var(1,:,:), nyear, False, False)
+copy_VarCoords(ave(0,:,:), prob_h)
+prob_d = ttest(ave(0,:,:), var(0,:,:), nyear, ave(2,:,:), var(2,:,:), nyear, False, False)
+copy_VarCoords(ave(0,:,:), prob_d)
+prob_t = ttest(ave(0,:,:), var(0,:,:), nyear, ave(3,:,:), var(3,:,:), nyear, False, False)
+copy_VarCoords(ave(0,:,:), prob_t)
 
-h = ave(0,:,:,:) - ave(1,:,:,:)
-copy_VarCoords(ave(0,:,:,:), h)
-d = ave(0,:,:,:) - ave(2,:,:,:)
-copy_VarCoords(ave(0,:,:,:), d)
+h = ave(0,:,:) - ave(1,:,:)
+copy_VarCoords(ave(0,:,:), h)
+d = ave(0,:,:) - ave(2,:,:)
+copy_VarCoords(ave(0,:,:), d)
+hd = h+d
+copy_VarCoords(ave(0,:,:), hd)
+t = ave(0,:,:) - ave(3,:,:)
+copy_VarCoords(ave(0,:,:), t)
+diff = hd - t
+copy_VarCoords(ave(0,:,:), diff)
 printVarSummary(h)
 
-h_percent = h/Clim
-d_percent = d/Clim
+h_percent = h/ave(1,:,:)*100
+d_percent = d/ave(2,:,:)*100
+t_percent = t/ave(3,:,:)*100
 copy_VarCoords(h, h_percent)
 copy_VarCoords(d, d_percent)
+copy_VarCoords(t, t_percent)
 printVarSummary(h_percent)
 
 
@@ -70,10 +77,10 @@ printVarSummary(topo)
 
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_thermal_dynamic_effects/20210616/"
-figname = season(0)+"_"+season(1)+"_prec_diff_percentage"
+figname = season+"_prec_diff_percentage"
 wks = gsn_open_wks("pdf", figpath+figname)
 
-plot = new(10, graphic)
+plot = new(9, graphic)
 plot_topo = plot
 plot_prob = new(4, graphic)
 
@@ -112,10 +119,10 @@ plot_prob = new(4, graphic)
  res3@cnLevelSpacingF = 0.01
 
  ; res3@cnFillPattern = 17 ;(/17/)
- res3@cnFillColor  =  "black"
+ res3@cnFillColor  =  "purple"
  res3@gsnLeftString = ""
- res3@cnFillDotSizeF = 0.003
- res3@cnFillScaleF  = 1.2
+ res3@cnFillDotSizeF = 0.002
+ res3@cnFillScaleF  = 0.8
  ;----------------------------------------------
  ;----------------------------------------------
 
@@ -143,98 +150,93 @@ res@cnLineLabelsOn = False
 res@cnInfoLabelOn = False
 ; res@cnFillMode = "CellFill"
 
-res@gsnStringFontHeightF = 0.025
-res@tmXBLabelFontHeightF = 0.02
-res@tmYLLabelFontHeightF = 0.02
+res@gsnStringFontHeightF = 0.035
+res@tmXBLabelFontHeightF = 0.025
+res@tmYLLabelFontHeightF = 0.025
 
 ; res@lbLabelBarOn = False
 
 res@pmLabelBarHeightF = 0.1
 res@pmLabelBarWidthF = 0.7
-res@pmLabelBarOrthogonalPosF = 0.1
+res@pmLabelBarOrthogonalPosF = 0.2
 
-res@gsnRightString = "" ;g/m~S~2~N~/s
+res@gsnRightString = "mm/day"
 
 res@cnFillPalette = "CBR_wet"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = 1
 res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1
-res@gsnLeftString = season(0)+" Clim"
-plot(0) = gsn_csm_contour_map(wks, Clim(0,:,:), res)
+res@cnLevelSpacingF = 1.
+res@gsnLeftString = "(a) CTRL Clim"
+plot(0) = gsn_csm_contour_map(wks, Clim, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-res@gsnLeftString = season(1)+" Clim"
-plot(5) = gsn_csm_contour_map(wks, Clim(1,:,:), res)
-plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(5), plot_topo(5))
 
 res@cnFillPalette = "CBR_drywet"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1
-res@gsnLeftString = season(0)+" Thermal effects"
-plot(1) = gsn_csm_contour_map(wks, h(0,:,:), res)
+res@cnMinLevelValF = -5
+res@cnMaxLevelValF = 5
+res@cnLevelSpacingF = 0.5
+res@gsnLeftString = "(b) Thermal effects"
+plot(1) = gsn_csm_contour_map(wks, h, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))
-plot_prob(0) = gsn_csm_contour(wks,prob_h(0,:,:),res3)
+plot_prob(0) = gsn_csm_contour(wks,prob_h,res3)
 plot_prob(0) = ShadeLtContour(plot_prob(0),sig,17)
 overlay(plot(1), plot_prob(0))
 
-res@gsnLeftString = season(0)+" Dynamical effects"
-plot(2) = gsn_csm_contour_map(wks, d(0,:,:), res)
+res@gsnLeftString = "(c) Dynamical effects"
+plot(2) = gsn_csm_contour_map(wks, d, res)
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2), plot_topo(2))
-plot_prob(1) = gsn_csm_contour(wks,prob_d(0,:,:),res3)
+plot_prob(1) = gsn_csm_contour(wks,prob_d,res3)
 plot_prob(1) = ShadeLtContour(plot_prob(1),sig,17)
 overlay(plot(2), plot_prob(1))
 
-res@gsnLeftString = season(1)+" Thermal effects"
-plot(6) = gsn_csm_contour_map(wks, h(1,:,:), res)
-plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(6), plot_topo(6))
-plot_prob(2) = gsn_csm_contour(wks,prob_h(1,:,:),res3)
-plot_prob(2) = ShadeLtContour(plot_prob(2),sig,17)
-overlay(plot(6), plot_prob(2))
-
-res@gsnLeftString = season(1)+" Dynamical effects"
-plot(7) = gsn_csm_contour_map(wks, d(1,:,:), res)
-plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(7), plot_topo(7))
-plot_prob(3) = gsn_csm_contour(wks,prob_d(1,:,:),res3)
-plot_prob(3) = ShadeLtContour(plot_prob(3),sig,17)
-overlay(plot(7), plot_prob(3))
-
-
-; res@cnFillPalette = "CBR_drywet"
-; res@cnLevelSelectionMode = "ManualLevels"
-; res@cnMinLevelValF = -100
-; res@cnMaxLevelValF = 100
-; res@cnLevelSpacingF = 10
-res@gsnLeftString = season(0)+" Thermal effects percentage"
-plot(3) = gsn_csm_contour_map(wks, h_percent(0,:,:), res)
+res@gsnLeftString = "(d) b+c"
+plot(3) = gsn_csm_contour_map(wks, hd, res)
 plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(3), plot_topo(3))
 
-res@gsnLeftString = season(0)+" Dynamical effects percentage"
-plot(4) = gsn_csm_contour_map(wks, d_percent(0,:,:), res)
+res@gsnLeftString = "(e) Total effects"
+plot(4) = gsn_csm_contour_map(wks, t, res)
 plot_topo(4) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(4), plot_topo(4))
+plot_prob(2) = gsn_csm_contour(wks,prob_t,res3)
+plot_prob(2) = ShadeLtContour(plot_prob(2),sig,17)
+overlay(plot(4), plot_prob(2))
 
-res@gsnLeftString = season(1)+" Thermal effects percentage"
-plot(8) = gsn_csm_contour_map(wks, h_percent(1,:,:), res)
+res@gsnLeftString = "(f) e-d"
+plot(5) = gsn_csm_contour_map(wks, diff, res)
+plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(5), plot_topo(5))
+
+
+res@cnFillPalette = "precip4_diff_19lev"
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnMinLevelValF = -100
+res@cnMaxLevelValF = 100
+res@cnLevelSpacingF = 10
+res@gsnRightString = "%"
+res@gsnLeftString ="(g) Thermal effects percentage"
+plot(6) = gsn_csm_contour_map(wks, h_percent, res)
+plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(6), plot_topo(6))
+
+res@gsnLeftString = "(h) Dynamical  effects percentage"
+plot(7) = gsn_csm_contour_map(wks, d_percent, res)
+plot_topo(7) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(7), plot_topo(7))
+
+res@gsnLeftString = "(i) Total effects percentage"
+plot(8) = gsn_csm_contour_map(wks, t_percent, res)
 plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(8), plot_topo(8))
 
-res@gsnLeftString = season(1)+" Dynamical effects percentage"
-plot(9) = gsn_csm_contour_map(wks, d_percent(1,:,:), res)
-plot_topo(9) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(9), plot_topo(9))
-
 pres = True
 pres@gsnMaximize = True
-gsn_panel(wks, plot, (/2,5/), pres)
+pres@gsnPanelMainString = season+" mean prec"
+gsn_panel(wks, plot, (/3,3/), pres)
 
 end
