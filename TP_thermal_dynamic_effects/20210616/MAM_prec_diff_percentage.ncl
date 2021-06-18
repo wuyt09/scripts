@@ -3,7 +3,7 @@ begin
 
 nlat = 96
 nlon = 144
-season = "JJA"
+season = "MAM"
 
 lonstr = -20
 lonend = 160
@@ -34,7 +34,6 @@ latstr_tp = 25 ;28
 latend_tp = 40 ;38
 lonstr_tp = 75 ;80
 lonend_tp = 105
-
 
 casename = (/"CTRL","NOQ1", "NOTP","NOTP_NOQ1"/) ;
 ncase = dimsizes(casename)
@@ -205,9 +204,9 @@ overlay(plot(0), plot_topo(0))
 
 res@cnFillPalette = "CBR_drywet"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -10
-res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1.
+res@cnMinLevelValF = -5
+res@cnMaxLevelValF = 5
+res@cnLevelSpacingF = 0.5
 res@gsnLeftString = "(b) Thermal effects"
 plot(1) = gsn_csm_contour_map(wks, h, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
@@ -242,12 +241,13 @@ plot(5) = gsn_csm_contour_map(wks, diff, res)
 plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(5), plot_topo(5))
 
+
 res@cnFillPalette = "precip4_diff_19lev"
-res@gsnRightString = "%"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -100
 res@cnMaxLevelValF = 100
 res@cnLevelSpacingF = 10
+res@gsnRightString = "%"
 res@gsnLeftString ="(g) Thermal effects percentage"
 plot(6) = gsn_csm_contour_map(wks, h_percent, res)
 plot_topo(6) = gsn_csm_contour(wks, topo, res_topo)

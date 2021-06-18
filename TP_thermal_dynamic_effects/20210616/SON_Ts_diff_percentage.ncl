@@ -3,38 +3,21 @@ begin
 
 nlat = 96
 nlon = 144
-season = "JJA"
+season = "SON"
 
 lonstr = -20
 lonend = 160
 latstr = 0
 latend = 70
 
-latstr_east = 30
-latend_east = 45
-lonstr_east = 105
-lonend_east = 140
 
-latstr_west = 30
-latend_west = 55
-lonstr_west = -10
-lonend_west = 60
-
-latstr_south = 10
-latend_south = 28
-lonstr_south = 70
-lonend_south = 90
-
-latstr_north = 45
-latend_north = 60
-lonstr_north = 85
-lonend_north = 120
-
-latstr_tp = 25 ;28
-latend_tp = 40 ;38
-lonstr_tp = 75 ;80
-lonend_tp = 105
-
+;===================================================================
+; topo data
+;===================================================================
+ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
+topo = ftopo->topo(::-1,:)
+printVarSummary(topo)
+;===================================================================
 
 casename = (/"CTRL","NOQ1", "NOTP","NOTP_NOQ1"/) ;
 ncase = dimsizes(casename)
@@ -45,11 +28,11 @@ z = new((/ncase,nyear,nlat,nlon/), float)
 
 do i = 0, ncase-1
   diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/"
-  zname = "F2000_"+casename(i)+".PREC.mon.0601-3012.nc"
+  zname = "F2000_"+casename(i)+".TS.mon.0601-3012.nc"
   fz = addfile(diri+zname, "r")
-  Z = fz->PREC
-  Z = Z*1000*86400
-  Z@units = "mm/day"
+  Z = fz->TS
+  Z@units = "K"
+  Z = Z - 273.15
 
   z(i,:,:,:) = month_to_season(Z, season)
 end do
@@ -59,11 +42,19 @@ z&case = casename
 z&time = year
 printVarSummary(z)
 
+lat = z&lat
+lon = z&lon
+topox = linint2_Wrap(topo&lon, topo&lat, topo, True, lon, lat, 0)
+
 Clim = dim_avg_n_Wrap(z(0,:,:,:), 0)
 
 ;=========================ttest================================================
 var = dim_variance_n_Wrap(z, 1)
 ave = dim_avg_n_Wrap(z, 1)
+
+
+ave(2,:,:) = where(topox.ge.1500, z@_FillValue, ave(2,:,:))
+ave(3,:,:) = where(topox.ge.1500, z@_FillValue, ave(3,:,:))
 
 sig = 0.05
 prob_h = ttest(ave(0,:,:), var(0,:,:), nyear, ave(1,:,:), var(1,:,:), nyear, False, False)
@@ -93,26 +84,14 @@ copy_VarCoords(d, d_percent)
 copy_VarCoords(t, t_percent)
 printVarSummary(h_percent)
 
-
-;===================================================================
-; topo data
-;===================================================================
-ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
-topo = ftopo->topo ;(::-1,:)
-printVarSummary(topo)
-
 ;===============================================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_thermal_dynamic_effects/20210616/"
-figname = season+"_prec_diff_percentage"
+figname = season+"_Ts_diff_percentage"
 wks = gsn_open_wks("pdf", figpath+figname)
 
 plot = new(9, graphic)
 plot_topo = plot
 plot_prob = new(4, graphic)
-dum1 = plot
-dum2 = dum1
-dum3 = dum1
-dum4 = dum1
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -190,20 +169,19 @@ res@pmLabelBarHeightF = 0.1
 res@pmLabelBarWidthF = 0.7
 res@pmLabelBarOrthogonalPosF = 0.2
 
-res@gsnRightString = "mm/day"
+res@gsnRightString = "~S~o~N~C"
 
-res@cnFillPalette = "CBR_wet"
+res@cnFillPalette = "WhiteYellowOrangeRed"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = 1
-res@cnMaxLevelValF = 10
-res@cnLevelSpacingF = 1.
+res@cnMinLevelValF = 10
+res@cnMaxLevelValF = 30
+res@cnLevelSpacingF = 2.
 res@gsnLeftString = "(a) CTRL Clim"
 plot(0) = gsn_csm_contour_map(wks, Clim, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
 
-
-res@cnFillPalette = "CBR_drywet"
+res@cnFillPalette = "BlueDarkRed18"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -10
 res@cnMaxLevelValF = 10
@@ -242,7 +220,7 @@ plot(5) = gsn_csm_contour_map(wks, diff, res)
 plot_topo(5) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(5), plot_topo(5))
 
-res@cnFillPalette = "precip4_diff_19lev"
+res@cnFillPalette = "temp_diff_18lev"
 res@gsnRightString = "%"
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnMinLevelValF = -100
@@ -263,31 +241,9 @@ plot(8) = gsn_csm_contour_map(wks, t_percent, res)
 plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(8), plot_topo(8))
 
-;-----------------------------------
-gres = True
-gres@gsLineColor = "blue"
-gres@gsLineThicknessF = 5.0
-gres@gsLineDashPattern = 16
-
- glon1 = (/lonend_north,lonend_north,lonstr_north,lonstr_north,lonend_north/)
- glat1 = (/latstr_north,latend_north,latend_north,latstr_north,latstr_north/) ; north
- glon2 = (/lonend_east,lonend_east,lonstr_east,lonstr_east,lonend_east/)
- glat2 = (/latstr_east,latend_east,latend_east,latstr_east,latstr_east/) ; east
- glon3 = (/lonend_south,lonend_south,lonstr_south,lonstr_south,lonend_south/)
- glat3 = (/latstr_south,latend_south,latend_south,latstr_south,latstr_south/) ; south
- glon4 = (/lonend_west,lonend_west,lonstr_west,lonstr_west,lonend_west/)
- glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
-;-----------------------------------
-do i = 0,8
-  dum1(i) = gsn_add_polyline(wks, plot(i), glon1, glat1, gres)
-  dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
-  dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
-  dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
-end do
-
 pres = True
 pres@gsnMaximize = True
-pres@gsnPanelMainString = season+" mean prec"
+pres@gsnPanelMainString = season+" mean Ts"
 gsn_panel(wks, plot, (/3,3/), pres)
 
 end

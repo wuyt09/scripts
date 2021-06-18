@@ -3,7 +3,7 @@ begin
 
 nlat = 96
 nlon = 144
-LEV = 200
+LEV = 500
 season = "JJA"
 
 lonstr = 0
@@ -11,7 +11,7 @@ lonend = 360
 latstr = 0 ;-10
 latend = 80
 
-casename = (/"CTRL","TPQ1_double", "NOTP"/) ;
+casename = (/"CTRL","NOQ1", "NOTP", "NOTP_NOQ1"/) ;
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
@@ -43,7 +43,7 @@ z_ave = dim_avg_n_Wrap(z, 2)
 diff_z = z_ave(0:ncase-2,:,:,:)
 prob_z = z_ave(0:ncase-2,:,:,:)
 
-diff_z(0,:,:,:) = z_ave(1,:,:,:) - z_ave(0,:,:,:)
+diff_z(0,:,:,:) = z_ave(0,:,:,:) - z_ave(1,:,:,:)
 diff_z(1,:,:,:) = z_ave(0,:,:,:) - z_ave(2,:,:,:)
 
 prob_z(0,:,:,:) = ttest(z_ave(0,:,:,:), z_var(0,:,:,:), nyear, z_ave(1,:,:,:), z_var(1,:,:,:), nyear, False, False)
@@ -146,8 +146,8 @@ res@tmYLLabelFontHeightF = 0.02
   
   res@gsnRightString = "CTRL"
   res@cnLevelSpacingF   = 200.
-  res@cnMaxLevelValF    = 13000. ;5940.
-  res@cnMinLevelValF    = 11000. ;5500.
+  res@cnMaxLevelValF    = 5940. ;13000.
+  res@cnMinLevelValF    = 5500. ;11000.
   res@cnFillPalette = "WhiteYellowOrangeRed"
 
   res@gsnLeftString = "Apr H"+LEV
@@ -165,9 +165,9 @@ res@tmYLLabelFontHeightF = 0.02
 
   res@gsnRightString = "Thermal effects"
   res@cnFillPalette = "BlueWhiteOrangeRed"
-  res@cnLevelSpacingF   = 50. ;10.
-  res@cnMaxLevelValF    = 200. ;60.
-  res@cnMinLevelValF    = -200. ;-60.
+  res@cnLevelSpacingF   = 30. ;10.
+  res@cnMaxLevelValF    = 120. ;60.
+  res@cnMinLevelValF    = -120. ;-60.
   res@gsnLeftString = "Apr H"+LEV
   plot(1) = gsn_csm_contour_map(wks, diff_z(0,0,:,:), res)
   plot_topo(1) = gsn_csm_contour(wks, tpmask, res_topo)
@@ -183,9 +183,9 @@ res@tmYLLabelFontHeightF = 0.02
 
 
   res@gsnRightString = "Dynamical effects"
-  res@cnLevelSpacingF   = 50. ;10.
-  res@cnMaxLevelValF    = 200. ;60.
-  res@cnMinLevelValF    = -200. ;-60.
+  res@cnLevelSpacingF   = 30. ;10.
+  res@cnMaxLevelValF    = 120. ;60.
+  res@cnMinLevelValF    = -120. ;-60.
   res@gsnLeftString = "Apr H"+LEV
   plot(2) = gsn_csm_contour_map(wks, diff_z(1,0,:,:), res)
   plot_topo(2) = gsn_csm_contour(wks, tpmask, res_topo)

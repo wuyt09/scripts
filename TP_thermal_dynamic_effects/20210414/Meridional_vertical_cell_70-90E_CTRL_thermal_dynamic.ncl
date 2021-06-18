@@ -14,7 +14,7 @@ latend = 60
 lonW = 70
 lonE = 90
 
-casename = (/"CTRL","TPQ1_double", "NOTP"/) ;
+casename = (/"CTRL","NOQ1", "NOTP", "NOTP_NOQ1"/) ;
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
 nyear = dimsizes(year)
@@ -67,9 +67,9 @@ diff_v = v_ave(0:ncase-2,:,:,:)
 prob_u = u_ave(0:ncase-2,:,:,:)
 prob_v = v_ave(0:ncase-2,:,:,:)
 
-diff_u(0,:,:,:) = u_ave(1,:,:,:) - u_ave(0,:,:,:)
+diff_u(0,:,:,:) = u_ave(0,:,:,:) - u_ave(1,:,:,:)
 diff_u(1,:,:,:) = u_ave(0,:,:,:) - u_ave(2,:,:,:)
-diff_v(0,:,:,:) = v_ave(1,:,:,:) - v_ave(0,:,:,:)
+diff_v(0,:,:,:) = v_ave(0,:,:,:) - v_ave(1,:,:,:)
 diff_v(1,:,:,:) = v_ave(0,:,:,:) - v_ave(2,:,:,:)
 
 prob_u(0,:,:,:) = ttest(u_ave(0,:,:,:), u_var(0,:,:,:), nyear, u_ave(1,:,:,:), u_var(1,:,:,:), nyear, False, False)

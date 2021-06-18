@@ -10,6 +10,31 @@ lonend = 160
 latstr = 0
 latend = 70
 
+latstr_east = 30
+latend_east = 45
+lonstr_east = 105
+lonend_east = 140
+
+latstr_west = 30
+latend_west = 55
+lonstr_west = -10
+lonend_west = 60
+
+latstr_south = 10
+latend_south = 28
+lonstr_south = 70
+lonend_south = 90
+
+latstr_north = 45
+latend_north = 60
+lonstr_north = 85
+lonend_north = 120
+
+latstr_tp = 25 ;28
+latend_tp = 40 ;38
+lonstr_tp = 75 ;80
+lonend_tp = 105
+
 casename = (/"CTRL","NOQ1", "NOTP","NOTP_NOQ1"/) ;
 ncase = dimsizes(casename)
 year = ispan(6, 30, 1)
@@ -83,6 +108,10 @@ wks = gsn_open_wks("pdf", figpath+figname)
 plot = new(9, graphic)
 plot_topo = plot
 plot_prob = new(4, graphic)
+dum1 = plot
+dum2 = dum1
+dum3 = dum1
+dum4 = dum1
 
  res_topo            = True
  res_topo@cnFillOn   = False
@@ -233,6 +262,29 @@ res@gsnLeftString = "(i) Total effects percentage"
 plot(8) = gsn_csm_contour_map(wks, t_percent, res)
 plot_topo(8) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(8), plot_topo(8))
+
+;-----------------------------------
+gres = True
+gres@gsLineColor = "blue"
+gres@gsLineThicknessF = 5.0
+gres@gsLineDashPattern = 16
+
+ glon1 = (/lonend_north,lonend_north,lonstr_north,lonstr_north,lonend_north/)
+ glat1 = (/latstr_north,latend_north,latend_north,latstr_north,latstr_north/) ; north
+ glon2 = (/lonend_east,lonend_east,lonstr_east,lonstr_east,lonend_east/)
+ glat2 = (/latstr_east,latend_east,latend_east,latstr_east,latstr_east/) ; east
+ glon3 = (/lonend_south,lonend_south,lonstr_south,lonstr_south,lonend_south/)
+ glat3 = (/latstr_south,latend_south,latend_south,latstr_south,latstr_south/) ; south
+ glon4 = (/lonend_west,lonend_west,lonstr_west,lonstr_west,lonend_west/)
+ glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
+;-----------------------------------
+do i = 0,8
+  dum1(i) = gsn_add_polyline(wks, plot(i), glon1, glat1, gres)
+  dum2(i) = gsn_add_polyline(wks, plot(i), glon2, glat2, gres)
+  dum3(i) = gsn_add_polyline(wks, plot(i), glon3, glat3, gres)
+  dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
+end do
+
 
 pres = True
 pres@gsnMaximize = True
