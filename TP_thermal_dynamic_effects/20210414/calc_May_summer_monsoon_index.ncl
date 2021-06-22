@@ -6,7 +6,7 @@ lonend = 150
 latstr = -15
 latend = 50
 
-casename = (/"CTRL","TPQ1_double","NOTP"/) ;,"NOTP_NOQ1","NOQ1"
+casename = (/"CTRL","NOQ1","NOTP","NOTP_NOQ1"/) ;"TPQ1_double"
 
 do i = 0, dimsizes(casename)-1
 diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/"

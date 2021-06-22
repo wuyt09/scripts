@@ -1,7 +1,7 @@
 
 begin
 
-casename = (/"CTRL","TPQ1_double","NOTP"/)
+casename = (/"CTRL","NOQ1","NOTP","NOTP_NOQ1"/)
 ncase = dimsizes(casename)
 
 x = new((/ncase,2,4/), float)
@@ -17,8 +17,9 @@ do i = 0, ncase-1
 end do
 
 print(sprintf("%4.2f", x(0,:,:)))
-print(sprintf("%4.2f", (x(1,:,:)-x(0,:,:))/x(0,:,:)))
-print(sprintf("%4.2f", (x(0,:,:)-x(2,:,:))/x(0,:,:)))
+print("theraml "+sprintf("%4.2f", (x(0,:,:)-x(1,:,:)))) ;/x(0,:,:)
+print("dynamic "+sprintf("%4.2f", (x(0,:,:)-x(2,:,:)))) ;/x(0,:,:)
+print("total "+sprintf("%4.2f", (x(0,:,:)-x(3,:,:)))) ;/x(0,:,:)
 
 
 end
