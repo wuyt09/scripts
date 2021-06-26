@@ -166,7 +166,7 @@ plot_topo = plot
  res_topo@cnLineLabelsOn         = False
  res_topo@cnLineThicknessF       = 4
  res_topo@cnLineDashPattern      = 0
- res_topo@cnLineColor            = "grey25"
+ res_topo@cnLineColor            = "green4"
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
  res_topo@cnLevels               = 2000 ;(/0.9/)
@@ -270,7 +270,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(0) = gsn_csm_contour(wks, z_ave(0,0,:,:), cnres)
   plot_topo(0) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(0), plotv(0))
-  overlay(plot(0), plotc(0))
+  ; overlay(plot(0), plotc(0))
   overlay(plot(0), plot_topo(0))
   res@gsnLeftString = title(1);+" UV850 & Precip"
   plot(3) = gsn_csm_contour_map(wks, p_ave(0,1,:,:), res)
@@ -278,7 +278,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(3) = gsn_csm_contour(wks, z_ave(0,1,:,:), cnres)
   plot_topo(3) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(3), plotv(3))
-  overlay(plot(3), plotc(3))
+  ; overlay(plot(3), plotc(3))
   overlay(plot(3), plot_topo(3))
   res@gsnLeftString = title(2);+" UV850 & Precip"
   plot(6) = gsn_csm_contour_map(wks, p_ave(0,2,:,:), res)
@@ -286,7 +286,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(6) = gsn_csm_contour(wks, z_ave(0,2,:,:), cnres)
   plot_topo(6) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(6), plotv(6))
-  overlay(plot(6), plotc(6))
+  ; overlay(plot(6), plotc(6))
   overlay(plot(6), plot_topo(6))
 
 
@@ -303,7 +303,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(1) = gsn_csm_contour(wks, z_ave(1,0,:,:), cnres)
   plot_topo(1) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(1), plotv(1))
-  overlay(plot(1), plotc(1))
+  ; overlay(plot(1), plotc(1))
   overlay(plot(1), plot_topo(1))
   res@gsnLeftString = title(1);+" UV850 & Precip"
   plot(4) = gsn_csm_contour_map(wks, diff_p(0,1,:,:), res)
@@ -311,7 +311,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(4) = gsn_csm_contour(wks, z_ave(1,1,:,:), cnres)
   plot_topo(4) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(4), plotv(4))
-  overlay(plot(4), plotc(4))
+  ; overlay(plot(4), plotc(4))
   overlay(plot(4), plot_topo(4))
   res@gsnLeftString = title(2);+" UV850 & Precip"
   plot(7) = gsn_csm_contour_map(wks, diff_p(0,2,:,:), res)
@@ -319,7 +319,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(7) = gsn_csm_contour(wks, z_ave(1,2,:,:), cnres)
   plot_topo(7) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(7), plotv(7))
-  overlay(plot(7), plotc(7))
+  ; overlay(plot(7), plotc(7))
   overlay(plot(7), plot_topo(7))
 
 
@@ -335,7 +335,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(2) = gsn_csm_contour(wks, z_ave(2,0,:,:), cnres)
   plot_topo(2) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(2), plotv(2))
-  overlay(plot(2), plotc(2))
+  ; overlay(plot(2), plotc(2))
   overlay(plot(2), plot_topo(2))
   res@gsnLeftString = title(1);+" UV850 & Precip"
   plot(5) = gsn_csm_contour_map(wks, diff_p(1,1,:,:), res)
@@ -343,7 +343,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(5) = gsn_csm_contour(wks, z_ave(2,1,:,:), cnres)
   plot_topo(5) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(5), plotv(5))
-  overlay(plot(5), plotc(5))
+  ; overlay(plot(5), plotc(5))
   overlay(plot(5), plot_topo(5))
   res@gsnLeftString = title(2);+" UV850 & Precip"
   plot(8) = gsn_csm_contour_map(wks, diff_p(1,2,:,:), res)
@@ -351,7 +351,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   plotc(8) = gsn_csm_contour(wks, z_ave(2,2,:,:), cnres)
   plot_topo(8) = gsn_csm_contour(wks, tpmask, res_topo)
   overlay(plot(8), plotv(8))
-  overlay(plot(8), plotc(8))
+  ; overlay(plot(8), plotc(8))
   overlay(plot(8), plot_topo(8))
 
 
