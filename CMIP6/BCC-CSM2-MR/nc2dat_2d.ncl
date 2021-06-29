@@ -12,7 +12,7 @@ varname = (/"tas","hfls","hfss","ps","rsds","rsus","rlds","rlus","rsdt","huss"/)
 nvar = dimsizes(varname)
 
 outname = (/"t2m","slhf","sshf","sp","ssrd","ssru","strd","stru","solarin","huss"/) ;
-outpath = "./hist_79-19/"
+outpath = "./hist_79-14/"
 
 diri = "/home/yangsong3/CMIP6/BCC-CSM2-MR/historical/"
 
