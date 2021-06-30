@@ -18,7 +18,7 @@ outname1 = (/"cc","clwc","ciwc"/)
 outname2 = (/"ta","hus"/)
 outpath = "./hist_79-14/"
 
-diri = "/home/yangsong3/CMIP6/BCC-CSM2-MR/historical/"
+diri = "/home/yangsong3/CMIP6/"+case+"/historical/"
 
 base_s = ispan(1979, 2004, 1)
 base_e = ispan(1988, 2013, 1)

@@ -14,7 +14,7 @@ nvar = dimsizes(varname)
 outname = (/"t2m","slhf","sshf","sp","ssrd","ssru","strd","stru","solarin","huss"/) ;
 outpath = "./hist_79-14/"
 
-diri = "/home/yangsong3/CMIP6/BCC-CSM2-MR/historical/"
+diri = "/home/yangsong3/CMIP6/"+case+"/historical/"
 
 base_s = ispan(1979, 2004, 1)
 base_e = ispan(1988, 2013, 1)
