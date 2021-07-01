@@ -31,11 +31,11 @@
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 17, file = '../o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = '../cc_base.dat',
+      open ( unit = 18, file = '../cc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = '../clwc_base.dat',
+      open ( unit = 19, file = '../clwc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = '../ciwc_base.dat',
+      open ( unit = 110, file = '../ciwc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 111, file = '../hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )

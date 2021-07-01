@@ -11,7 +11,7 @@ season = (/"JJA"/)
 varname1 = (/"cl","clw","cli"/)
 nvar1 = dimsizes(varname1)
 
-varname2 = (/"ta","hus"/)
+varname2 = (/"t","hus"/)
 nvar2 = dimsizes(varname2)
 
 outname1 = (/"cc","clwc","ciwc"/)
@@ -83,6 +83,24 @@ do i = 0, nvar1-1
     fbindirwrite(outpath+warmname,xw)
 end do
 
+x_zero = xb
+x_zero = 0
+system("rm -f "+outpath+"o3_base.dat")
+fbindirwrite(outpath+"o3_base.dat",x_zero)
+system("rm -f "+outpath+"o3_warm.dat")
+fbindirwrite(outpath+"o3_warm.dat",x_zero)
+system("rm -f "+outpath+"ciwc_clear_base.dat")
+fbindirwrite(outpath+"ciwc_clear_base.dat",x_zero)
+system("rm -f "+outpath+"ciwc_clear_warm.dat")
+fbindirwrite(outpath+"ciwc_clear_warm.dat",x_zero)
+system("rm -f "+outpath+"clwc_clear_base.dat")
+fbindirwrite(outpath+"clwc_clear_base.dat",x_zero)
+system("rm -f "+outpath+"clwc_clear_warm.dat")
+fbindirwrite(outpath+"clwc_clear_warm.dat",x_zero)
+system("rm -f "+outpath+"cc_clear_base.dat")
+fbindirwrite(outpath+"cc_clear_base.dat",x_zero)
+system("rm -f "+outpath+"cc_clear_warm.dat")
+fbindirwrite(outpath+"cc_clear_warm.dat",x_zero)
 p0 = 100000 ;Pa
 
 ;============================================================

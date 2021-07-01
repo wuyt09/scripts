@@ -1,8 +1,8 @@
       program base
       implicit none
 
-      integer,parameter:: xt=360,yt=181,z1=37,z18=38
-      real             :: plev(1:z1)
+      integer,parameter:: xt=320,yt=160,z1=46,z18=47
+      real             :: plev(1:xt,1:yt,1:z1)
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
       real             :: camt(1:xt,1:yt,1:z1),cice(1:xt,1:yt,1:z1)
@@ -11,35 +11,37 @@
       real             :: t_surf(1:xt,1:yt),hus_s(1:xt,1:yt)
       integer          :: irec,i,j,k,n1,n2,n3,n4
 
-      plev = (/1.,2.,3.,5.,7.,10.,20.,30.,50.,70.,100.,125.,150.,175.,
-     &       200.,225.,250.,300.,350.,400.,450.,500.,550.,
-     &       600.,650.,700.,750.,775.,800.,825.,850.,875.,900., 
-     &       925.,950.,975.,1000./)
+!      plev = (/1.,2.,3.,5.,7.,10.,20.,30.,50.,70.,100.,125.,150.,175.,
+!     &       200.,225.,250.,300.,350.,400.,450.,500.,550.,
+!     &       600.,650.,700.,750.,775.,800.,825.,850.,875.,900., 
+!     &       925.,950.,975.,1000./)
 
 ***********************data input*************************************
-      open ( unit = 11, file = './data/solarin_base.dat',
+      open ( unit = 11, file = '../solarin_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 12, file = './data/ssrd_base.dat',
+      open ( unit = 12, file = '../ssrd_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 13, file = './data/ssru_base.dat',
+      open ( unit = 13, file = '../ssru_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 14, file = './data/t2m_base.dat',
+      open ( unit = 14, file = '../t2m_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 15, file = './data/huss_base.dat',
+      open ( unit = 15, file = '../huss_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 16, file = './data/sp_base.dat',
+      open ( unit = 16, file = '../sp_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 17, file = './data/o3_base.dat',
+      open ( unit = 17, file = '../o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './data/cc_base.dat',
+      open ( unit = 18, file = '../cc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './data/clwc_base.dat',
+      open ( unit = 19, file = '../clwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './data/ciwc_base.dat',
+      open ( unit = 110, file = '../ciwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 111, file = './data/hus_base.dat',
+      open ( unit = 111, file = '../hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 112, file = './data/t_base.dat',
+      open ( unit = 112, file = '../t_base.dat',
+     & form='unformatted', access='direct',recl = xt*yt )
+      open ( unit = 113, file = '../P_3D.dat',
      & form='unformatted', access='direct',recl = xt*yt )
 
       irec = 1 
@@ -86,6 +88,12 @@
         irec=irec+1
       enddo
 
+      irec=1 
+      do k = 1,z1,1
+        read(113,rec=irec)((plev(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+      
       print*,"end of input"
       close(11)
       close(12)
@@ -99,6 +107,7 @@
       close(110)        
       close(111)
       close(112)
+      close(113)
 
       n1=xt
       n2=yt
@@ -119,7 +128,7 @@ C     NCLFORTSTART
      1	ice_wat,liq_wat,solar_in,swdn_sfc,swup_sfc,tsurf,huss)
 
       INTEGER ix,iy,zd1,zd18
-      real plevel(zd1),ps(ix,iy),o3(ix,iy,zd1),ta(ix,iy,zd1)
+      real plevel(ix,iy,zd1),ps(ix,iy),o3(ix,iy,zd1),ta(ix,iy,zd1)
       real hus(ix,iy,zd1)
       real cld_amt(ix,iy,zd1),ice_wat(ix,iy,zd1),liq_wat(ix,iy,zd1)
       real solar_in(ix,iy)
@@ -272,8 +281,8 @@ c          do 2000 ilong = 123, 124
           level_lowest = 1
           plev(zd18)= ps(ilong,ilat)/100.0
           do l = 1, zd1
-             if(plevel(l).lt.plev(zd18))then
-                plev(l) = plevel(l)
+             if(plevel(ilong,ilat,l).lt.plev(zd18))then
+                plev(l) = plevel(ilong,ilat,l)
                 level_lowest = l
              else
                 exit
@@ -293,9 +302,9 @@ c          do 2000 ilong = 123, 124
           ndfs4      = 4 * ndfs   
           ndfs2      = ndfs * 2
 
-          umco2 = 342.53
-          umch4 = 1.6
-          umn2o = 0.28
+          umco2 = 343.28
+          umch4 = 1.61
+          umn2o = 0.30
 
           print*,p_surf,ts
           do l = 1, nv

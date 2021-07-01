@@ -17,7 +17,7 @@
 !     &       925.,950.,975.,1000./)
 
 ***********************data input*************************************
-      open ( unit = 11, file = '../solarin_warm.dat',
+      open ( unit = 11, file = '../solarin_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 12, file = '../ssrd_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
@@ -29,13 +29,13 @@
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 16, file = '../sp_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 17, file = '../o3_base.dat',
+      open ( unit = 17, file = '../o3_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = '../cc_base.dat',
+      open ( unit = 18, file = '../cc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = '../clwc_base.dat',
+      open ( unit = 19, file = '../clwc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = '../ciwc_base.dat',
+      open ( unit = 110, file = '../ciwc_clear_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 111, file = '../hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
@@ -45,17 +45,12 @@
      & form='unformatted', access='direct',recl = xt*yt )
 
       irec = 1
+      read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
       read(13,rec=irec)((swup_surf(i,j),i=1,xt),j=1,yt)
       read(14,rec=irec)((t_surf(i,j),i=1,xt),j=1,yt)
       read(15,rec=irec)((hus_s(i,j),i=1,xt),j=1,yt)
       read(16,rec=irec)((pres(i,j),i=1,xt),j=1,yt)
-
-      irec = 1
-      do k = 1,z1,1
-        read(17,rec=irec)((tro3(i,j,k),i=1,xt),j=1,yt)
-        irec=irec+1
-      enddo
 
       irec=1
       do k = 1,z1,1
@@ -75,7 +70,7 @@
         irec=irec+1
       enddo
 
-      irec=1
+      irec = 1
       do k = 1,z1,1
         read(111,rec=irec)((q(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
@@ -86,30 +81,32 @@
         read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
-
+      
       irec=1
       do k = 1,z1,1
         read(113,rec=irec)((plev(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
-
+      
+      close(11)
       close(12)
       close(13)
       close(14)
       close(15)
       close(16)
-      close(17)
       close(18)
       close(19)
       close(110)
-      close(111)
       close(112)
       close(113)
 
       do nnn = 1,nn
 
-      irec = nnn
-      read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
+      irec= (nnn-1)*37+1
+      do k = 1,z1,1
+        read(17,rec=irec)((tro3(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
 
       print*,"end of input for case ", nnn
 
@@ -117,7 +114,7 @@
       n2=yt
       n3=z1
       n4=z18
-      co2ts = 343.28
+      co2ts = 343.28 
 
       call baseline(n1,n2,n3,n4,plev,pres,tro3,
      &  tem_a,q,camt,co2ts,cice,cliq,
@@ -125,8 +122,7 @@
       print*,'case ', nnn, 'finished!'
       end do
 
-      close(11)
-
+      close(17)
       end program
 
 
@@ -211,14 +207,14 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
 *     OUTPUT
 *
        open ( unit = 22, file =
-     & './solar_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
+     & './o3_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access='direct',recl= ix*iy )
        open ( unit = 32, file =
-     & './solar_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
+     & './o3_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access = 'direct',recl = ix*iy )
 
        open ( unit = 51, file =
-     & './solar_input_'//Trim(AdjustL(mm_ch))//'.dat',
+     & './o3_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
        open ( unit = 52, file =
      & './base_no_cloud_out_1.dat',

@@ -1,8 +1,9 @@
       program base
       implicit none
 
-      integer,parameter:: xt=360,yt=181,z1=37,z18=38,nn=31
-      real             :: plev(1:z1),co2(1:nn),co2ts
+      integer,parameter:: xt=320,yt=160,z1=46,z18=47,nn=26
+      real             :: plev(1:xt,1:yt,1:z1),co2(1:nn),co2ts
+      real             :: ch4(1:nn),ch4ts,n2o(1:nn),n2ots
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
       real             :: camt(1:xt,1:yt,1:z1),cice(1:xt,1:yt,1:z1)
@@ -11,43 +12,57 @@
       real             :: t_surf(1:xt,1:yt),hus_s(1:xt,1:yt)
       integer          :: irec,i,j,k,n1,n2,n3,n4,nnn
 
-      plev = (/1.,2.,3.,5.,7.,10.,20.,30.,50.,70.,100.,125.,150.,175.,
-     &       200.,225.,250.,300.,350.,400.,450.,500.,550.,
-     &       600.,650.,700.,750.,775.,800.,825.,850.,875.,900.,
-     &       925.,950.,975.,1000./)
+!      plev = (/1.,2.,3.,5.,7.,10.,20.,30.,50.,70.,100.,125.,150.,175.,
+!     &       200.,225.,250.,300.,350.,400.,450.,500.,550.,
+!     &       600.,650.,700.,750.,775.,800.,825.,850.,875.,900.,
+!     &       925.,950.,975.,1000./)
 
 ***********************data input*************************************
-      open ( unit = 11, file = './data/solarin_base.dat',
+      open ( unit = 11, file = '../solarin_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 12, file = './data/ssrd_base.dat',
+      open ( unit = 12, file = '../ssrd_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 13, file = './data/ssru_base.dat',
+      open ( unit = 13, file = '../ssru_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 14, file = './data/t2m_base.dat',
+      open ( unit = 14, file = '../t2m_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 15, file = './data/huss_base.dat',
+      open ( unit = 15, file = '../huss_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 16, file = './data/sp_base.dat',
+      open ( unit = 16, file = '../sp_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 17, file = './data/o3_base.dat',
+      open ( unit = 17, file = '../o3_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = './data/cc_base.dat',
+      open ( unit = 18, file = '../cc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = './data/clwc_base.dat',
+      open ( unit = 19, file = '../clwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = './data/ciwc_base.dat',
+      open ( unit = 110, file = '../ciwc_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 111, file = './data/hus_base.dat',
+      open ( unit = 111, file = '../hus_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 112, file = './data/t_base.dat',
+      open ( unit = 112, file = '../t_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 113, file = './data/co2_warm.dat',
+      open ( unit = 113, file = '../P_3D.dat',
+     & form='unformatted', access='direct',recl = xt*yt )
+      open ( unit = 114, file = '../co2_warm.dat',
+     & form='unformatted', access='direct',recl = nn )
+      open ( unit = 115, file = '../ch4_warm.dat',
+     & form='unformatted', access='direct',recl = nn )
+      open ( unit = 116, file = '../n2o_warm.dat',
      & form='unformatted', access='direct',recl = nn )
 
       irec = 1
-      read(113,rec=irec)co2
+      read(114,rec=irec)co2
       print*,co2
-      close(113)
+      close(114)
+      irec = 1
+      read(115,rec=irec)ch4
+      print*,ch4
+      close(115)
+      irec = 1
+      read(116,rec=irec)n2o
+      print*,n2o
+      close(116)
 
       irec = 1
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
@@ -92,6 +107,13 @@
         read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
+      
+      irec=1
+      do k = 1,z1,1
+        read(113,rec=irec)((plev(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+      
       close(11)
       close(12)
       close(13)
@@ -104,6 +126,7 @@
       close(110)
       close(111)
       close(112)
+      close(113)
 
       do nnn = 1,nn
 
@@ -114,9 +137,11 @@
       n3=z1
       n4=z18
       co2ts = co2(nnn)
+      ch4ts = ch4(nnn)
+      n2ots = n2o(nnn)
 
       call baseline(n1,n2,n3,n4,plev,pres,tro3,
-     &  tem_a,q,camt,co2ts,cice,cliq,
+     &  tem_a,q,camt,co2ts,ch4ts,n2ots,cice,cliq,
      &  solar,swdn_surf,swup_surf,t_surf,hus_s,nnn)
       print*,'case ', nnn, 'finished!'
       end do
@@ -129,12 +154,12 @@
 
 C     NCLFORTSTART
       subroutine baseline(ix,iy,zd1,zd18,plevel,ps,o3,ta,hus,
-     & cld_amt,co2mass,ice_wat,liq_wat,solar_in,
+     & cld_amt,co2mass,ch4mass,n2omass,ice_wat,liq_wat,solar_in,
      & swdn_sfc,swup_sfc,tsurf,huss,mm)
 
       INTEGER ix,iy,zd1,zd18,mm
       character*20 mm_ch
-      real plevel(zd1),ps(ix,iy),o3(ix,iy,zd1),ta(ix,iy,zd1)
+      real plevel(ix,iy,zd1),ps(ix,iy),o3(ix,iy,zd1),ta(ix,iy,zd1)
       real hus(ix,iy,zd1)
       real cld_amt(ix,iy,zd1),ice_wat(ix,iy,zd1),liq_wat(ix,iy,zd1)
       real solar_in(ix,iy)
@@ -149,7 +174,7 @@ C       from AR4 data, Uses huss ctl run and hus co2 run, and surface pressure c
       include 'para.file'
 
       integer iseed
-      real plev(zd18),co2mass
+      real plev(zd18),co2mass,ch4mass,n2omass
       real as(mbs), albedo(IX,IY),ee(mbir)
       real dp(IX,IY,zd18)
       real X(IX,IY)
@@ -317,8 +342,8 @@ c          print*,ilat,ilong
           level_lowest = 1
           plev(zd18)= ps(ilong,ilat)/100.0
           do l = 1, zd1
-             if(plevel(l).lt.plev(zd18))then
-                plev(l) = plevel(l)
+             if(plevel(ilong,ilat,l).lt.plev(zd18))then
+                plev(l) = plevel(ilong,ilat,l)
                 level_lowest = l
              else
                 exit
@@ -339,8 +364,8 @@ c          print*,ilat,ilong
           ndfs2      = ndfs * 2
 
           umco2 = co2mass
-          umch4 = 1.6
-          umn2o = 0.28
+          umch4 = ch4mass
+          umn2o = n2omass
 
 c          print*,p_surf,ts
           do l = 1, nv

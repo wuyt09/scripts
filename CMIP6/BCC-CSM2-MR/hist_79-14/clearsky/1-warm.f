@@ -3,6 +3,7 @@
 
       integer,parameter:: xt=320,yt=160,z1=46,z18=47,nn=26
       real             :: plev(1:xt,1:yt,1:z1),co2(1:nn),co2ts
+      real             :: ch4(1:nn),ch4ts,n2o(1:nn),n2ots
       real             :: pres(1:xt,1:yt),tro3(1:xt,1:yt,1:z1)
       real             :: q(1:xt,1:yt,1:z1),tem_a(1:xt,1:yt,1:z1)
       real             :: camt(1:xt,1:yt,1:z1),cice(1:xt,1:yt,1:z1)
@@ -19,80 +20,125 @@
 ***********************data input*************************************
       open ( unit = 11, file = '../solarin_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 12, file = '../ssrd_base.dat',
+      open ( unit = 12, file = '../ssrd_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 13, file = '../ssru_base.dat',
+      open ( unit = 13, file = '../ssru_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 14, file = '../t2m_base.dat',
+      open ( unit = 14, file = '../t2m_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 15, file = '../huss_base.dat',
+      open ( unit = 15, file = '../huss_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 16, file = '../sp_base.dat',
+      open ( unit = 16, file = '../sp_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 17, file = '../o3_base.dat',
+      open ( unit = 17, file = '../o3_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 18, file = '../cc_base.dat',
+      open ( unit = 18, file = '../cc_clear_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 19, file = '../clwc_base.dat',
+      open ( unit = 19, file = '../clwc_clear_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 110, file = '../ciwc_base.dat',
+      open ( unit = 110, file = '../ciwc_clear_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 111, file = '../hus_base.dat',
+      open ( unit = 111, file = '../hus_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
-      open ( unit = 112, file = '../t_base.dat',
+      open ( unit = 112, file = '../t_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
       open ( unit = 113, file = '../P_3D.dat',
      & form='unformatted', access='direct',recl = xt*yt )
+      open ( unit = 114, file = '../co2_warm.dat',
+     & form='unformatted', access='direct',recl = nn )
+      open ( unit = 115, file = '../ch4_warm.dat',
+     & form='unformatted', access='direct',recl = nn )
+      open ( unit = 116, file = '../n2o_warm.dat',
+     & form='unformatted', access='direct',recl = nn )
 
       irec = 1
+      read(114,rec=irec)co2
+      print*,co2
+      close(114)
+      irec = 1
+      read(115,rec=irec)ch4
+      print*,ch4
+      close(115)
+      irec = 1
+      read(116,rec=irec)n2o
+      print*,n2o
+      close(116)
+
+      irec= 1
+      do k = 1,z1,1
+        read(113,rec=irec)((plev(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+      close(113)
+
+      do nnn = 1,nn
+      irec = nnn
+      read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
       read(13,rec=irec)((swup_surf(i,j),i=1,xt),j=1,yt)
       read(14,rec=irec)((t_surf(i,j),i=1,xt),j=1,yt)
       read(15,rec=irec)((hus_s(i,j),i=1,xt),j=1,yt)
       read(16,rec=irec)((pres(i,j),i=1,xt),j=1,yt)
 
-      irec = 1
+      irec = z1*(nnn-1)+1
       do k = 1,z1,1
         read(17,rec=irec)((tro3(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(18,rec=irec)((camt(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(19,rec=irec)((cliq(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(110,rec=irec)((cice(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=1
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(111,rec=irec)((q(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=1
+      irec= z1*(nnn-1)+1
+      do k = 1,z1,1
+        read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
+        irec=irec+1
+      enddo
+      
+      irec= z1*(nnn-1)+1
       do k = 1,z1,1
         read(112,rec=irec)((tem_a(i,j,k),i=1,xt),j=1,yt)
         irec=irec+1
       enddo
 
-      irec=1
-      do k = 1,z1,1
-        read(113,rec=irec)((plev(i,j,k),i=1,xt),j=1,yt)
-        irec=irec+1
-      enddo
+      print*,"end of input for job",nnn
+      
+      n1=xt
+      n2=yt
+      n3=z1
+      n4=z18
+      co2ts = co2(nnn)
+      ch4ts = ch4(nnn)
+      n2ots = n2o(nnn)
 
+      call baseline(n1,n2,n3,n4,plev,pres,tro3,tem_a,
+     &  q,camt,co2ts,ch4ts,n2ots,cice,cliq,solar,
+     &  swdn_surf,swup_surf,t_surf,hus_s,nnn)
+      print*,'finish of job!',nnn
+      end do
+
+      close(11)
       close(12)
       close(13)
       close(14)
@@ -104,29 +150,6 @@
       close(110)
       close(111)
       close(112)
-      close(113)
-
-      do nnn = 1,nn
-
-      irec = nnn
-      read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
-
-      print*,"end of input for case ", nnn
-
-      n1=xt
-      n2=yt
-      n3=z1
-      n4=z18
-      co2ts = 343.28
-
-      call baseline(n1,n2,n3,n4,plev,pres,tro3,
-     &  tem_a,q,camt,co2ts,cice,cliq,
-     &  solar,swdn_surf,swup_surf,t_surf,hus_s,nnn)
-      print*,'case ', nnn, 'finished!'
-      end do
-
-      close(11)
-
       end program
 
 
@@ -134,9 +157,9 @@
       include 'cas_fu_radiation.f'
 
 C     NCLFORTSTART
-      subroutine baseline(ix,iy,zd1,zd18,plevel,ps,o3,ta,hus,
-     & cld_amt,co2mass,ice_wat,liq_wat,solar_in,
-     & swdn_sfc,swup_sfc,tsurf,huss,mm)
+      subroutine baseline(ix,iy,zd1,zd18,plevel,ps,o3,ta,hus,cld_amt,
+     &	co2mass,ch4mass,n2omass,ice_wat,liq_wat,solar_in,swdn_sfc,
+     &  swup_sfc,tsurf,huss,mm)
 
       INTEGER ix,iy,zd1,zd18,mm
       character*20 mm_ch
@@ -155,7 +178,7 @@ C       from AR4 data, Uses huss ctl run and hus co2 run, and surface pressure c
       include 'para.file'
 
       integer iseed
-      real plev(zd18),co2mass
+      real plev(zd18),co2mass,ch4mass,n2omass
       real as(mbs), albedo(IX,IY),ee(mbir)
       real dp(IX,IY,zd18)
       real X(IX,IY)
@@ -205,23 +228,27 @@ c      real tas(IX,IY),huss(IX,IY),rlus(IX,IY)
 *
       ss = 1360.89
       sbc= 5.67e-8
+      
       write(mm_ch,*)mm
       print*,mm_ch
-*-------------------------------------------------------------------------------
+
+*--------------------------------------------------------------------------------
+
+
 *     OUTPUT
 *
-       open ( unit = 22, file =
-     & './solar_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
+       open ( unit = 22, file = 
+     &  './warm_radranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access='direct',recl= ix*iy )
-       open ( unit = 32, file =
-     & './solar_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
+       open ( unit = 32, file = 
+     &  './warm_radsfc_ranc_'//Trim(AdjustL(mm_ch))//'.grd',
      & form='unformatted', access = 'direct',recl = ix*iy )
 
-       open ( unit = 51, file =
-     & './solar_input_'//Trim(AdjustL(mm_ch))//'.dat',
+       open ( unit = 51, file = 
+     &  './warm_input_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = ix*iy )
-       open ( unit = 52, file =
-     & './base_no_cloud_out_1.dat',
+       open ( unit = 52, file = 
+     &  './warm_no_cloud_out_'//Trim(AdjustL(mm_ch))//'.dat',
      & form='unformatted', access = 'direct', recl = 100*100 )
 
        print*, "begining"
@@ -305,7 +332,7 @@ cai       enddo
 
 c       do 2000 ilat = 52, 52
 c          do 2000 ilong = 123, 124
-c          print*,ilat,ilong
+          print*,ilat,ilong
 
 
           do 20 i = 1, 100
@@ -345,10 +372,10 @@ c          print*,ilat,ilong
           ndfs2      = ndfs * 2
 
           umco2 = co2mass
-          umch4 = 1.61
-          umn2o = 0.30
+          umch4 = ch4mass
+          umn2o = n2omass
 
-c          print*,p_surf,ts
+          print*,p_surf,ts
           do l = 1, nv
              pt(l)=ta(ilong,ilat,l)
              ph(l)=hus(ilong,ilat,l)
@@ -401,11 +428,11 @@ c             pmean=0.5*(pp(l)+pp(l+1))
 
  ! cloudy sky calculation
 
-          read(52,rec=irec52)no_cloud_out
-          irec52 = irec52+1
           call S_R_cloudy (u0,as,ss,pts,rad_base,area_c,sw_base,
      &            lw_base,water_c,ice_c,iseed,no_cloud_out)
 
+          write(52,rec=irec52)no_cloud_out
+          irec52 = irec52+1
 
           DO l=1,nv
 c             print*,fuir_tot(l),fdir_tot(l),l
@@ -675,39 +702,39 @@ c         print*,l,iarea_c(l),area_c(l)
 
       yes_c(:)=0
       no_c(:)=0
-      no_cloud(:,:)=no_cloud_out(:,:)
-c      no_cloud_out(:,:)=-999
+      no_cloud(:,:)=99
+      no_cloud_out(:,:)=-999
 
-c      do igrid = 1, 100
-c         do l = 1, nv
-c            if (iarea_c(l) .eq. 0) then
-c               no_c(l)=no_c(l)+1
-c               no_cloud(igrid,l)=1
-c               go to 10
-c            endif
-c            mran=int(100*ran3(iseed))
-c            if(mran .lt. iarea_c(l))then
-c               if (yes_c(l) .lt. iarea_c(l))then
-c                  no_cloud(igrid,l)=0
-c                  yes_c(l) = yes_c(l) + 1
-c               else
-c                  no_c(l)=no_c(l)+1
-c                  no_cloud(igrid,l)=1  !in this case, regardless of mran, no clouds
-c               endif
-c            else
-c               if (no_c(l) .lt. (100 - iarea_c(l)))then
-c                  no_cloud(igrid,l)=1
-c                  no_c(l)=no_c(l)+1
-c               else
-c                  yes_c(l)=yes_c(l)+1    !in this case, yes cloud for the remaining call of ran3
-c                  no_cloud(igrid,l)=0
-c               endif
-c            endif
-c 10         continue
-c         enddo
-c      enddo
+      do igrid = 1, 100
+         do l = 1, nv
+            if (iarea_c(l) .eq. 0) then
+               no_c(l)=no_c(l)+1
+               no_cloud(igrid,l)=1
+               go to 10
+            endif
+            mran=int(100*ran3(iseed))
+            if(mran .lt. iarea_c(l))then
+               if (yes_c(l) .lt. iarea_c(l))then
+                  no_cloud(igrid,l)=0
+                  yes_c(l) = yes_c(l) + 1
+               else
+                  no_c(l)=no_c(l)+1
+                  no_cloud(igrid,l)=1  !in this case, regardless of mran, no clouds
+               endif
+            else
+               if (no_c(l) .lt. (100 - iarea_c(l)))then
+                  no_cloud(igrid,l)=1
+                  no_c(l)=no_c(l)+1
+               else
+                  yes_c(l)=yes_c(l)+1    !in this case, yes cloud for the remaining call of ran3
+                  no_cloud(igrid,l)=0
+               endif
+            endif
+ 10         continue
+         enddo
+      enddo
 
-c        no_cloud_out(:,:)=no_cloud(:,:)
+        no_cloud_out(:,:)=no_cloud(:,:)
 
 c       print*,"no_cloud",no_cloud(1,:)
 c       print*,"no_cloud_out",no_cloud_out(1,:)
