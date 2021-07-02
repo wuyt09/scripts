@@ -1,6 +1,6 @@
       program main
 
-      INTEGER,PARAMETER :: zd1=37,IX=360,IY=181,zd18=38,nn=31
+      INTEGER,PARAMETER :: zd1=46,IX=320,IY=160,zd18=47,nn=26
 
 c  input data
       real rht_cloud(ix,iy,zd18),rht_base_sw(ix,iy,zd18)
