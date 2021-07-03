@@ -8,6 +8,7 @@ latend = 70
 yrStrt = 1979
 yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
+nyear = dimsizes(year)
 season = "JJA"
 
 ;===================================================================
@@ -30,12 +31,12 @@ model = (/"ACCESS-CM2","ACCESS-ESM1-5","BCC-CSM2-MR","CAS-ESM2-0","CESM2-WACCM",
          "MRI-ESM2-0","NorESM2-LM","NorESM2-MM","TaiESM1"/)
 nmodel = dimsizes(model)
 
-; x = new((/nmodel,nyear,nlat,nlon/), float)
+x = new((/nmodel,nyear,nlat,nlon/), float)
 rc = new((/nmodel,nlat,nlon/), float)
 rc!0 = "model"
 rc&model = model
 prob = rc
-do i = 0, 2 ;nmodel-1
+do i = 0, nmodel-1
     diri = "/home/yangsong3/CMIP6/"+model(i)+"/historical/"
     fili = systemfunc("ls "+diri+"tas_Amon_"+model(i)+"_historical_r1i1p1f1_g*.nc")
     print(fili)
@@ -43,15 +44,15 @@ do i = 0, 2 ;nmodel-1
 
     if (nfili.ge.2) then
         f1 = addfiles(fili, "r")
-        TIME = f1[:]->time
-        YYYY = cd_calendar(TIME, -1)/100
-        iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+        TIME := f1[:]->time
+        YYYY := cd_calendar(TIME, -1)/100
+        iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
         X = f1[:]->tas(iYYYY,:,:)
     else
         f1 = addfile(fili, "r")
-        TIME = f1->time
-        YYYY = cd_calendar(TIME, -1)/100
-        iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+        TIME := f1->time
+        YYYY := cd_calendar(TIME, -1)/100
+        iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
         X = f1->tas(iYYYY,:,:)
     end if
     printVarSummary(X)
@@ -61,6 +62,7 @@ do i = 0, 2 ;nmodel-1
     x_med = linint2_Wrap(xlon, xlat, X, True, lon, lat, 0)
     printVarSummary(x_med)
     x_season = month_to_season(x_med, season)
+    x(i,:,:,:) = x_season
 
     rc_med = regCoef_n(year, x_season, 0, 0)
     rc(i,:,:) = rc_med*10
@@ -72,11 +74,15 @@ do i = 0, 2 ;nmodel-1
     b    = 0.5
     prob(i,:,:) = betainc(df/(df+tval^2), df/2.0, b)
     copy_VarCoords(x_season(0,:,:), prob(i,:,:))
-    delete([/X,xlat,xlon,x_med,x_season/])
+    delete([/X,xlat,xlon,x_med,x_season,diri,fili,f1/])
 end do
 printVarSummary(rc)
 printVarSummary(prob)
 
+x_mme = dim_avg_n_Wrap(x, 0)
+rc_mme = regCoef_n(year, x_mme, 0, 0)
+rc_mme = rc_mme*10
+copy_VarCoords(rc(0,:,:), rc_mme)
 sig = 0.05
 
 ;================================================================
@@ -207,10 +213,21 @@ do i = 0, nmodel-1
     dum4(i) = gsn_add_polyline(wks, plot(i), glon4, glat4, gres)
 end do
 
+
+res@gsnLeftString = "MME"
+plot(nmodel) = gsn_csm_contour_map(wks, rc_mme, res)
+plot_topo(nmodel) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(nmodel), plot_topo(nmodel))
+
+dum1(nmodel) = gsn_add_polyline(wks, plot(nmodel), glon1, glat1, gres)
+dum2(nmodel) = gsn_add_polyline(wks, plot(nmodel), glon2, glat2, gres)
+dum3(nmodel) = gsn_add_polyline(wks, plot(nmodel), glon3, glat3, gres)
+dum4(nmodel) = gsn_add_polyline(wks, plot(nmodel), glon4, glat4, gres)
+
 pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
-pres@pmLabelBarOrthogonalPosF = 0.2
+pres@pmLabelBarOrthogonalPosF = -0.02
 pres@gsnPanelMainString = season+" trend ("+yrStrt+"-"+yrLast+")"
 gsn_panel(wks, plot, (/4,6/), pres)
 
