@@ -11,7 +11,7 @@ do i = 0, ncase-1
 end do
 lines = x(:,:,1:4)
 
-title = (/"WY","WNP","Gosiwami","EA"/)
+title = (/"WY","SEA","SA","EA"/)
 ;====================================================================
 ; plot
 ;====================================================================
@@ -37,6 +37,8 @@ res@xyDashPatterns = Patterns
 
 res@trXMinF = 1
 res@trXMaxF = 73
+res@tmXBPrecision = 2
+res@tiXAxisString = "Pentad"
 ; res@trYMaxF = 3
 ; res@trYMinF = -3
 
