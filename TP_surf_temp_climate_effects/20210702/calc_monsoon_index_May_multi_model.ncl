@@ -21,8 +21,8 @@ printVarSummary(u1)
 
 ; u = month_to_season(u1, "JJA")
 ; v = month_to_season(v1, "JJA")
-u = u1(4::12,:,:,:)
-v = v1(4::12,:,:,:)
+u = u1(5::12,:,:,:)
+v = v1(5::12,:,:,:)
 printVarSummary(u)
 
 ;===============================================================================
@@ -89,7 +89,7 @@ printVarSummary(index_rm2)
 ; wtite data to txt file
 ;===============================================================================
 filipath = "./"
-filiname = "May_monsoon_index_25year_"+casename(i)+".txt"
+filiname = "June_monsoon_index_25year_"+casename(i)+".txt"
 
 ; write_table(filipath+filiname, "w", [/"WY","SA-Goswami","SA-Wang","SEA-Wang","EA-LKY"/], "%10s %10s %10s %10s %10s")
 ; write_table(filipath+filiname, "a", [/index_wy,index_rm1,index_sa,index_wnp,index_rm2/], "%10.2f %10.2f %10.2f %10.2f %10.2f")
