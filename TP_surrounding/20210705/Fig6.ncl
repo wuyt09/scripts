@@ -1,3 +1,4 @@
+
 begin
 
 lonstr = -20
@@ -5,36 +6,56 @@ lonend = 160
 latstr = 0
 latend = 70
 
-yrStrt = 1979
+latstr_east = 30
+latend_east = 45
+lonstr_east = 105
+lonend_east = 140
+
+latstr_west = 30
+latend_west = 55
+lonstr_west = -10
+lonend_west = 60
+
+latstr_south = 10
+latend_south = 28
+lonstr_south = 70
+lonend_south = 90
+
+latstr_north = 45
+latend_north = 60
+lonstr_north = 85
+lonend_north = 120 
+
+latstr_tp = 25 ;28
+latend_tp = 40 ;38
+lonstr_tp = 75 ;80
+lonend_tp = 105
+
+yrStrt = 1980
 yrLast = 2019
 year = ispan(yrStrt, yrLast, 1)
-nyear = dimsizes(year)
 
 season = "JJA"
+
 ;===================================================================
 ; topo data
 ;===================================================================
 ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
 topo = ftopo->topo(::-1,:)
 printVarSummary(topo)
-
-
 ;===================================================================
-diri = "/home/yangsong3/data-observation/ERA5-monthly/surface/"
-fili = "t2m_mon_1x1_1979_2019.nc"
-; fili = "skt_mon_1x1_1979_2019.nc"
+diri = "/home/yangsong3/data-observation/MERRA2/monthly/aod/"
+fili = "aod.198001-202103.mon.nc4"
+
 f = addfile(diri+fili, "r")
 
 Time = f->time
 YYYY = cd_calendar(Time, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+x = f->AODANA(iYYYY,:,:)
+printVarSummary(x)
 
-t2m = short2flt(f->t2m(iYYYY,::-1,:))
-printVarSummary(t2m)
-
-
-t2m_clm = month_to_season(t2m, season)
-printVarSummary(t2m_clm)
+t2m_clm = month_to_season(x, season)
 
 rc = regCoef_n(year, t2m_clm, 0, 0)
 copy_VarCoords(t2m_clm(0,:,:), rc)
@@ -50,16 +71,16 @@ copy_VarCoords(rc, prob)
 rc@long_name = "regression coefficient"
 prob@long_name = "probability"
 
-
 trend = rc*10
 copy_VarCoords(rc, trend)
-trend@units = "K/decade"
+trend@units = "1/decade"
 printVarSummary(trend)
 
 sig = 0.05
+
 ;===============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surrounding/20210705/"
-figname = "Fig1"
+figname = "Fig6"
 wks = gsn_open_wks("eps", figpath+figname)
 
 plot = new(1, graphic)
@@ -76,7 +97,7 @@ plot_prob = new(1, graphic)
  res_topo@cnLineColor            = "forestgreen"
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
- res_topo@cnLevels               = (/1500/)
+ res_topo@cnLevels               = (/2000/)
  res_topo@gsnLeftString = ""
  res_topo@gsnRightString = ""
 
@@ -136,15 +157,15 @@ res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.02
 res@tmYLLabelFontHeightF = 0.02
 
-res@cnFillPalette = "CBR_coldhot"
+res@cnFillPalette = "BlueWhiteOrangeRed"
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnMinLevelValF = -1
-res@cnMaxLevelValF = 1
-res@cnLevelSpacingF = 0.2
+res@cnMinLevelValF = -0.1
+res@cnMaxLevelValF = 0.1
+res@cnLevelSpacingF = 0.02
 ; res@lbLabelBarOn = False
 
-res@gsnLeftString = "Surface Air Temp. trend";season+" trend ("+yrStrt+"-"+yrLast+")"
-res@gsnRightString = ""
+res@gsnLeftString = "AOD trend"
+res@gsnRightString = "10~S~-1~N~"
 res@pmLabelBarOrthogonalPosF = 0.12
 res@lbLabelFontHeightF = 0.015
 ; res@tiMainString = "surface temperature"
@@ -163,16 +184,14 @@ gres = True
 gres@gsLineColor = "blue"
 gres@gsLineThicknessF = 5.0
 gres@gsLineDashPattern = 16
- glon1 = (/120,120,85,85,120/)
- glat1 = (/45,60,60,45,45/) ; north
- glon2 = (/140,140,105,105,140/)
- glat2 = (/30,45,45,30,30/) ; east
- ; glon3 = (/100,100,50,50,100/)
- ; glat3 = (/10,25,25,10,10/) ; south
- glon3 = (/90,90,70,70,90/)
- glat3 = (/10,28,28,10,10/) ; south
- glon4 = (/60,60,-10,-10,60/)
- glat4 = (/30,55,55,30,30/) ; west
+ glon1 = (/lonend_north,lonend_north,lonstr_north,lonstr_north,lonend_north/)
+ glat1 = (/latstr_north,latend_north,latend_north,latstr_north,latstr_north/) ; north
+ glon2 = (/lonend_east,lonend_east,lonstr_east,lonstr_east,lonend_east/)
+ glat2 = (/latstr_east,latend_east,latend_east,latstr_east,latstr_east/) ; east
+ glon3 = (/lonend_south,lonend_south,lonstr_south,lonstr_south,lonend_south/)
+ glat3 = (/latstr_south,latend_south,latend_south,latstr_south,latstr_south/) ; south
+ glon4 = (/lonend_west,lonend_west,lonstr_west,lonstr_west,lonend_west/)
+ glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
 
 
@@ -181,5 +200,4 @@ dum2 = gsn_add_polyline(wks, plot(0), glon2, glat2, gres)
 dum3 = gsn_add_polyline(wks, plot(0), glon3, glat3, gres)
 dum4 = gsn_add_polyline(wks, plot(0), glon4, glat4, gres)
 draw(plot(0))
-
 end
