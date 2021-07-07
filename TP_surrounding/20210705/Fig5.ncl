@@ -284,8 +284,8 @@ gres@gsLineDashPattern = 16
  glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
 
-res@gsnLeftString = "(a) column-integrated cloud ice and liq"
-; res@gsnRightString = "10~S~-1~N~"
+res@gsnLeftString = "(a) Column-integrated Cloud Ice and Liq Water"
+res@gsnRightString = "10~S~-1~N~"
 plot(0) = gsn_csm_contour_map(wks, trend, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
@@ -336,8 +336,8 @@ res@gsnSpreadColors = True
 res@gsnSpreadColorEnd   = 0
 res@gsnSpreadColorStart = 10
 
-res@gsnLeftString = "(b) WV flux and its divergence"
-; res@gsnRightString = "10~S~-1~N"
+res@gsnLeftString = "(b) WV Flux and Divergence"
+res@gsnRightString = "10~S~-6~N"
 plot(1) = gsn_csm_contour_map(wks, rc_qdiv, res)
 plot_topo(1) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(1), plot_topo(1))

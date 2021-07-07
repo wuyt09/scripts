@@ -164,7 +164,7 @@ res@cnMaxLevelValF = 0.1
 res@cnLevelSpacingF = 0.02
 ; res@lbLabelBarOn = False
 
-res@gsnLeftString = "AOD trend"
+res@gsnLeftString = "AOD Trend"
 res@gsnRightString = "10~S~-1~N~"
 res@pmLabelBarOrthogonalPosF = 0.12
 res@lbLabelFontHeightF = 0.015

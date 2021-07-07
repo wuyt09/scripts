@@ -260,7 +260,7 @@ gres@gsLineDashPattern = 16
  glat4 = (/latstr_west,latend_west,latend_west,latstr_west,latstr_west/) ; west
 ;-----------------------------------
 
-res@gsnLeftString = "(a) Air Temp. ("+LEVs+"-"+LEVe+" hPa)" ;
+res@gsnLeftString = "(a) Air Temp" ; ("+LEVs+"-"+LEVe+" hPa)" ;
 ; res@gsnCenterString = season;+" trend ("+LEVs+"-"+LEVe+"hPa)"
 res@gsnRightString = "K/decade"
 plot(0) = gsn_csm_contour_map(wks, trend, res)

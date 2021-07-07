@@ -748,19 +748,19 @@ res@xyLineThicknessF = 3.0
 ; do i = 0, nA-1
 ;   plot_without_xgrid(i) = gsn_csm_xy(wks, year, zero, res)
 ; end do
-res@gsnLeftString = "(a) Western Region ("+lonstr_west+"-"+lonend_west+"E, "+latstr_west+"-"+latend_west+"N)"
+res@gsnLeftString = "(a) West region ("+lonstr_west+"-"+lonend_west+"E, "+latstr_west+"-"+latend_west+"N)"
 plot_without_xgrid(0) = gsn_csm_xy(wks, year, zero, res)
 
-res@gsnLeftString = "(b) Northern Region ("+lonstr_north+"-"+lonend_north+"E, "+latstr_north+"-"+latend_north+"N)"
+res@gsnLeftString = "(b) North region ("+lonstr_north+"-"+lonend_north+"E, "+latstr_north+"-"+latend_north+"N)"
 plot_without_xgrid(1) = gsn_csm_xy(wks, year, zero, res) ;y(:,1,:)
 
-res@gsnLeftString = "(c) Eastern Region ("+lonstr_east+"-"+lonend_east+"E, "+latstr_east+"-"+latend_east+"N)"
+res@gsnLeftString = "(c) East region ("+lonstr_east+"-"+lonend_east+"E, "+latstr_east+"-"+latend_east+"N)"
 plot_without_xgrid(2) = gsn_csm_xy(wks, year, zero, res)
 
-res@gsnLeftString = "(d) TP Region ("+lonstr_tp+"-"+lonend_tp+"E, "+latstr_tp+"-"+latend_tp+"N)"
+res@gsnLeftString = "(d) TP region ("+lonstr_tp+"-"+lonend_tp+"E, "+latstr_tp+"-"+latend_tp+"N)"
 plot_without_xgrid(3) = gsn_csm_xy(wks, year, zero, res)
 
-res@gsnLeftString = "(e) Southern Region ("+lonstr_south+"-"+lonend_south+"E, "+latstr_south+"-"+latend_south+"N)"
+res@gsnLeftString = "(e) South region ("+lonstr_south+"-"+lonend_south+"E, "+latstr_south+"-"+latend_south+"N)"
 plot_without_xgrid(4) = gsn_csm_xy(wks, year, zero, res)
 
 res@xyMonoDashPattern = False
@@ -1057,38 +1057,29 @@ text = (/"CRE","WV","Aero","Ta","AL","CO2","Solar","SH","LH"/) ;,"ERA5 upR","Cfr
 ; legend resources
 ;***********************************************
 ; lb_x(0,:) = (/1983.5,1983.5,1985.,1985.,1983.5/)
-; lb_x1 = (/0.72,0.76,0.76,0.72,0.72/)
-; lb_x2 = (/0.82,0.86,0.86,0.82,0.82/)
-lb_x1 = (/0.57,0.61,0.61,0.57,0.57/)
-lb_x2 = (/0.70,0.74,0.74,0.70,0.70/)
-lb_x3 = (/0.83,0.87,0.87,0.83,0.83/)
+lb_x1 = (/0.72,0.76,0.76,0.72,0.72/)
+lb_x2 = (/0.82,0.86,0.86,0.82,0.82/)
 
 lb_y = new((/10,5/), "float")
-lb_y(0,:) = (/0.29, 0.29, 0.31, 0.31, 0.29/)
+lb_y(0,:) = (/0.47, 0.47, 0.48, 0.48, 0.47/)
 do i = 1, 8
-  lb_y(i,:) = lb_y(i-1,:) - 0.05
+  lb_y(i,:) = lb_y(i-1,:) - 0.02
 end do
 
 lb_res = True
 lb_res@gsEdgesOn = True
 lb_res@gsEdgeThicknessF = 3
-do i = 0, 2
+do i = 0, 4
   lb_res@gsFillColor = lb_colors(i)
   lb_res@gsEdgeColor = lb_colors(i)
   lb_res@gsFillIndex = lb_dash(i)
   gsn_polygon_ndc(wks, lb_x1, lb_y(i,:), lb_res)
 end do
-do i = 3, 5
+do i = 5, 8
   lb_res@gsFillColor = lb_colors(i)
   lb_res@gsEdgeColor = lb_colors(i)
   lb_res@gsFillIndex = lb_dash(i)
-  gsn_polygon_ndc(wks, lb_x2, lb_y(i-3,:), lb_res)
-end do
-do i = 6, 8
-  lb_res@gsFillColor = lb_colors(i)
-  lb_res@gsEdgeColor = lb_colors(i)
-  lb_res@gsFillIndex = lb_dash(i)
-  gsn_polygon_ndc(wks, lb_x3, lb_y(i-6,:), lb_res)
+  gsn_polygon_ndc(wks, lb_x2, lb_y(i-5,:), lb_res)
 end do
 
 text_res = True
@@ -1096,24 +1087,20 @@ text_res@txFontHeightF = 0.012
 text_res@txJust             = "CenterLeft"
 ; text_plot = new(11, graphic)
 text_y = new(11, "float")
-text_y(0) = 0.30
+text_y(0) = 0.475
 do i = 1, 8
-  text_y(i) = text_y(i-1) - 0.05
+  text_y(i) = text_y(i-1) - 0.02
 end do
 ; do i = 8, 9
 ;   text_x(i) = text_x(i-1) + 3.0
 ; end do
-text_x1 = 0.615
-text_x2 = 0.745
-text_x3 = 0.875
-do i = 0, 2
+text_x1 = 0.77
+text_x2 = 0.87
+do i = 0, 4
   gsn_text_ndc(wks, text(i), text_x1, text_y(i), text_res)
 end do
-do i = 3, 5
-  gsn_text_ndc(wks, text(i), text_x2, text_y(i-3), text_res)
-end do
-do i = 6, 8
-  gsn_text_ndc(wks, text(i), text_x3, text_y(i-6), text_res)
+do i = 5, 8
+  gsn_text_ndc(wks, text(i), text_x2, text_y(i-5), text_res)
 end do
 
 ; line_color = (/"red","black"/)
@@ -1146,7 +1133,7 @@ print("***********************")
 pres = True
 pres@gsnMaximize = True
 print("++++++++++++++++++++++++++")
-gsn_panel(wks, plot_without_xgrid, (/3,2/), pres)
+gsn_panel(wks, plot_without_xgrid, (/2,3/), pres)
 
 ; draw(plot_without_xgrid)
 ; draw(plot_without_xgrid_xy)

@@ -143,7 +143,7 @@ res@cnMaxLevelValF = 1
 res@cnLevelSpacingF = 0.2
 ; res@lbLabelBarOn = False
 
-res@gsnLeftString = "Surface Air Temp. trend";season+" trend ("+yrStrt+"-"+yrLast+")"
+res@gsnLeftString = "Surface Air Temp Trend";season+" trend ("+yrStrt+"-"+yrLast+")"
 res@gsnRightString = ""
 res@pmLabelBarOrthogonalPosF = 0.12
 res@lbLabelFontHeightF = 0.015

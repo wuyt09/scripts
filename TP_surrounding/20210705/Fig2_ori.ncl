@@ -173,35 +173,35 @@ res2@tmYRPrecision = 4
 res2@tmYRLabelFontHeightF = 0.025
 
 
-res@gsnLeftString = "(a) Western Region ("+lonstr_west+"-"+lonend_west+"E, "+latstr_west+"-"+latend_west+"N)"
+res@gsnLeftString = "(a) West region ("+lonstr_west+"-"+lonend_west+"E, "+latstr_west+"-"+latend_west+"N)"
 res@trYMinF = 420
 res@trYMaxF = 456
 res2@trYMinF = 294
 res2@trYMaxF = 300
 plot(0) = gsn_csm_xy2(wks, year, lines(0:1,0,:), lines(2,0,:), res, res2)
 
-res@gsnLeftString = "(b) Northern Region ("+lonstr_north+"-"+lonend_north+"E, "+latstr_north+"-"+latend_north+"N)"
+res@gsnLeftString = "(b) North region ("+lonstr_north+"-"+lonend_north+"E, "+latstr_north+"-"+latend_north+"N)"
 res@trYMinF = 380
 res@trYMaxF = 410
 res2@trYMinF = 287
 res2@trYMaxF = 295
 plot(1) = gsn_csm_xy2(wks, year, lines(0:1,1,:), lines(2,1,:), res, res2)
 
-res@gsnLeftString = "(c) Eastern Region ("+lonstr_east+"-"+lonend_east+"E, "+latstr_east+"-"+latend_east+"N)"
+res@gsnLeftString = "(c) East region ("+lonstr_east+"-"+lonend_east+"E, "+latstr_east+"-"+latend_east+"N)"
 res@trYMinF = 415
 res@trYMaxF = 445
 res2@trYMinF = 294
 res2@trYMaxF = 300
 plot(2) = gsn_csm_xy2(wks, year, lines(0:1,2,:), lines(2,2,:), res, res2)
 
-res@gsnLeftString = "(d) TP Region ("+lonstr_tp+"-"+lonend_tp+"E, "+latstr_tp+"-"+latend_tp+"N)"
+res@gsnLeftString = "(d) TP region ("+lonstr_tp+"-"+lonend_tp+"E, "+latstr_tp+"-"+latend_tp+"N)"
 res@trYMinF = 360
 res@trYMaxF = 380
 res2@trYMinF = 281
 res2@trYMaxF = 286
 plot(3) = gsn_csm_xy2(wks, year, lines(0:1,3,:), lines(2,3,:), res, res2)
 
-res@gsnLeftString =  "(e) Southern Region ("+lonstr_south+"-"+lonend_south+"E, "+latstr_south+"-"+latend_south+"N)"
+res@gsnLeftString =  "(e) South region ("+lonstr_south+"-"+lonend_south+"E, "+latstr_south+"-"+latend_south+"N)"
 res@trYMinF = 445
 res@trYMaxF = 485
 res2@trYMinF = 298
@@ -213,8 +213,8 @@ plot(4) = gsn_csm_xy2(wks, year, lines(0:1,4,:), lines(2,4,:), res, res2)
 ;===========================================================
 lb_colors = (/"black","purple","firebrick2"/)
 lb_pattern = (/0,16,0/)
-xpos = (/0.55,0.62/)
-ypos = (/0.30,0.25,0.20/)
+xpos = (/0.72,0.76/)
+ypos = (/0.45,0.42,0.39/)
 gsres = True
 gsres@gsLineThicknessF = 5
 
@@ -224,11 +224,11 @@ do i = 0, 2
     gsn_polyline_ndc(wks, xpos, (/ypos(i),ypos(i)/), gsres)
 end do
 
-Text = (/"Surface upward LW","10-yr running averaged upward LW","T2m"/)
+Text = (/"Surface upward LW","10-yr running average upward LW","T2m"/)
 txres = True
-txres@txFontHeightF = 0.015
+txres@txFontHeightF = 0.01
 txres@txJust             = "CenterLeft"
-tx_xpos = 0.64
+tx_xpos = 0.77
 tx_ypos = ypos
 do i = 0, 2
     gsn_text_ndc(wks, Text(i), tx_xpos, tx_ypos(i), txres)
@@ -236,6 +236,6 @@ end do
 
 pres = True
 pres@gsnMaximize = True
-gsn_panel(wks, plot, (/3,2/), pres)
+gsn_panel(wks, plot, (/2,3/), pres)
 
 end
