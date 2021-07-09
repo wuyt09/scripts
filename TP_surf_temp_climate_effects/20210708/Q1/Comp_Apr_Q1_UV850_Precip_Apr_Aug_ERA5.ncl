@@ -8,15 +8,15 @@ nyear = dimsizes(year)
 Month = (/"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"/)
 season = "JJA"
 
-LEV = 200
+LEV = 850
 
-lonstr = 0
-lonend = 180
+lonstr = 30
+lonend = 150
 latstr = 0
 latend = 60
 
 ;-----------------------------------------------------------
-indexfili = "./time_series_TP_TT_Mar_Apr_May_ERA5.txt"
+indexfili = "./time_series_TP_Q1_Mar_Apr_May_ERA5.txt"
 inx = asciiread(indexfili, (/nyear,4/), "float")
 inx!0 = "year"
 inx&year = year
@@ -24,8 +24,8 @@ inx&year = year
 index = inx(:,2)
 printVarSummary(index)
 
-indhig := ind(index.ge.1.)
-indlow := ind(index.le.-1.)
+indhig := ind(index.ge.0.7)
+indlow := ind(index.le.-0.7)
 yearhig := year(indhig)
 yearlow := year(indlow)
 print(yearlow)
@@ -43,11 +43,11 @@ printVarSummary(topo)
 
 
 ;===================================================================
-diri = "/home/yangsong3/data-observation/ERA5-monthly/pressure/"
-fili1 = "t_mon_1x1_1979_2020.nc.nc"
-fili2 = "u_mon_1x1_1979_2020.nc"
-fili3 = "v_mon_1x1_1979_2020.nc"
-fili4 = "hgt_mon_1x1_1979_2019.nc"
+diri = "/home/yangsong3/data-observation/ERA5-monthly/"
+fili1 = "surface/tp_mon_1x1_1979_2020.nc"
+fili2 = "pressure/u_mon_1x1_1979_2020.nc"
+fili3 = "pressure/v_mon_1x1_1979_2020.nc"
+fili4 = "surface/sur_pressure_mon_1x1_1979_2019.nc"
 
 f1 = addfile(diri+fili1, "r")
 f2 = addfile(diri+fili2, "r")
@@ -57,11 +57,13 @@ TIME = f1->time
 YYYY = cd_calendar(TIME, -1)/100
 iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
 
-T = short2flt(f1->t(iYYYY,{500},{latstr:latend},{lonstr:lonend}))
+PREC = short2flt(f1->tp(iYYYY,{latstr:latend},{lonstr:lonend}))
+PREC = PREC*1000. ; mm/day
 U = short2flt(f2->u(iYYYY,{LEV},{latstr:latend},{lonstr:lonend}))
 V = short2flt(f3->v(iYYYY,{LEV},{latstr:latend},{lonstr:lonend}))
-Z = short2flt(f4->z(iYYYY,{LEV},{latstr:latend},{lonstr:lonend}))
-Z = Z/9.8
+PS = short2flt(f4->sp(iYYYY,{latstr:latend},{lonstr:lonend}))
+U = mask(U, PS.ge.LEV*100, True)
+V = mask(V, PS.ge.LEV*100, True)
 printVarSummary(U)
 
 lat = U&latitude
@@ -74,8 +76,7 @@ u!0 = "time"
 title = (/"Apr","May","Jun","Jul","Aug","JJA"/)
 u&time = title
 v = u
-t = u
-z = u
+prec = u
 
 do i = 0, 4
     i_strt = i+3
@@ -83,71 +84,58 @@ do i = 0, 4
     print(U(i_strt::12,20,20))
     u(i,:,:,:) = U(i_strt::12,:,:)
     v(i,:,:,:) = V(i_strt::12,:,:)
-    z(i,:,:,:) = Z(i_strt::12,:,:)
-    t(i,:,:,:) = T(i_strt::12,:,:)
+    prec(i,:,:,:) = PREC(i_strt::12,:,:)
 end do
 u(5,:,:,:) = month_to_season(U, season)
 v(5,:,:,:) = month_to_season(V, season)
-z(5,:,:,:) = month_to_season(Z, season)
-t(5,:,:,:) = month_to_season(T, season)
+prec(5,:,:,:) = month_to_season(PREC, season)
 printVarSummary(u)
 
 u_hig = u(:,indhig,:,:)
 u_low = u(:,indlow,:,:)
 v_hig = v(:,indhig,:,:)
 v_low = v(:,indlow,:,:)
-z_hig = z(:,indhig,:,:)
-z_low = z(:,indlow,:,:)
-t_hig = t(:,indhig,:,:)
-t_low = t(:,indlow,:,:)
+prec_hig = prec(:,indhig,:,:)
+prec_low = prec(:,indlow,:,:)
 
 uave_hig = dim_avg_n_Wrap(u_hig, 1)
 uave_low = dim_avg_n_Wrap(u_low, 1)
 vave_hig = dim_avg_n_Wrap(v_hig, 1)
 vave_low = dim_avg_n_Wrap(v_low, 1)
-zave_hig = dim_avg_n_Wrap(z_hig, 1)
-zave_low = dim_avg_n_Wrap(z_low, 1)
-tave_hig = dim_avg_n_Wrap(t_hig, 1)
-tave_low = dim_avg_n_Wrap(t_low, 1)
+precave_hig = dim_avg_n_Wrap(prec_hig, 1)
+precave_low = dim_avg_n_Wrap(prec_low, 1)
 
 uvar_hig = dim_variance_n_Wrap(u_hig, 1)
 uvar_low = dim_variance_n_Wrap(u_low, 1)
 vvar_hig = dim_variance_n_Wrap(v_hig, 1)
 vvar_low = dim_variance_n_Wrap(v_low, 1)
-tvar_hig = dim_variance_n_Wrap(t_hig, 1)
-tvar_low = dim_variance_n_Wrap(t_low, 1)
-zvar_hig = dim_variance_n_Wrap(z_hig, 1)
-zvar_low = dim_variance_n_Wrap(z_low, 1)
+precvar_hig = dim_variance_n_Wrap(prec_hig, 1)
+precvar_low = dim_variance_n_Wrap(prec_low, 1)
 
 prob_u = ttest(uave_hig, uvar_hig, numhig, uave_low, uvar_low, numlow, False, False)
 prob_v = ttest(vave_hig, vvar_hig, numhig, vave_low, vvar_low, numlow, False, False)
-prob_t = ttest(tave_hig, tvar_hig, numhig, tave_low, tvar_low, numlow, False, False)
-prob_z = ttest(zave_hig, zvar_hig, numhig, zave_low, zvar_low, numlow, False, False)
+prob_prec = ttest(precave_hig, precvar_hig, numhig, precave_low, precvar_low, numlow, False, False)
 printVarSummary(prob_u)
 
 diff_u = uave_hig - uave_low
 copy_VarCoords(uave_hig, diff_u)
 diff_v = vave_hig - vave_low
 copy_VarCoords(vave_hig, diff_v)
-diff_t = tave_hig - tave_low
-copy_VarCoords(tave_hig, diff_t)
-diff_z = zave_hig - zave_low
-copy_VarCoords(zave_hig, diff_z)
+diff_prec = precave_hig - precave_low
+copy_VarCoords(precave_hig, diff_prec)
 printVarSummary(diff_u)
 
 sig = 0.05
 
 ;===============================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210708/TTT/"
-figname = "Comp_Apr_TTT_UV200_T500_SAH_Apr_Aug_ERA5"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210708/Q1/"
+figname = "Comp_Apr_Q1_UV850_Precip_Apr_Aug_ERA5"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
 nplot = 6
 plot = new(nplot, graphic)
 plotv = plot
-plotc1 = plot
-plotc2 = plot
 plot_topo = plot
 
 ;----------------------------------------------------
@@ -193,13 +181,13 @@ res@gsnStringFontHeightF = 0.035
 res@tmXBLabelFontHeightF = 0.025
 res@tmYLLabelFontHeightF = 0.025
 
-; res@gsnRightString = ""
+res@gsnRightString = "mm/day"
 ;-------------------------------------------------------------------------
 
   vcres                         = True             ; plot mods desired
   vcres@gsnFrame                = False            ; so we can draw time stamp
   vcres@gsnDraw                 = False
-  vcres@vcRefAnnoOrthogonalPosF = -0.35          ; move ref vector up
+  vcres@vcRefAnnoOrthogonalPosF = -0.4          ; move ref vector up
 
   vcres@vcGlyphStyle            = "LineArrow" ; "CurlyVector"    ; turn on curly vectors
   ;vcres@vcMinDistanceF          = 0.017
@@ -212,57 +200,24 @@ res@tmYLLabelFontHeightF = 0.025
   ;vecres@vcLineArrowHeadMaxSizeF = 0.3
 
   vcres@vcRefAnnoString2On = False
-  vcres@vcRefAnnoFontHeightF = 0.02
-  vcres@gsnLeftString = ""
-  vcres@gsnRightString = ""
+  vcres@vcRefAnnoFontHeightF = 0.03
 
 ;-------------------------------------------------------------------------
-;===========================================================
-cnres = True
-cnres@gsnDraw  = False
-cnres@gsnFrame = False
-
-cnres@cnFillOn = False
-cnres@cnLinesOn = True
-cnres@cnLineLabelsOn = True
-cnres@cnLineLabelFontColor = "red"
-cnres@cnLineColor = "purple"
-cnres@cnLineThicknessF = 5
-cnres@cnInfoLabelOn = False
-;cnres@cnLineDrawOrder = "PostDraw"
-cnres@cnLabelDrawOrder = "PostDraw"
-;cnres@cnLevelFlag = "LineAndLabel"
-cnres@cnLineLabelInterval = 1
-
-cnres@cnLevelSelectionMode = "ManualLevels"
-cnres@cnLevelSpacingF = 50.
-cnres@cnMaxLevelValF = 12650.
-cnres@cnMinLevelValF = 12450.
-cnres@gsnLeftString = ""
-cnres@gsnRightString = ""
-;===========================================================
 
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnFillPalette = "CBR_coldhot"
-res@cnLevelSpacingF   = 0.2
-res@cnMaxLevelValF    = 2.
-res@cnMinLevelValF    = -2.
+res@cnLevelSpacingF = 0.5
+res@cnMaxLevelValF = 5.
+res@cnMinLevelValF = -5.
+res@cnFillPalette = "CBR_drywet"
 res@lbLabelBarOn = False
 
-vcres@vcRefMagnitudeF         = 5.0 
+vcres@vcRefMagnitudeF         = 2.0 
 
 do i = 0, 5
     res@gsnLeftString = title(i)
-    plot(i) = gsn_csm_contour_map(wks, diff_t(i,:,:), res)
+    plot(i) = gsn_csm_contour_map(wks, diff_prec(i,:,:), res)
     plotv(i) = gsn_csm_vector(wks, diff_u(i,:,:), diff_v(i,:,:), vcres)
     overlay(plot(i), plotv(i))
-
-    ; cnres@cnLineColor = "red"
-    ; plotc1(i) = gsn_csm_contour(wks, zave_hig(i,:,:), cnres)
-    ; overlay(plot(i), plotc1(i))
-    ; cnres@cnLineColor = "blue"
-    ; plotc2(i) = gsn_csm_contour(wks, zave_low(i,:,:), cnres)
-    ; overlay(plot(i), plotc2(i))
 
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))

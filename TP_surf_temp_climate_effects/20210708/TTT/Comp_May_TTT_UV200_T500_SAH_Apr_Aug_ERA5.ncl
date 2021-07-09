@@ -21,7 +21,7 @@ inx = asciiread(indexfili, (/nyear,4/), "float")
 inx!0 = "year"
 inx&year = year
 
-index = inx(:,2)
+index = inx(:,3)
 printVarSummary(index)
 
 indhig := ind(index.ge.1.)
@@ -79,8 +79,8 @@ z = u
 
 do i = 0, 4
     i_strt = i+3
-    print(i_strt)
-    print(U(i_strt::12,20,20))
+    ; print(i_strt)
+    ; print(U(i_strt::12,20,20))
     u(i,:,:,:) = U(i_strt::12,:,:)
     v(i,:,:,:) = V(i_strt::12,:,:)
     z(i,:,:,:) = Z(i_strt::12,:,:)
@@ -139,7 +139,7 @@ sig = 0.05
 
 ;===============================================================
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210708/TTT/"
-figname = "Comp_Apr_TTT_UV200_T500_SAH_Apr_Aug_ERA5"
+figname = "Comp_May_TTT_UV200_T500_SAH_Apr_Aug_ERA5"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
