@@ -20,88 +20,61 @@ END_ESM=5
 ensemble = ispan(STRT_ESM, END_ESM, 1)
 member = dimsizes(ensemble)
 
-pens = 46
-pene = 54
+pens = 18
+pene = 26
 npen = pene - pens + 1
 
-z = new((/ncase,npen,nlat,nlon/), float)
-u = z
-v = z
-p = z
+P = new((/member,365,nlat,nlon/), float)
+U = P
+V = P
+p = new((/ncase,npen,nlat,nlon/), float)
+u = p
+v = p
 
 do i = 0, ncase-1
   do j = 0, member-1
-    diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/Ensemble_"+ensemble(j)
+    diri = "/home/yangsong3/data-model/wuyt/TP_"+casename(i)+"_F2000_F19G16_CAM4/pro/Ensemble_"+ensemble(j)+"/"
     pname = casename(i)+".PREC.daily.51.nc"
-    fp
+    uname = casename(i)+".U.daily.51.nc"
+    vname = casename(i)+".V.daily.51.nc"
+    fp = addfile(diri+pname, "r")
+    fu = addfile(diri+uname, "r")
+    fv = addfile(diri+vname, "r")
+    P_med = fp->PREC
+    P_med = P_med*1000*86400 ;units mm/day
+    P(j,:,:,:) = P_med
+    copy_VarCoords(P_med, P(j,:,:,:))
+    U_med = fu->U(:,{LEV},:,:)
+    V_med = fv->V(:,{LEV},:,:)
+    U(j,:,:,:) = U_med
+    V(j,:,:,:) = V_med
+    copy_VarCoords(U_med, U(j,:,:,:))
+    copy_VarCoords(V_med, V(j,:,:,:))
   end do
-  pname1 = "F2000_"+casename(i)+".PRECC.daily.06-30.nc"
-  pname2 = "F2000_"+casename(i)+".PRECL.daily.06-30.nc"
-  fp1 = addfile(diri+pname1, "r")
-  fp2 = addfile(diri+pname2, "r")
-  P1 = fp1->PRECC
-  P2 = fp2->PRECL
-  P = P1
-  P = P1+P2
-  P = P*1000*86400
-  P@units = "mm/day"
-  printVarSummary(P)
-
   do ll = pens-1, pene-1
     l = ll - (pens-1)
     p_med = dim_sum_n_Wrap(P(:,5*ll:5*ll+4,:,:), 1)/5.0
     p(i,l,:,:)  = dim_avg_n_Wrap(p_med, 0)
+    u_med = dim_sum_n_Wrap(U(:,5*ll:5*ll+4,:,:), 1)/5.0
+    u(i,l,:,:)  = dim_avg_n_Wrap(u_med, 0)
+    v_med = dim_sum_n_Wrap(V(:,5*ll:5*ll+4,:,:), 1)/5.0
+    v(i,l,:,:)  = dim_avg_n_Wrap(v_med, 0)
   end do
   copy_VarCoords(P(0,0,:,:), p(0,0,:,:))
-  delete([/fp1,fp2,P1,P2,P/])
-
-  pentad_U = new((/nyear,npen,nlat,nlon/), float)
-  pentad_V = pentad_U
-  pentad_Z = pentad_U
-  do j = 0, nyear-1
-    yr = sprinti("%0.2i", year(j))
-    zname = "F2000_"+casename(i)+".plevel.Z3."+yr+".daily.nc"
-    uname = "F2000_"+casename(i)+".plevel.U."+yr+".daily.nc"
-    vname = "F2000_"+casename(i)+".plevel.V."+yr+".daily.nc"
-    fz = addfile(diri+zname, "r")
-    fu = addfile(diri+uname, "r")
-    fv = addfile(diri+vname, "r")
-    Z = fz->Z3(:,{500},:,:)
-    U = fu->U(:,{LEV},:,:)
-    V = fv->V(:,{LEV},:,:)
-
-    do ll = pens-1, pene-1
-      l = ll - (pens-1)
-      pentad_Z(j,l,:,:) = dim_sum_n_Wrap(Z(5*ll:5*ll+4,:,:), 0)/5.0
-      pentad_U(j,l,:,:) = dim_sum_n_Wrap(U(5*ll:5*ll+4,:,:), 0)/5.0
-      pentad_V(j,l,:,:) = dim_sum_n_Wrap(V(5*ll:5*ll+4,:,:), 0)/5.0
-    end do
-    copy_VarCoords(Z(0,:,:), pentad_Z(0,0,:,:))
-    copy_VarCoords(V(0,:,:), pentad_V(0,0,:,:))
-    copy_VarCoords(U(0,:,:), pentad_U(0,0,:,:))
-
-  delete([/fz,fu,fv,Z,U,V/])
-  end do
-
-  z(i,:,:,:) = dim_avg_n_Wrap(pentad_Z, 0)
-  u(i,:,:,:) = dim_avg_n_Wrap(pentad_U, 0)
-  v(i,:,:,:) = dim_avg_n_Wrap(pentad_V, 0)
-
-  delete([/pentad_U,pentad_V,pentad_Z/])
-
-
+  copy_VarCoords(U(0,0,:,:), u(0,0,:,:))
+  copy_VarCoords(V(0,0,:,:), v(0,0,:,:))
 end do
-z!0 = "case"
-z&case = casename
-z!1 = "time"
+
+p!0 = "case"
+p&case = casename
+p!1 = "time"
 title = ispan(pens, pene, 1)
-z&time = title
+p&time = title
 ; z!2 = "year"
 ; z&year = year
-printVarSummary(z)
-copy_VarCoords(z, u)
-copy_VarCoords(z, v)
-copy_VarCoords(z, p)
+printVarSummary(p)
+copy_VarCoords(p, u)
+copy_VarCoords(p, v)
 printVarSummary(u)
 
 ; ;=========================ttest================================================
@@ -136,22 +109,22 @@ printVarSummary(u)
 ;     prob_p(i,:,:,:) = ttest(p_ave(0,:,:,:), p_var(0,:,:,:), nyear, p_ave(i+1,:,:,:), p_var(i+1,:,:,:), nyear, False, False)
 ; end do
 
-diff_u = u(0:ncase-2,:,:,:)
-diff_v = v(0:ncase-2,:,:,:)
-diff_z = z(0:ncase-2,:,:,:)
-diff_p = p(0:ncase-2,:,:,:)
-do i = 0, ncase-2
-  diff_u(i,:,:,:) = u(0,:,:,:) - u(i+1,:,:,:)
-  diff_v(i,:,:,:) = v(0,:,:,:) - v(i+1,:,:,:)
-  diff_z(i,:,:,:) = z(0,:,:,:) - z(i+1,:,:,:)
-  diff_p(i,:,:,:) = p(0,:,:,:) - p(i+1,:,:,:)
-end do
+; diff_u = u(0:ncase-2,:,:,:)
+; diff_v = v(0:ncase-2,:,:,:)
+; diff_z = z(0:ncase-2,:,:,:)
+; diff_p = p(0:ncase-2,:,:,:)
+; do i = 0, ncase-2
+;   diff_u(i,:,:,:) = u(0,:,:,:) - u(i+1,:,:,:)
+;   diff_v(i,:,:,:) = v(0,:,:,:) - v(i+1,:,:,:)
+;   diff_z(i,:,:,:) = z(0,:,:,:) - z(i+1,:,:,:)
+;   diff_p(i,:,:,:) = p(0,:,:,:) - p(i+1,:,:,:)
+; end do
 
 sig = 0.05
 ; diff_u = mask(diff_u, (prob_u.le.sig) .and. (prob_v.le.sig), True)
 ; diff_v = mask(diff_v, (prob_u.le.sig) .and. (prob_v.le.sig), True)
 ; diff_z = mask(diff_z, prob_z.le.sig, True)
-printVarSummary(diff_z)
+; printVarSummary(diff_z)
 
 ;===================================================================
 ; topo data
@@ -174,7 +147,7 @@ tpmask = topo
  ; tpmask = topo
 ;-------------------------------------------------------------------
 figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210702/"
-figname = "UV850_Precip_Pentad_"+pens+"-"+pene+"_CTRL_thermal"
+figname = "UV850_Precip_Pentad_"+pens+"-"+pene+"_CTRL_thermal_ensemble"
 
 wks = gsn_open_wks("pdf", figpath+figname)
 
@@ -280,20 +253,27 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
 
   res@pmLabelBarOrthogonalPosF = 0.12
 
-  vcres@vcRefMagnitudeF = 2.0
-  res@cnFillPalette = "CBR_drywet"
+  ; vcres@vcRefMagnitudeF = 2.0
+  ; res@cnFillPalette = "CBR_drywet"
+  ; res@cnLevelSelectionMode = "ManualLevels"
+  ; res@cnLevelSpacingF   = 0.5
+  ; res@cnMaxLevelValF    = 5.
+  ; res@cnMinLevelValF    = -5.
+  vcres@vcRefMagnitudeF = 8.0
+  res@cnFillPalette = "CBR_wet"
   res@cnLevelSelectionMode = "ManualLevels"
-  res@cnLevelSpacingF   = 0.5
-  res@cnMaxLevelValF    = 5.
-  res@cnMinLevelValF    = -5.
+  res@cnLevelSpacingF   = 2
+  res@cnMaxLevelValF    = 20.
+  res@cnMinLevelValF    = 1.
   res@lbLabelBarOn = False
 
-  do i = 1, ncase-2
-    res@gsnRightString = "CTRL - "+casename(i+1)
+  ; do i = 1, ncase-2
+  i = 0
+    ; res@gsnRightString = "CTRL - "+casename(i+1)
     do j = 0, npen-1
       res@gsnLeftString = "Pentad "+(pens+j)
-      plot(j) = gsn_csm_contour_map(wks, diff_p(i,j,:,:), res)
-      plotv(j) = gsn_csm_vector(wks, diff_u(i,j,:,:), diff_v(i,j,:,:), vcres)
+      plot(j) = gsn_csm_contour_map(wks, p(i,j,:,:), res)
+      plotv(j) = gsn_csm_vector(wks, u(i,j,:,:), v(i,j,:,:), vcres)
       plot_topo(j) = gsn_csm_contour(wks, tpmask, res_topo)
       overlay(plot(j), plotv(j))
       overlay(plot(j), plot_topo(j))
@@ -304,6 +284,6 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
 
     gsn_panel(wks, plot, (/3,3/), pres)
 
-  end do
+  ; end do
 
 end
