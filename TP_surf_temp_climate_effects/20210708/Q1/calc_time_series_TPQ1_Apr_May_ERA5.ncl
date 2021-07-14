@@ -1,7 +1,7 @@
 begin
 
 yrStrt = 1979
-yrLast = 2019
+yrLast = 2016
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
@@ -58,7 +58,7 @@ printVarSummary(tdp)
 ts_obs = dim_sum_n_Wrap(tdp, 1)
 copy_VarCoords(t(:,0,:,:), ts_obs)
 
-ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
+; ts_obs = dtrend_msg_n(time, ts_obs, False, False, 0)
 TS_obs = mask(ts_obs, topo.ge.1500, True)
 copy_VarCoords(ts_obs, TS_obs)
 TS_obs_sea = new((/3,nyear,nlat,nlon/), float)
@@ -68,6 +68,7 @@ TS_obs_sea(2,:,:,:) = TS_obs(4::12,:,:)
 copy_VarCoords(ts_obs(0,:,:), TS_obs_sea(0,0,:,:))
 TS_obs_sea!1 = "year"
 TS_obs_sea&year = year
+TS_obs_sea = dtrend_msg_n(year, TS_obs_sea, False, False, 1)
 TP_obs = wgt_areaave_Wrap(TS_obs_sea(:,:,{latstr:latend},{lonstr:lonend}), 1, 1, 0)
 printVarSummary(TP_obs)
 

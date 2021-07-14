@@ -11,7 +11,7 @@ lonend = 150
 latstr = 0
 latend = 60
 
-casename = (/"NOHEAT_APR"/) ;
+casename = (/"NOHEAT_CTRL","NOHEAT_APR","NOHEAT_MAY"/) ;"NOHEAT_ALL",
 ncase = dimsizes(casename)
 season = "JJA"
 
@@ -78,47 +78,40 @@ copy_VarCoords(p, v)
 printVarSummary(u)
 
 ; ;=========================ttest================================================
+
 ; u_var = dim_variance_n_Wrap(u, 2)
 ; v_var = dim_variance_n_Wrap(v, 2)
-; z_var = dim_variance_n_Wrap(z, 2)
+; ; z_var = dim_variance_n_Wrap(z, 2)
 ; p_var = dim_variance_n_Wrap(p, 2)
 
 ; u_ave = dim_avg_n_Wrap(u, 2)
 ; v_ave = dim_avg_n_Wrap(v, 2)
-; z_ave = dim_avg_n_Wrap(z, 2)
+; ; z_ave = dim_avg_n_Wrap(z, 2)
 ; p_ave = dim_avg_n_Wrap(p, 2)
 
-; diff_u = u_ave(0:ncase-2,:,:,:)
-; diff_v = v_ave(0:ncase-2,:,:,:)
+u_ave = u
+v_ave = v
+p_ave = p
+diff_u = u_ave(0:ncase-2,:,:,:)
+diff_v = v_ave(0:ncase-2,:,:,:)
 ; diff_z = z_ave(0:ncase-2,:,:,:)
-; diff_p = p_ave(0:ncase-2,:,:,:)
+diff_p = p_ave(0:ncase-2,:,:,:)
 ; prob_u = u_ave(0:ncase-2,:,:,:)
 ; prob_v = v_ave(0:ncase-2,:,:,:)
-; prob_z = z_ave(0:ncase-2,:,:,:)
+; ; prob_z = z_ave(0:ncase-2,:,:,:)
 ; prob_p = p_ave(0:ncase-2,:,:,:)
 
-; do i = 0, ncase-2
-;     diff_u(i,:,:,:) = u_ave(0,:,:,:) - u_ave(i+1,:,:,:)
-;     diff_v(i,:,:,:) = v_ave(0,:,:,:) - v_ave(i+1,:,:,:)
-;     diff_z(i,:,:,:) = z_ave(0,:,:,:) - z_ave(i+1,:,:,:)
-;     diff_p(i,:,:,:) = p_ave(0,:,:,:) - p_ave(i+1,:,:,:)
+do i = 0, ncase-2
+    diff_u(i,:,:,:) = u_ave(0,:,:,:) - u_ave(i+1,:,:,:)
+    diff_v(i,:,:,:) = v_ave(0,:,:,:) - v_ave(i+1,:,:,:)
+    ; diff_z(i,:,:,:) = z_ave(0,:,:,:) - z_ave(i+1,:,:,:)
+    diff_p(i,:,:,:) = p_ave(0,:,:,:) - p_ave(i+1,:,:,:)
 
-;     prob_u(i,:,:,:) = ttest(u_ave(0,:,:,:), u_var(0,:,:,:), nyear, u_ave(i+1,:,:,:), u_var(i+1,:,:,:), nyear, False, False)
-;     prob_v(i,:,:,:) = ttest(v_ave(0,:,:,:), v_var(0,:,:,:), nyear, v_ave(i+1,:,:,:), v_var(i+1,:,:,:), nyear, False, False)
-;     prob_z(i,:,:,:) = ttest(z_ave(0,:,:,:), z_var(0,:,:,:), nyear, z_ave(i+1,:,:,:), z_var(i+1,:,:,:), nyear, False, False)
-;     prob_p(i,:,:,:) = ttest(p_ave(0,:,:,:), p_var(0,:,:,:), nyear, p_ave(i+1,:,:,:), p_var(i+1,:,:,:), nyear, False, False)
-; end do
-
-; diff_u = u(0:ncase-2,:,:,:)
-; diff_v = v(0:ncase-2,:,:,:)
-; diff_z = z(0:ncase-2,:,:,:)
-; diff_p = p(0:ncase-2,:,:,:)
-; do i = 0, ncase-2
-;   diff_u(i,:,:,:) = u(0,:,:,:) - u(i+1,:,:,:)
-;   diff_v(i,:,:,:) = v(0,:,:,:) - v(i+1,:,:,:)
-;   diff_z(i,:,:,:) = z(0,:,:,:) - z(i+1,:,:,:)
-;   diff_p(i,:,:,:) = p(0,:,:,:) - p(i+1,:,:,:)
-; end do
+    ; prob_u(i,:,:,:) = ttest(u_ave(0,:,:,:), u_var(0,:,:,:), nyear, u_ave(i+1,:,:,:), u_var(i+1,:,:,:), nyear, False, False)
+    ; prob_v(i,:,:,:) = ttest(v_ave(0,:,:,:), v_var(0,:,:,:), nyear, v_ave(i+1,:,:,:), v_var(i+1,:,:,:), nyear, False, False)
+    ; ; prob_z(i,:,:,:) = ttest(z_ave(0,:,:,:), z_var(0,:,:,:), nyear, z_ave(i+1,:,:,:), z_var(i+1,:,:,:), nyear, False, False)
+    ; prob_p(i,:,:,:) = ttest(p_ave(0,:,:,:), p_var(0,:,:,:), nyear, p_ave(i+1,:,:,:), p_var(i+1,:,:,:), nyear, False, False)
+end do
 
 sig = 0.05
 ; diff_u = mask(diff_u, (prob_u.le.sig) .and. (prob_v.le.sig), True)
@@ -267,13 +260,13 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   res@cnMinLevelValF    = 1.
   res@lbLabelBarOn = False
 
-  ; do i = 1, ncase-2
+  do i = 1, ncase-2
   i = 0
-    ; res@gsnRightString = "CTRL - "+casename(i+1)
+    res@gsnRightString = "CTRL - "+casename(i+1)
     do j = 0, npen-1
       res@gsnLeftString = "Pentad "+(pens+j)
-      plot(j) = gsn_csm_contour_map(wks, p(i,j,:,:), res)
-      plotv(j) = gsn_csm_vector(wks, u(i,j,:,:), v(i,j,:,:), vcres)
+      plot(j) = gsn_csm_contour_map(wks, diff_p(i,j,:,:), res)
+      plotv(j) = gsn_csm_vector(wks, diff_u(i,j,:,:), diff_v(i,j,:,:), vcres)
       plot_topo(j) = gsn_csm_contour(wks, tpmask, res_topo)
       overlay(plot(j), plotv(j))
       overlay(plot(j), plot_topo(j))
@@ -284,6 +277,6 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
 
     gsn_panel(wks, plot, (/3,3/), pres)
 
-  ; end do
+  end do
 
 end
