@@ -24,7 +24,7 @@ z = new((/ncase,6,member,nlat,nlon/), float)
 z!0 = "case"
 z&case = casename
 z!1 = "time"
-title = (/"Jan","Feb","March","April","May","JJA"/) ;"June","July",,"August"
+title = (/"March","April","May","June","July","JJA"/) ;,"August""Jan","Feb",
 z&time = title
 z!2 = "member"
 z&member = ensemble
@@ -51,22 +51,22 @@ do i = 0, ncase-1
     U = fu->U(:,{LEV},:,:)
     V = fv->V(:,{LEV},:,:)
 
-    z(i,0:4,j,:,:) = Z(0:4,:,:)
+    z(i,0:4,j,:,:) = Z(2:6,:,:)
     z_med = month_to_season(Z, season)
     z(i,5,j,:,:) = (/z_med(0,:,:)/)
     ; copy_VarCoords(Z(0,:,:), z(i,0,j,:,:))
     
-    p(i,0:4,j,:,:) = P(0:4,:,:)
+    p(i,0:4,j,:,:) = P(2:6,:,:)
     p_med = month_to_season(P, season)
     p(i,5,j,:,:) = (/p_med(0,:,:)/)
     ; copy_VarCoords(P(0,:,:), p(i,0,0,:,:))
 
-    u(i,0:4,j,:,:) = U(0:4,:,:)
+    u(i,0:4,j,:,:) = U(2:6,:,:)
     u_med = month_to_season(U, season)
     u(i,5,j,:,:) = (/u_med(0,:,:)/)
     ; copy_VarCoords(U(0,:,:), u(i,0,0,:,:))
 
-    v(i,0:4,j,:,:) = V(0:4,:,:)
+    v(i,0:4,j,:,:) = V(2:6,:,:)
     v_med = month_to_season(V, season)
     v(i,5,j,:,:) = (/v_med(0,:,:)/)
     ; copy_VarCoords(V(0,:,:), v(i,0,0,:,:))

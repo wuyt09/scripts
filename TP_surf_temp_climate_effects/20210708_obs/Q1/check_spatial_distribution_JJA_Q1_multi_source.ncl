@@ -111,30 +111,14 @@ t2 = dim_avg_n_Wrap(t2_med, 0)
 printVarSummary(t2)
 
 ;==================================================================================================
-diriq3 = "/home/yangsong3/wuyt/data/"
-filiq3 = "Q1.mon.mean.1979.2013.nc"
-dirip3 = "/home/yangsong3/data-observation/NCEP_NCAR/monthly/"
-filip3 = "pres.mon.mean.nc"
+diriq3 = "/home/yangsong3/wangzq/DATA/jra/"
+filiq3 = "Q1I.jra55.mon.mean.nc"
 fq3 = addfile(diriq3+filiq3, "r")
-fp3 = addfile(dirip3+filip3, "r")
 TIME3 = fq3->time
 YYYY3 = cd_calendar(TIME3, -1)/100
 iYYYY3 = ind(YYYY3.ge.yrStrt .and. YYYY3.le.yrLast)
 
-Q3 = short2flt(fq3->q1(iYYYY3,:,::-1,:))
-Q3 = Q3*1004.7/9.8
-P3 = short2flt(fp3->pres(iYYYY3,::-1,:))
-P3 = P3*100
-
-lev3 = Q3&lev
-lev3 = lev3*100
-lev3!0 = "level"
-lev3&level = lev3
-
-dp3 = dpres_plevel_Wrap(lev3, P3, min(lev3), 0)
-Q3dp = Q3*dp3
-copy_VarCoords(Q3, Q3dp)
-T3 = dim_sum_n_Wrap(Q3dp, 1)
+T3 = short2flt(fq3->Q1(iYYYY3,:,:))
 
 t3_med = month_to_season(T3, season)
 t3 = dim_avg_n_Wrap(t3_med, 0)
@@ -216,7 +200,7 @@ plot(2) = gsn_csm_contour_map(wks, t2, res)
 plot_topo(2) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(2), plot_topo(2))
 
-res@gsnLeftString = "NCEP"
+res@gsnLeftString = "JRA55"
 plot(3) = gsn_csm_contour_map(wks, t3, res)
 plot_topo(3) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(3), plot_topo(3))

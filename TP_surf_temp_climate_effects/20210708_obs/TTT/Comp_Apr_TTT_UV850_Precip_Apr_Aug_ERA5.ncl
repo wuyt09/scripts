@@ -128,7 +128,7 @@ printVarSummary(diff_u)
 sig = 0.05
 
 ;===============================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210708/TTT/"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210708_obs/TTT/"
 figname = "Comp_Apr_TTT_UV850_Precip_Apr_Aug_ERA5"
 
 wks = gsn_open_wks("pdf", figpath+figname)
@@ -211,7 +211,7 @@ res@cnMinLevelValF = -5.
 res@cnFillPalette = "CBR_drywet"
 res@lbLabelBarOn = False
 
-vcres@vcRefMagnitudeF         = 2.0 
+vcres@vcRefMagnitudeF         = 1.0 
 
 do i = 0, 5
     res@gsnLeftString = title(i)
