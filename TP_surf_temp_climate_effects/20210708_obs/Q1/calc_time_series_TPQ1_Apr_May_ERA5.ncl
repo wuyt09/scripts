@@ -1,7 +1,7 @@
 begin
 
 yrStrt = 1979
-yrLast = 2019
+yrLast = 2015
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
@@ -43,7 +43,7 @@ fps = addfile(filips, "r")
 ps = short2flt(fps->sp(iYYYY,::-1,:))
 printVarSummary(ps)
 
-;===================================================================
+; ;===================================================================
 ; diri = "/home/yangsong3/wuyt/data/ERA-Interim/monthly/"
 ; fili = "q1.mon.mean.1979.2016.ERAI.nc"
 ; f = addfile(diri+fili, "r")
@@ -59,10 +59,11 @@ printVarSummary(ps)
 ; nlat = dimsizes(lat)
 ; nlon = dimsizes(lon)
 
-filips = "/home/yangsong3/data-observation/ERA5-monthly/surface/sur_pressure_mon_1x1_1979_2019.nc"
-fps = addfile(filips, "r")
-ps = short2flt(fps->sp(iYYYY,::-1,:))
-printVarSummary(ps)
+; filips = "/home/yangsong3/data-observation/ERA-interim/monthly/Surface_pressure.mon.mean.nc"
+; fps = addfile(filips, "r")
+; ps0 = short2flt(fps->sp(iYYYY,::-1,:))
+; ps = linint2_Wrap(ps0&longitude, ps0&latitude, ps0, True, lon, lat, 0)
+; printVarSummary(ps)
 
 
 plev = tofloat(t&lev)
@@ -113,8 +114,8 @@ printVarSummary(TP_obs)
 TP_obs_std = dim_standardize_n_Wrap(TP_obs, 1, 1)
 printVarSummary(TP_obs_std)
 
-write_table("time_series_TP_Q1_Mar_Apr_May_ERA5.txt", "w", [/"YEAR","Mar","Apr","May"/], "%4s %4s %4s %4s")
-write_table("time_series_TP_Q1_Mar_Apr_May_ERA5.txt", "a", [/year,TP_obs_std(0,:),TP_obs_std(1,:),TP_obs_std(2,:)/], "%0.4i %4.2f %4.2f %4.2f %4.2f")
+write_table("time_series_TP_Q1_Mar_Apr_May_ERA5_2015.txt", "w", [/"YEAR","Mar","Apr","May"/], "%4s %4s %4s %4s")
+write_table("time_series_TP_Q1_Mar_Apr_May_ERA5_2015.txt", "a", [/year,TP_obs_std(0,:),TP_obs_std(1,:),TP_obs_std(2,:)/], "%0.4i %4.2f %4.2f %4.2f %4.2f")
 
 
 end

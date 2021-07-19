@@ -2,12 +2,12 @@
 begin
 
 yrStrt = 1979
-yrLast = 2019
+yrLast = 2015
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
 fili1 = "./TTT/time_series_TP_TT_Mar_Apr_May_ERA5.txt"
-fili2 = "./Q1/time_series_TP_Q1_Mar_Apr_May_ERA5.txt"
+fili2 = "./Q1/time_series_TP_Q1_Mar_Apr_May_ERA5_2015.txt"
 
 X1 = asciiread(fili1, (/nyear,4/), "float")
 X2 = asciiread(fili2, (/nyear,4/), "float")
@@ -89,6 +89,6 @@ plot(1) = gsn_csm_xy(wks, year, lines2, res)
 
 pres = True
 pres@gsnMaximize = True
-gsn_panel(wks, plot, (/2,1/), pres)
+gsn_panel(wks, plot, (/1,2/), pres)
 
 end

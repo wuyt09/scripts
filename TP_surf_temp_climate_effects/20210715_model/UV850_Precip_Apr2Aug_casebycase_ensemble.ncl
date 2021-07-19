@@ -241,7 +241,7 @@ cnres@cnLevelSelectionMode = "ExplicitLevels"
   res@pmLabelBarOrthogonalPosF = 0.12
 
 
-  vcres@vcRefMagnitudeF = 1.0
+  vcres@vcRefMagnitudeF = 2.0
   res@cnFillPalette = "CBR_drywet"
   res@cnLevelSelectionMode = "ManualLevels"
   res@cnLevelSpacingF   = 0.5

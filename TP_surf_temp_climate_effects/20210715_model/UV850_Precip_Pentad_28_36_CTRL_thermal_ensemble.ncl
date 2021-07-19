@@ -20,8 +20,8 @@ END_ESM=30
 ensemble = ispan(STRT_ESM, END_ESM, 1)
 member = dimsizes(ensemble)
 
-pens = 19
-pene = 27
+pens = 28
+pene = 36
 npen = pene - pens + 1
 
 P = new((/member,365,nlat,nlon/), float)

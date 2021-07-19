@@ -13,8 +13,6 @@ latend = 60
 
 casename = (/"NOHEAT_CTRL","NOHEAT_ALL","NOHEAT_APR","NOHEAT_MAY"/)
 ncase = dimsizes(casename)
-year = ispan(6, 30, 1)
-nyear = dimsizes(year)
 season = "JJA"
 
 STRT_ESM=1
@@ -26,7 +24,7 @@ z = new((/ncase,6,member,nlat,nlon/), float)
 z!0 = "case"
 z&case = casename
 z!1 = "time"
-title = (/"April","May","June","July","August","JJA"/) ;"March",
+title = (/"March","April","May","June","July","JJA"/) ;"March",
 z&time = title
 z!2 = "member"
 z&member = ensemble
@@ -51,22 +49,22 @@ do i = 0, ncase-1
     U = fu->U(:,{LEV},:,:)
     V = fv->V(:,{LEV},:,:)
 
-    z(i,0:4,j,:,:) = Z(3:7,:,:)
+    z(i,0:4,j,:,:) = Z(2:6,:,:)
     z_med = month_to_season(Z, season)
     z(i,5,j,:,:) = (/z_med(0,:,:)/)
     copy_VarCoords(Z(0,:,:), z(i,0,0,:,:))
 
-    u(i,0:4,j,:,:) = U(3:7,:,:)
+    u(i,0:4,j,:,:) = U(2:6,:,:)
     u_med = month_to_season(U, season)
     u(i,5,j,:,:) = (/u_med(0,:,:)/)
     ; copy_VarCoords(U(0,:,:), u(i,0,0,:,:))
 
-    v(i,0:4,j,:,:) = V(3:7,:,:)
+    v(i,0:4,j,:,:) = V(2:6,:,:)
     v_med = month_to_season(V, season)
     v(i,5,j,:,:) = (/v_med(0,:,:)/)
     ; copy_VarCoords(V(0,:,:), v(i,0,0,:,:))
 
-    t(i,0:4,j,:,:) = T(3:7,:,:)
+    t(i,0:4,j,:,:) = T(2:6,:,:)
     t_med = month_to_season(T, season)
     t(i,5,j,:,:) = (/t_med(0,:,:)/)
   end do
@@ -99,10 +97,10 @@ do i = 0, ncase-2
     diff_z(i,:,:,:) = z_ave(0,:,:,:) - z_ave(i+1,:,:,:)
     diff_t(i,:,:,:) = t_ave(0,:,:,:) - t_ave(i+1,:,:,:)
 
-    prob_u(i,:,:,:) = ttest(u_ave(0,:,:,:), u_var(0,:,:,:), nyear, u_ave(i+1,:,:,:), u_var(i+1,:,:,:), nyear, False, False)
-    prob_v(i,:,:,:) = ttest(v_ave(0,:,:,:), v_var(0,:,:,:), nyear, v_ave(i+1,:,:,:), v_var(i+1,:,:,:), nyear, False, False)
-    prob_z(i,:,:,:) = ttest(z_ave(0,:,:,:), z_var(0,:,:,:), nyear, z_ave(i+1,:,:,:), z_var(i+1,:,:,:), nyear, False, False)
-    prob_t(i,:,:,:) = ttest(t_ave(0,:,:,:), t_var(0,:,:,:), nyear, t_ave(i+1,:,:,:), t_var(i+1,:,:,:), nyear, False, False)
+    prob_u(i,:,:,:) = ttest(u_ave(0,:,:,:), u_var(0,:,:,:), member, u_ave(i+1,:,:,:), u_var(i+1,:,:,:), member, False, False)
+    prob_v(i,:,:,:) = ttest(v_ave(0,:,:,:), v_var(0,:,:,:), member, v_ave(i+1,:,:,:), v_var(i+1,:,:,:), member, False, False)
+    prob_z(i,:,:,:) = ttest(z_ave(0,:,:,:), z_var(0,:,:,:), member, z_ave(i+1,:,:,:), z_var(i+1,:,:,:), member, False, False)
+    prob_t(i,:,:,:) = ttest(t_ave(0,:,:,:), t_var(0,:,:,:), member, t_ave(i+1,:,:,:), t_var(i+1,:,:,:), member, False, False)
 end do
 
 sig = 0.05
