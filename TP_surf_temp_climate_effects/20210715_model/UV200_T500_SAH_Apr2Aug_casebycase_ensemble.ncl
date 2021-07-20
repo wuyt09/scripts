@@ -238,7 +238,7 @@ cnres@cnMinLevelValF = 12450.
 
   do i = 0, ncase-2
     res@gsnRightString = "CTRL - "+casename(i+1)
-    vcres@vcRefMagnitudeF = 3.0
+    vcres@vcRefMagnitudeF = 5.0
     res@cnFillPalette = "CBR_coldhot"
     res@cnLevelSelectionMode = "ManualLevels"
     res@cnLevelSpacingF   = 0.2

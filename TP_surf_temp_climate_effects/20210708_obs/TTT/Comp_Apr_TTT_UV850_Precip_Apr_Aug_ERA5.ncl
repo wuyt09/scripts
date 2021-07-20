@@ -73,13 +73,13 @@ nlon = dimsizes(lon)
 
 u = new((/6,nyear,nlat,nlon/), float)
 u!0 = "time"
-title = (/"Apr","May","Jun","Jul","Aug","JJA"/)
+title = (/"Mar","Apr","May","Jun","Jul","JJA"/)
 u&time = title
 v = u
 prec = u
 
 do i = 0, 4
-    i_strt = i+3
+    i_strt = i+2
     print(i_strt)
     print(U(i_strt::12,20,20))
     u(i,:,:,:) = U(i_strt::12,:,:)
@@ -211,7 +211,7 @@ res@cnMinLevelValF = -5.
 res@cnFillPalette = "CBR_drywet"
 res@lbLabelBarOn = False
 
-vcres@vcRefMagnitudeF         = 1.0 
+vcres@vcRefMagnitudeF         = 2.0 
 
 do i = 0, 5
     res@gsnLeftString = title(i)

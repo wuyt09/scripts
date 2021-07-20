@@ -71,14 +71,14 @@ nlon = dimsizes(lon)
 
 u = new((/6,nyear,nlat,nlon/), float)
 u!0 = "time"
-title = (/"Apr","May","Jun","Jul","Aug","JJA"/)
+title = (/"Mar","Apr","May","Jun","Jul","JJA"/)
 u&time = title
 v = u
 t = u
 z = u
 
 do i = 0, 4
-    i_strt = i+3
+    i_strt = i+2
     print(i_strt)
     print(U(i_strt::12,20,20))
     u(i,:,:,:) = U(i_strt::12,:,:)
@@ -138,7 +138,7 @@ printVarSummary(diff_u)
 sig = 0.05
 
 ;===============================================================
-figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210708/TTT/"
+figpath = "/home/yangsong3/wuyt/sysu/figures/TP_surf_temp_climate_effects/20210708_obs/TTT/"
 figname = "Comp_Apr_TTT_UV200_T500_SAH_Apr_Aug_ERA5"
 
 wks = gsn_open_wks("pdf", figpath+figname)
