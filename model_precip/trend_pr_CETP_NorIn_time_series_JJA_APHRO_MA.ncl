@@ -1,0 +1,103 @@
+begin
+
+lonstr = 60
+lonend = 135
+latstr = 5
+latend = 50
+
+yrStrt = 1951
+yrLast = 2007
+
+year = ispan(yrStrt, yrLast, 1)
+nyear = dimsizes(year)
+season = "JJA"
+
+
+diri = "/home/yangsong3/wuyt/sysu/scripts/model_precip/APHRO/"
+fili = "APHRO_MA_025deg_V1003R1.monmean.1951-2007.nc"
+f = addfile(diri+fili, "r")
+
+precip = f->precip
+printVarSummary(precip)
+
+prec = month_to_season(precip, season)
+printVarSummary(prec)
+
+
+pr_TP = wgt_areaave_Wrap(prec(:,{28:40},{85:105}), 1., 1., 0)
+pr_IS = wgt_areaave_Wrap(prec(:,{18:28},{72:85}), 1., 1., 0)
+
+pp = new((/4,nyear/), float)
+pp(0,:) = pr_TP - pr_TP(0)
+pp(1,:) = pr_IS - pr_IS(0)
+pp(2,:) = runave_n(pp(0,:), 10, 0, 0)
+pp(3,:) = runave_n(pp(1,:), 10, 0, 0)
+
+;===================================================================
+; topo data
+;===================================================================
+ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
+topo = ftopo->topo(::-1,:)
+
+ res_topo            = True
+ res_topo@cnFillOn   = False
+ res_topo@cnLinesOn  = True
+ res_topo@gsnFrame   = False
+ res_topo@gsnDraw    = False
+ res_topo@cnLineLabelsOn         = False
+ res_topo@cnLineThicknessF       = 3
+ res_topo@cnLineColor            = "grey40"
+ res_topo@cnInfoLabelOn          = False
+ res_topo@cnLevelSelectionMode   ="ExplicitLevels"
+ res_topo@cnLevels               = (/2000/)
+ res_topo@gsnLeftString = ""
+ res_topo@gsnRightString = ""
+
+;===================================================================
+; Plot
+;===================================================================
+filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
+filiname = "trend_pr_CETP_NorIn_time_series_JJA_APHRO_MA"
+wks = gsn_open_wks("pdf", filipath+filiname)
+plot = new(1, graphic)
+plot_topo = plot
+
+res = True
+res@gsnDraw  = False
+res@gsnFrame = False
+res@gsnMaximize = True
+
+res@vpWidthF = 0.7
+res@vpHeightF = 0.4
+
+res@trXMinF = yrStrt
+res@trXMaxF = yrLast
+; res@tmXBMode = "Explicit"
+; res@tmXBValues = year
+; res@tmXBLabels = year
+res@tmXTOn = False
+; res@tiXAxisString = "Month"
+
+res@gsnYRefLine = 0
+res@gsnYRefLineColor = "grey40"
+res@gsnYRefLineDashPattern = 16
+res@gsnYRefLineThicknessF = 8
+; res@trYMinF = -3
+; res@trYMaxF = 3
+; res@tmYROn = False
+; res@tiYAxisString = "Precip std(mm/day)"
+; res@gsnLeftString = "Corr: "+sprintf("%4.2f", corr6)
+; res@gsnRightString = "Sig: "+sprintf("%4.0f", 100*(1-p6))+"%"
+res@gsnStringFontHeightF = 0.015
+
+Colors = (/"black","red","black","red"/)
+Patterns = (/0,0,16,16/)
+res@xyLineThicknessF = 8
+res@xyLineColors = Colors
+res@xyDashPatterns = Patterns
+
+plot(0) = gsn_csm_xy(wks, year, pp, res)
+draw(plot)
+
+
+end

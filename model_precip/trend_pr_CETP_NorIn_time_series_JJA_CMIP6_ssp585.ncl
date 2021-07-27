@@ -7,8 +7,8 @@ latstr = 5
 latend = 50
 
 season = "JJA"
-yrStrt = 1861
-yrLast = 2014
+yrStrt = 2015
+yrLast = 2099
 year = ispan(yrStrt, yrLast, 1)
 nyr = dimsizes(year)
 
@@ -29,12 +29,15 @@ nyr = dimsizes(year)
 ; nlon = dimsizes(lon)
 ;=============================================================
 
-dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/"
+dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/ssp585/"
 
-models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
-           "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
-           "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
-; models = (/"CAMS-CSM1-0","CanESM5"/)
+; models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
+;            "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
+;            "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
+models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1",\
+           "EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G",\
+           "HadGEM3-GC31-LL","MPI-ESM1-2-HR","NESM3"/)
+
 
 nm := dimsizes(models)
 pr_TP = new((/nm,nyr/), float)
@@ -43,7 +46,7 @@ pr_TP&model = models
 pr_IS = pr_TP
 
 do i = 0, nm-1
-    filigcm = systemfunc("ls "+dirigcm+"pr_Amon_"+models(i)+"_historical_r1i1p1f*_*.nc")
+    filigcm = systemfunc("ls "+dirigcm+"pr_Amon_"+models(i)+"_ssp585_*_*.nc")
     fgcm = addfile(filigcm, "r")
     TIME := fgcm->time
     YYYY := cd_calendar(TIME, -1)/100
@@ -108,7 +111,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "trend_pr_CETP_NorIn_time_series_JJA_CMIP5"
+filiname = "trend_pr_CETP_NorIn_time_series_JJA_CMIP6_ssp585"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(1, graphic)
 
@@ -160,10 +163,10 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
     Texts  = (/"CE-TP ("+sprintf("%4.2f", rc_tp*10)+" mm/day/decade)","North-India ("+sprintf("%4.2f", rc_is*10)+" mm/day/decade)"/)
 
 ;============================================================
-    gx = (/1870,1880/)
-    text_pos = 1882
-    interval = 0.05
-    gy1 = (/4.8,4.8/)
+    gx = (/2020,2030/)
+    text_pos = 2032
+    interval = 0.2
+    gy1 = (/5.7,5.7/)
     gy2 = gy1 - interval
 
     gx2 = (/1990,1992/)
