@@ -33,6 +33,8 @@ pp(1,:) = pr_IS - pr_IS(0)
 pp(2,:) = runave_n(pp(0,:), 10, 0, 0)
 pp(3,:) = runave_n(pp(1,:), 10, 0, 0)
 
+corr_tp = regCoef_n(year, pr_TP, 0, 0)
+corr_is = regCoef_n(year, pr_IS, 0, 0)
 ;===================================================================
 ; topo data
 ;===================================================================
@@ -97,6 +99,49 @@ res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
 plot(0) = gsn_csm_xy(wks, year, pp, res)
+
+;==================================================================================
+    res_lines                   = True                  ; polyline mods desired
+    res_lines@gsLineThicknessF  = 5                     ; line thicker
+    
+
+    res_text                    = True                  ; text mods desired
+    res_text@txFontHeightF      = 0.018                 ; change text size
+    res_text@txJust             = "CenterLeft"          ; text justification
+
+    Texts  = (/"CE-TP: "+sprintf("%4.2f", corr_tp),"North-India: "+sprintf("%4.2f", corr_is),"CE-TP: 10-yr runnung ave","North-India: 10-yr runnung ave"/)
+
+;============================================================
+    gx = (/1955,1960/)
+    text_pos = 1961
+    interval = 0.4
+    gy1 = (/3.6,3.6/)
+    gy2 = gy1 - interval
+
+    gx2 = (/1975,1980/)
+    text_pos2 = 1981
+    gy3 = gy1
+    gy4 = gy2
+
+    res_lines@gsLineThicknessF = 15
+    res_lines@gsLineColor = Colors(0)
+    res_lines@gsLineDashPattern = Patterns(0)
+    dum11 = gsn_add_polyline(wks, plot(0), gx, gy1, res_lines)
+    dum12 = gsn_add_text(wks, plot(0), Texts(0), text_pos, gy1, res_text)
+    res_lines@gsLineColor = Colors(1)
+    res_lines@gsLineDashPattern = Patterns(1)
+    dum21 = gsn_add_polyline(wks, plot(0), gx, gy2, res_lines)
+    dum22 = gsn_add_text(wks, plot(0), Texts(1), text_pos, gy2, res_text)
+
+    res_lines@gsLineColor = Colors(2)
+    res_lines@gsLineDashPattern = Patterns(2)
+    dum31 = gsn_add_polyline(wks, plot(0), gx2, gy1, res_lines)
+    dum32 = gsn_add_text(wks, plot(0), Texts(2), text_pos2, gy1, res_text)
+    res_lines@gsLineColor = Colors(3)
+    res_lines@gsLineDashPattern = Patterns(3)
+    dum41 = gsn_add_polyline(wks, plot(0), gx2, gy2, res_lines)
+    dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos2, gy2, res_text)
+
 draw(plot)
 
 

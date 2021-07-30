@@ -8,7 +8,7 @@ latend = 50
 
 season = "JJA"
 yrStrt = 1861
-yrLast = 2014
+yrLast = 1980
 year = ispan(yrStrt, yrLast, 1)
 nyr = dimsizes(year)
 
@@ -108,7 +108,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "trend_pr_CETP_NorIn_time_series_JJA_CMIP5"
+filiname = "trend_pr_CETP_NorIn_time_series_JJA_CMIP6"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(1, graphic)
 

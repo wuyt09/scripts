@@ -30,55 +30,55 @@ nlon = dimsizes(lon)
 ; ;===================================================================
 ; ; GCM 19 data
 ; ;===================================================================
-; dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP5/"
+dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP5/"
 
-; models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CanESM2","CCSM4","CESM1-BGC",\
-;           "CESM1-CAM5","CESM1-FASTCHEM","CESM1-WACCM","CNRM-CM5",\
-;           "FIO-ESM","GFDL-CM2p1","GFDL-ESM2M","GISS-E2-H","GISS-E2-R-CC",\
-;           "GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5B-LR",\
-;           "MIROC4h","MIROC5","MIROC-ESM-CHEM","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR",\
-;           "MPI-ESM-P","MRI-CGCM3","NorESM1-M"/)
-; ; models = (/"ACCESS1-0","bcc-csm1-1"/)
+models = (/"ACCESS1-0","bcc-csm1-1","CanCM4","CanESM2","CCSM4","CESM1-BGC",\
+          "CESM1-CAM5","CESM1-FASTCHEM","CESM1-WACCM","CNRM-CM5",\
+          "FIO-ESM","GFDL-CM2p1","GFDL-ESM2M","GISS-E2-H","GISS-E2-R-CC",\
+          "GISS-E2-R","HadCM3","inmcm4","IPSL-CM5A-LR","IPSL-CM5B-LR",\
+          "MIROC4h","MIROC5","MIROC-ESM-CHEM","MIROC-ESM","MPI-ESM-LR","MPI-ESM-MR",\
+          "MPI-ESM-P","MRI-CGCM3","NorESM1-M"/)
+; models = (/"ACCESS1-0","bcc-csm1-1"/)
 
-; nm = dimsizes(models)
-; diff_pr5 = new((/nm,nyr,nlat,nlon/), float)
-; diff_pr5!0 = "model"
-; diff_pr5&model = models
-; prob_pr5 = diff_pr5
+nm = dimsizes(models)
+diff_pr5 = new((/nm,nyr,nlat,nlon/), float)
+diff_pr5!0 = "model"
+diff_pr5&model = models
+prob_pr5 = diff_pr5
 
-; do i = 0, nm-1
-;     filigcm = systemfunc("ls "+dirigcm+"pr_Amon_"+models(i)+"_historical_r1i1p1_*.nc")
-;     fgcm = addfile(filigcm, "r")
-;     TIME := fgcm->time
-;     YYYY := cd_calendar(TIME, -1)/100
-;     iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-;     PR_GCMs = fgcm->pr(iYYYY,:,:)
-;     PR_GCMs = PR_GCMs * 86400
-;     PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
-;     pr_gcm = month_to_season(PR_GCMx, season)
-;     diff_pr5(i,:,:,:) = pr_gcm - pr_obs
-;     copy_VarCoords(pr_obs, diff_pr5(i,:,:,:))
-;     ; diff_pr(i,:,:) = mask(diff_pr(i,:,:), prob_pr(i,:,:).le.0.05, True)
+do i = 0, nm-1
+    filigcm = systemfunc("ls "+dirigcm+"pr_Amon_"+models(i)+"_historical_r1i1p1_*.nc")
+    fgcm = addfile(filigcm, "r")
+    TIME := fgcm->time
+    YYYY := cd_calendar(TIME, -1)/100
+    iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+    PR_GCMs = fgcm->pr(iYYYY,:,:)
+    PR_GCMs = PR_GCMs * 86400
+    PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
+    pr_gcm = month_to_season(PR_GCMx, season)
+    diff_pr5(i,:,:,:) = pr_gcm - pr_obs
+    copy_VarCoords(pr_obs, diff_pr5(i,:,:,:))
+    ; diff_pr(i,:,:) = mask(diff_pr(i,:,:), prob_pr(i,:,:).le.0.05, True)
 
-;     delete([/PR_GCMs,PR_GCMx,pr_gcm/])
-;     print("end of "+models(i))
-; end do
-; printVarSummary(diff_pr5)
+    delete([/PR_GCMs,PR_GCMx,pr_gcm/])
+    print("end of "+models(i))
+end do
+printVarSummary(diff_pr5)
 
-; diff5_mme = dim_avg_n_Wrap(diff_pr5, 0)
-; printVarSummary(diff5_mme)
-; diff5_tp = wgt_areaave_Wrap(diff5_mme(:,{28:40},{85:105}), 1., 1., 0)
-; diff5_is = wgt_areaave_Wrap(diff5_mme(:,{18:28},{72:85}), 1., 1., 0)
-; printVarSummary(diff5_tp)
+diff5_mme = dim_avg_n_Wrap(diff_pr5, 0)
+printVarSummary(diff5_mme)
+diff5_tp = wgt_areaave_Wrap(diff5_mme(:,{28:40},{85:105}), 1., 1., 0)
+diff5_is = wgt_areaave_Wrap(diff5_mme(:,{18:28},{72:85}), 1., 1., 0)
+printVarSummary(diff5_tp)
 
-; diff5_std_tp = dim_standardize_Wrap(diff5_tp, 1)
-; diff5_std_is = dim_standardize_Wrap(diff5_is, 1)
-; corr5 = escorc(diff5_std_tp, diff5_std_is)
-; n = nyr
-; df = nyr-2
-; t5 = corr5*sqrt((n-2)/(1-corr5^2))
-; p5 = student_t(t5, df)
-; print(sprintf("%4.2f", p5))
+diff5_std_tp = dim_standardize_Wrap(diff5_tp, 1)
+diff5_std_is = dim_standardize_Wrap(diff5_is, 1)
+corr5 = escorc(diff5_std_tp, diff5_std_is)
+n = nyr
+df = nyr-2
+t5 = corr5*sqrt((n-2)/(1-corr5^2))
+p5 = student_t(t5, df)
+print(sprintf("%4.2f", p5))
 
 ;=============================================================
 
@@ -123,16 +123,20 @@ diff6_std_tp = dim_standardize_Wrap(diff6_tp, 1)
 diff6_std_is = dim_standardize_Wrap(diff6_is, 1)
 corr6 = escorc(diff6_std_tp, diff6_std_is)
 
+n = nyr
+df = nyr-2
 t6 = corr6*sqrt((n-2)/(1-corr6^2))
 p6 = student_t(t6, df)
 print(sprintf("%4.2f", p6))
 ;----------------------------------------
 
-pp = new((/2,nyr/), float)
-; pp(0,:) = diff5_std_tp
-; pp(1,:) = diff5_std_is
-pp(0,:) = diff6_std_tp
-pp(1,:) = diff6_std_is
+pp = new((/4,nyr/), float)
+; pp(0,:) = diff6_tp
+; pp(1,:) = diff6_is
+pp(0,:) = diff5_std_tp
+pp(1,:) = diff5_std_is
+pp(2,:) = diff6_std_tp
+pp(3,:) = diff6_std_is
 copy_VarCoords(diff6_tp, pp(0,:))
 printVarSummary(pp)
 
@@ -174,7 +178,7 @@ res@gsnYRefLineThicknessF = 8
 res@trYMinF = -3
 res@trYMaxF = 3
 ; res@tmYROn = False
-res@tiYAxisString = "Precipitation diff (mm/day)"
+res@tiYAxisString = "Precipitation diff std"
 res@gsnLeftString = "Corr: CMIP5: "+sprintf("%4.2f", corr5)+", CMIP6: "+sprintf("%4.2f", corr6)
 res@gsnRightString = "Sig: CMIP5: "+sprintf("%4.0f", 100*(1-p5))+"%, CMIP6 "+sprintf("%4.0f", 100*(1-p6))+"%"
 res@gsnStringFontHeightF = 0.015
