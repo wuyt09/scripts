@@ -7,8 +7,8 @@ latstr = 5
 latend = 50
 
 season = "JJA"
-yrStrt = 1861
-yrLast = 1980
+yrStrt = 1851
+yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyr = dimsizes(year)
 

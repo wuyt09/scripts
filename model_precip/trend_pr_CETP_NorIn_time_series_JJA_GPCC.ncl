@@ -6,18 +6,21 @@ latstr = 5
 latend = 50
 
 yrStrt = 1951
-yrLast = 2007
+yrLast = 2013
 
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 season = "JJA"
 
 
-diri = "/home/yangsong3/wuyt/sysu/scripts/model_precip/APHRO/"
-fili = "APHRO_MA_025deg_V1003R1.monmean.1951-2007.nc"
+diri = "/home/yangsong3/data-observation/GPCC/"
+fili = "precip.mon.total.1x1.v7.nc"
 f = addfile(diri+fili, "r")
 
-precip = f->precip
+TIME = f->time
+YYYY = cd_calendar(TIME, -1)/100
+iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+precip = f->precip(iYYYY,:,:)
 printVarSummary(precip)
 
 prec = month_to_season(precip, season)
@@ -60,7 +63,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "trend_pr_CETP_NorIn_time_series_JJA_APHRO_MA"
+filiname = "trend_pr_CETP_NorIn_time_series_JJA_GPCC"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(1, graphic)
 plot_topo = plot
@@ -115,8 +118,8 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
 ;============================================================
     gx = (/1955,1960/)
     text_pos = 1961
-    interval = 0.4
-    gy1 = (/3.6,3.6/)
+    interval = 15
+    gy1 = (/115,115/)
     gy2 = gy1 - interval
 
     gx2 = (/1975,1980/)

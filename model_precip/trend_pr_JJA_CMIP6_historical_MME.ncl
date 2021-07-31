@@ -7,8 +7,8 @@ latstr = 5
 latend = 50
 
 season = "JJA"
-yrStrt = 1850
-yrLast = 1980
+yrStrt = 1981
+yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyr = dimsizes(year)
 
@@ -91,7 +91,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "trend_pr_JJA_CMIP6_historical_MME_1851_1980"
+filiname = "trend_pr_JJA_CMIP6_historical_MME_1981_2014"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(nm+1, graphic)
 plot_topo = plot
@@ -124,9 +124,9 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.02
-res@cnMaxLevelValF = 0.2
-res@cnMinLevelValF = -0.2
+res@cnLevelSpacingF = 0.05
+res@cnMaxLevelValF = 0.5
+res@cnMinLevelValF = -0.5
 ; res@cnLevelSpacingF = 1.
 ; res@cnMaxLevelValF = 10
 ; res@cnMinLevelValF = -10
