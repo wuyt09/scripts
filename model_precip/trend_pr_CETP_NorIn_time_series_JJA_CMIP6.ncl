@@ -51,14 +51,16 @@ do i = 0, nm-1
     PR_GCMs = fgcm->pr(iYYYY,:,:)
     PR_GCMs = PR_GCMs * 86400
     ; PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
-    pr_gcm = month_to_season(PR_GCMs, season)
-    pr_TP(i,:) = wgt_areaave_Wrap(pr_gcm(:,{28:40},{85:105}), 1., 1., 0)
-    pr_IS(i,:) = wgt_areaave_Wrap(pr_gcm(:,{18:28},{72:85}), 1., 1., 0)
-    ; diff_pr6(i,:,:,:) = pr_gcm - pr_obs
-    ; copy_VarCoords(pr_obs, diff_pr6(i,:,:,:))
-    ; diff_pr(i,:,:) = mask(diff_pr(i,:,:), prob_pr(i,:,:).le.0.05, True)
+    pr_jul = PR_GCMs(6::12,:,:)
+    pr_aug = PR_GCMs(7::12,:,:)
+    ; pr_gcm = month_to_season(PR_GCMs, season)
+    pr_gcm_med = (pr_aug + pr_jul)/2
+    copy_VarCoords(pr_aug, pr_gcm_med)
+    pr_TP(i,:) = wgt_areaave_Wrap(pr_gcm_med(:,{28:40},{85:105}), 1., 1., 0)
+    ; pr_IS(i,:) = wgt_areaave_Wrap(pr_gcm(:,{18:28},{72:85}), 1., 1., 0)
+    pr_IS(i,:) = wgt_areaave_Wrap(pr_gcm_med(:,{15:30},{70:80}), 1., 1., 0)
 
-    delete([/PR_GCMs,pr_gcm/]) ;
+    delete([/PR_GCMs,pr_jul,pr_aug,pr_gcm_med/]) ;
     print("end of "+models(i))
 end do
 pr_tp = dim_avg_n_Wrap(pr_TP, 0)
@@ -160,10 +162,10 @@ plot(0) = gsn_csm_xy(wks, year, pp, res)
     Texts  = (/"CE-TP ("+sprintf("%4.2f", rc_tp*10)+" mm/day/decade)","North-India ("+sprintf("%4.2f", rc_is*10)+" mm/day/decade)"/)
 
 ;============================================================
-    gx = (/1870,1880/)
-    text_pos = 1882
-    interval = 0.05
-    gy1 = (/4.8,4.8/)
+    gx = (/1860,1870/)
+    text_pos = 1872
+    interval = 0.15
+    gy1 = (/5.7,5.7/)
     gy2 = gy1 - interval
 
     gx2 = (/1990,1992/)

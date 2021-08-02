@@ -7,8 +7,8 @@ latstr = 5
 latend = 50
 
 season = "JJA"
-yrStrt = 1981
-yrLast = 2014
+yrStrt = 1851
+yrLast = 1980
 year = ispan(yrStrt, yrLast, 1)
 nyr = dimsizes(year)
 
@@ -52,11 +52,15 @@ do i = 0, nm-1
     PR_GCMs = fgcm->pr(iYYYY,:,:)
     PR_GCMs = PR_GCMs * 86400
     PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
-    pr_gcm = month_to_season(PR_GCMx, season)
-    rc_gcm(i,:,:) = regCoef_n(year, pr_gcm, 0, 0)
-    copy_VarCoords(pr_gcm(0,:,:), rc_gcm(i,:,:))
+    pr_jul = PR_GCMx(6::12,:,:)
+    pr_aug = PR_GCMx(7::12,:,:)
+    ; pr_gcm = month_to_season(PR_GCMs, season)
+    pr_gcm_med = (pr_aug + pr_jul)/2
+    copy_VarCoords(pr_aug, pr_gcm_med)
+    rc_gcm(i,:,:) = regCoef_n(year, pr_gcm_med, 0, 0)
+    copy_VarCoords(pr_gcm_med(0,:,:), rc_gcm(i,:,:))
 
-    delete([/PR_GCMs,pr_gcm/]) ;
+    delete([/PR_GCMs,PR_GCMx,pr_jul,pr_aug,pr_gcm_med/]) ;
     print("end of "+models(i))
 end do
 
@@ -91,7 +95,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "trend_pr_JJA_CMIP6_historical_MME_1981_2014"
+filiname = "trend_pr_JJA_CMIP6_historical_MME_"+yrStrt+"-"+yrLast
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(nm+1, graphic)
 plot_topo = plot
@@ -124,9 +128,9 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.05
-res@cnMaxLevelValF = 0.5
-res@cnMinLevelValF = -0.5
+res@cnLevelSpacingF = 0.02
+res@cnMaxLevelValF = 0.2
+res@cnMinLevelValF = -0.2
 ; res@cnLevelSpacingF = 1.
 ; res@cnMaxLevelValF = 10
 ; res@cnMinLevelValF = -10

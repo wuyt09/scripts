@@ -1,95 +1,77 @@
-
 load "$NCARG_ROOT/lib/ncarg/nclscripts/contrib/run_cor.ncl"
 
 begin
 
-yrStrt = 1871
-yrLast = 2016
+lonstr = 60
+lonend = 135
+latstr = 5
+latend = 50
+
+yrStrt = 1951
+yrLast = 2007
+
 year = ispan(yrStrt, yrLast, 1)
 year@units = "hours since 1-1-1 00:00:0.0"
-; print(year)
 nyear = dimsizes(year)
-; print(nyear)
+season = "JJA"
 
 
-diri = "/home/yangsong3/wuyt/sysu/scripts/model_precip/IndianRainfall/"
-fili1 = "Northeast_India_rainfall.txt" ; blue
-fili2 = "Northwest_India_rainfall.txt" ; red
-fili3 = "Westcentral_India_rainfall.txt" ; purple
+diri = "/home/yangsong3/wuyt/sysu/scripts/model_precip/APHRO/"
+fili = "APHRO_MA_025deg_V1003R1.monmean.1951-2007.nc"
+f = addfile(diri+fili, "r")
 
-x1_med = asciiread(diri+fili1, -1, "float")
-x1 = onedtond(x1_med(13:), (/nyear,18/))
-print(x1(nyear-1,:))
-x1 = x1/10
+precip = f->precip
+printVarSummary(precip)
 
-x2_med = asciiread(diri+fili2, -1, "float")
-x2 = onedtond(x2_med(13:), (/nyear,18/))
-print(x2(nyear-1,:))
-x2 = x2/10
-
-x3_med = asciiread(diri+fili3, -1, "float")
-x3 = onedtond(x3_med(13:), (/nyear,18/))
-print(x3(nyear-1,:))
-x3 = x3/10
+; prec = month_to_season(precip, season)
+prec = precip(6::12,:,:) + precip(7::12,:,:)
+copy_VarCoords(precip(6::12,:,:), prec)
+printVarSummary(prec)
 
 
-pr_TP = (x1(:,7) + x1(:,8))/2/31
-pr_is1 = (x2(:,7) + x2(:,8))/2/31
-pr_is2 = (x3(:,7) + x3(:,8))/2/31
-pr_IS = (pr_is1+pr_is2)/2
-pr_TP!0 = "year"
-pr_TP&year = year
-copy_VarCoords(pr_TP, pr_IS)
+pr_TP = wgt_areaave_Wrap(prec(:,{26:33},{85:100}), 1., 1., 0)
+; pr_IS = wgt_areaave_Wrap(prec(:,{18:28},{72:85}), 1., 1., 0)
+pr_IS = wgt_areaave_Wrap(prec(:,{15:30},{70:80}), 1., 1., 0)
 
-pr_tp = pr_TP ;({yrs:yre})
-pr_is = pr_IS ;({yrs:yre})
-printVarSummary(pr_tp)
+cor = run_cor(pr_TP, pr_IS, year, 21)
+yr = ispan(yrStrt+10, yrLast-10, 1)
 
-rc_tp = regline(year, pr_tp)
-rc_is = regline(year, pr_is)
+pp = new((/4,nyear/), float)
+pp(0,:) = pr_TP - pr_TP(0)
+pp(1,:) = pr_IS - pr_IS(0)
+pp(2,:) = runave_n(pp(0,:), 10, 0, 0)
+pp(3,:) = runave_n(pp(1,:), 10, 0, 0)
 
-trend_tp = year*rc_tp+rc_tp@yintercept
-trend_is = year*rc_is+rc_is@yintercept
+corr_tp = regCoef_n(year, pr_TP, 0, 0)
+corr_is = regCoef_n(year, pr_IS, 0, 0)
+;===================================================================
+; topo data
+;===================================================================
+ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
+topo = ftopo->topo(::-1,:)
 
-line_tp = runave_n_Wrap(pr_tp, 10, 0, 0)
-line_is = runave_n_Wrap(pr_is, 10, 0, 0)
+ res_topo            = True
+ res_topo@cnFillOn   = False
+ res_topo@cnLinesOn  = True
+ res_topo@gsnFrame   = False
+ res_topo@gsnDraw    = False
+ res_topo@cnLineLabelsOn         = False
+ res_topo@cnLineThicknessF       = 3
+ res_topo@cnLineColor            = "grey40"
+ res_topo@cnInfoLabelOn          = False
+ res_topo@cnLevelSelectionMode   ="ExplicitLevels"
+ res_topo@cnLevels               = (/2000/)
+ res_topo@gsnLeftString = ""
+ res_topo@gsnRightString = ""
 
-
-lines = new((/4,nyr/), float)
-lines(0,:) = pr_tp
-lines(1,:) = pr_is
-lines(2,:) = line_tp
-lines(3,:) = line_is
-; lines!0 = "region"
-; lines!1 = "month"
-; lines!2 = "year"
-; lines&year = 
-
-print(rc_tp)
-print(rc_is)
-
-corr = escorc(pr_tp, pr_is)
-corr_10 = escorc(line_tp, line_is)
-
-pr_tp_dtrend = dtrend_msg(year, pr_tp, False, False)
-pr_is_dtrend = dtrend_msg(year, pr_is, False, False)
-pr_tp_dtrend_10 = runave_n_Wrap(pr_tp_dtrend, 10, 0, 0)
-pr_is_dtrend_10 = runave_n_Wrap(pr_is_dtrend, 10, 0, 0)
-corr_dtrend_10 = escorc(pr_tp_dtrend_10, pr_is_dtrend_10)
-print(sprintf("%4.2f", corr_dtrend_10))
 ;===================================================================
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "trend_pr_IMD"
+filiname = "runcor_pr_APHRO_MA"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(1, graphic)
-; dum11 = plot
-; ; dum12 = plot
-; dum21 = plot
-; ; dum22 = plot
-; dum31 = plot
-; ; dum32 = plot
+plot_topo = plot
 
 res = True
 res@gsnDraw  = False
@@ -99,8 +81,8 @@ res@gsnMaximize = True
 res@vpWidthF = 0.7
 res@vpHeightF = 0.4
 
-res@trXMinF = yrs
-res@trXMaxF = yre
+res@trXMinF = yrStrt
+res@trXMaxF = yrLast
 ; res@tmXBMode = "Explicit"
 ; res@tmXBValues = year
 ; res@tmXBLabels = year
@@ -111,24 +93,23 @@ res@gsnYRefLine = (/-0.368,0,0.368/)
 res@gsnYRefLineColor = "grey40"
 res@gsnYRefLineDashPatterns = (/16,0,16/)
 res@gsnYRefLineThicknessF = 5
-; res@trYMinF = -0.8
-; res@trYMaxF = 0.8
+; res@trYMinF = -3
+; res@trYMaxF = 3
 ; res@tmYROn = False
 ; res@tiYAxisString = "Precip std(mm/day)"
 ; res@gsnLeftString = "Corr: "+sprintf("%4.2f", corr6)
 ; res@gsnRightString = "Sig: "+sprintf("%4.0f", 100*(1-p6))+"%"
-res@gsnStringFontHeightF = 0.02
+res@gsnStringFontHeightF = 0.015
 
-
-Colors = (/"blue","red","black","purple"/)
-Patterns = (/0,0,0,0/)
+Colors = (/"black","red","black","red"/)
+Patterns = (/0,0,16,16/)
 res@xyLineThicknessF = 8
 res@xyLineColors = Colors
 res@xyDashPatterns = Patterns
 
-res@gsnLeftString = "Corr: "+sprintf("%4.2f", corr)
-res@gsnRightString = "10-yr runing ave corr: "+sprintf("%4.2f", corr_10)
-plot(0) = gsn_csm_xy(wks, yr, lines, res)
+plot(0) = gsn_csm_xy(wks, yr, cor, res)
+draw(plot(0))
+exit
 ;==================================================================================
     res_lines                   = True                  ; polyline mods desired
     res_lines@gsLineThicknessF  = 5                     ; line thicker
@@ -138,17 +119,17 @@ plot(0) = gsn_csm_xy(wks, yr, lines, res)
     res_text@txFontHeightF      = 0.018                 ; change text size
     res_text@txJust             = "CenterLeft"          ; text justification
 
-    Texts  = (/"Northeast: "+sprintf("%4.2f", rc_tp*10)+" mm/day/decade","West: "+sprintf("%4.2f", rc_is*10)+" mm/day/decade","Northeast: 10-yr runing ave","West: 10-yr runing ave"/)
+    Texts  = (/"CE-TP: "+sprintf("%4.2f", corr_tp),"North-India: "+sprintf("%4.2f", corr_is),"CE-TP: 10-yr runnung ave","North-India: 10-yr runnung ave"/)
 
 ;============================================================
-    gx = (/1880,1890/)
-    text_pos = 1892
-    interval = 1.5
-    gy1 = (/17.5,17.5/)
+    gx = (/1955,1960/)
+    text_pos = 1961
+    interval = 0.4
+    gy1 = (/3.6,3.6/)
     gy2 = gy1 - interval
 
-    gx2 = (/1950,1960/)
-    text_pos2 = 1962
+    gx2 = (/1975,1980/)
+    text_pos2 = 1981
     gy3 = gy1
     gy4 = gy2
 
@@ -171,8 +152,7 @@ plot(0) = gsn_csm_xy(wks, yr, lines, res)
     dum41 = gsn_add_polyline(wks, plot(0), gx2, gy2, res_lines)
     dum42 = gsn_add_text(wks, plot(0), Texts(3), text_pos2, gy2, res_text)
 
-
-
 draw(plot)
+
 
 end

@@ -20,7 +20,9 @@ f = addfile(diri+fili, "r")
 precip = f->precip
 printVarSummary(precip)
 
-prec = month_to_season(precip, season)
+; prec = month_to_season(precip, season)
+prec = precip(6::12,:,:) + precip(7::12,:,:)
+copy_VarCoords(precip(6::12,:,:), prec)
 printVarSummary(prec)
 
 rc = regCoef_n(year, prec, 0, 0)
@@ -78,7 +80,7 @@ res@cnLinesOn = False
 res@cnLineLabelsOn = False
 res@cnInfoLabelOn = False
 
-res@gsnStringFontHeightF = 0.03
+res@gsnStringFontHeightF = 0.025
 res@tmXBLabelFontHeightF = 0.018
 res@tmYLLabelFontHeightF = 0.018
 
@@ -94,10 +96,24 @@ res@cnFillPalette = "MPL_BrBG"
 res@gsnRightString = "mm/day/yr"
 
 
-res@gsnLeftString = "APHRO"
+res@gsnLeftString = "APHRO trend ("+yrStrt+"-"+yrLast+")"
 plot(0) = gsn_csm_contour_map(wks, rc, res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
+
+;---------------------------------------
+gres = True
+gres@gsLineColor = "red"
+gres@gsLineThicknessF = 5.0
+glat1 = (/30,30,15,15,30/)
+glon1 = (/70,80,80,70,70/)
+glat2 = (/33,33,26,26,33/)
+glon2 = (/85,100,100,85,85/)
+;---------------------------------------
+
+
+dum1 = gsn_add_polyline(wks,plot(0),glon1,glat1,gres)
+dum2 = gsn_add_polyline(wks,plot(0),glon2,glat2,gres)
 
 draw(plot(0))
 end

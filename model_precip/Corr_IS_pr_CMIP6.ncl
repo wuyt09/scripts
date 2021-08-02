@@ -6,7 +6,7 @@ latstr = 5
 latend = 50
 
 season = "JJA"
-yrStrt = 1980
+yrStrt = 1851
 yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
@@ -95,6 +95,7 @@ filiname = "Corr_IS_pr_CMIP6_1980"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(nm+1, graphic)
 plot_topo = plot
+dum = plot
 
 res = True
 res@gsnDraw  = False
@@ -133,17 +134,27 @@ res@cnMinLevelValF = -0.8
 res@cnFillPalette = "MPL_BrBG"
 res@gsnRightString = "1"
 
+;---------------------------------------
+gres = True
+gres@gsLineColor = "red"
+gres@gsLineThicknessF = 5.0
+glat1 = (/30,30,15,15,30/)
+glon1 = (/70,80,80,70,70/)
+;---------------------------------------
+
 do i = 0, nm-1
     res@gsnLeftString = models(i)
     plot(i) = gsn_csm_contour_map(wks, corr(i,:,:), res)
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
+    dum(i) = gsn_add_polyline(wks,plot(i),glon1,glat1,gres)
 end do
 
 res@gsnLeftString = "MME"
 plot(nm) = gsn_csm_contour_map(wks, corr_mme, res)
 plot_topo(nm) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(nm), plot_topo(nm))
+dum(nm) = gsn_add_polyline(wks,plot(nm),glon1,glat1,gres)
 
 
 pres = True
