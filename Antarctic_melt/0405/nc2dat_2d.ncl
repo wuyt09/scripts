@@ -33,10 +33,51 @@ do i = 0, nvar-1
     x_med(31:61,:,:) = x2
     copy_VarCoords(x1(0,:,:), x_med(0,:,:))
 
-    x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+    ; x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+    x = f2fsh_Wrap(x_med, (/dimsizes(lat),dimsizes(lon)/))
     printVarSummary(x)
 
     system("rm -f "+outpath+outname(i))
     fbindirwrite(outpath+outname(i),x)
+
+wks = gsn_open_wks("pdf", varname(i))
+
+plot = new(1, graphic)
+
+res = True
+res@gsnDraw  = False
+res@gsnFrame = False
+res@gsnAddCyclic = False
+res@gsnMaximize = True
+
+; res@mpMinLatF = latstr
+; res@mpMaxLatF = latend
+; res@mpMinLonF = lonstr
+; res@mpMaxLonF = lonend
+
+res@mpOutlineOn = True
+res@mpFillOn = True
+res@mpGeophysicalLineThicknessF = 2
+res@mpGeophysicalLineColor = "grey25" ;"red"
+; res@mpFillDrawOrder = "PostDraw"
+res@mpCenterLonF = 180
+
+res@cnFillOn = True
+res@cnLinesOn = False
+res@cnLineLabelsOn = False
+res@cnInfoLabelOn = False
+
+res@gsnStringFontHeightF = 0.025
+res@tmXBLabelFontHeightF = 0.018
+res@tmYLLabelFontHeightF = 0.018
+
+; res@gsnLeftString = "APHRO trend ("+yrStrt+"-"+yrLast+")"
+plot(0) = gsn_csm_contour_map(wks, x(22,:,:), res)
+draw(plot)
+
 end do
+
+
+
+
 end

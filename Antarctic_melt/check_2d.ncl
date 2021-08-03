@@ -1,10 +1,7 @@
 begin
 
-yrStrt = 200412
-yrLast = 200501
-
 fin = addfile("/home/yangsong3/huxm/antarctic_melt/199012_201001_ta_4time_daily.nc", "r")
-lat = fin->latitude
+lat = fin->latitude(::-1)
 lon = fin->longitude
 printVarSummary(lat)
 
@@ -25,30 +22,31 @@ do i = 0, nvar-1
     fili2 = diri+filiname(i)+"/"+filiname(i)+".2005-01.daily.nc"
     f1 = addfile(fili1, "r")
     f2 = addfile(fili2, "r")
-    x1 = short2flt(f1->$varname(i)$)
-    x2 = short2flt(f2->$varname(i)$)
+    x1 = short2flt(f1->$varname(i)$(:,::-1,:))
+    x2 = short2flt(f2->$varname(i)$(:,::-1,:))
     printVarSummary(x1)
     printVarSummary(x2)
     x_med(i,0:30,:,:) = x1
     x_med(i,31:61,:,:) = x2
-    x_med = x_med/24.
-    copy_VarCoords(x1(0,:,:), x_med(0,0,:,:))
+    copy_VarCoords(x1(0,:,:), x_med(i,0,:,:))
+    printVarSummary(x_med)
 
-    ; x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
-    x = f2fsh_Wrap(x_med, (/dimsizes(lat),dimsizes(lon)/))
-    printVarSummary(x)
 end do
+
+x_med = x_med/62.
+x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+; x = f2fsh_Wrap(x_med, (/dimsizes(lat),dimsizes(lon)/))
+printVarSummary(x)
+
 ssrd = x(0,:,:,:)
 ssru = x(0,:,:,:) - x(1,:,:,:)
 copy_VarCoords(x(0,:,:,:), ssrd)
 copy_VarCoords(x(0,:,:,:), ssru)
+printVarSummary(ssrd)
+    ; system("rm -f "+outpath+outname(i))
+    ; fbindirwrite(outpath+outname(i),x)
 
-system("rm -f "+outpath+outname(0))
-fbindirwrite(outpath+outname(0),ssrd)
-system("rm -f "+outpath+outname(1))
-fbindirwrite(outpath+outname(1),ssru)
-
-;===========================================
+;==============================================
 wks = gsn_open_wks("pdf", "ssrd_ssru")
 
 plot = new(2, graphic)
@@ -88,10 +86,14 @@ res@cnFillPalette = "BlueWhiteOrangeRed"
 
 res@gsnLeftString = "ssrd"
 plot(0) = gsn_csm_contour_map(wks, ssrd(22,:,:), res)
-res@gsnLeftString = "ssru"
-plot(1) = gsn_csm_contour_map(wks, ssru(22,:,:), res)
+
+res@gsnLeftString = "ssr"
+plot(1) = gsn_csm_contour_map(wks, x(1,22,:,:), res)
+
 
 pres = True
 pres@gsnMaximize = True
 gsn_panel(wks, plot, (/2,1/), pres)
+
 end
+

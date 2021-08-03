@@ -33,7 +33,8 @@ do i = 0, nvar-1
     x_med(i,31:61,:,:) = x2
     copy_VarCoords(x1(0,:,:), x_med(0,0,:,:))
 
-    x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+    ; x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+    x = f2fsh_Wrap(x_med, (/nlat,nlon/))
     printVarSummary(x)
 end do
 ssrd = x(0,:,:,:)
