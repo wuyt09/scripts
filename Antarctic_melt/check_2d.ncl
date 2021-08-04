@@ -1,4 +1,4 @@
-begin
+ begin
 
 fin = addfile("/home/yangsong3/huxm/antarctic_melt/199012_201001_ta_4time_daily.nc", "r")
 lat = fin->latitude(::-1)
@@ -33,9 +33,10 @@ do i = 0, nvar-1
 
 end do
 
-x_med = x_med/62.
-x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
-; x = f2fsh_Wrap(x_med, (/dimsizes(lat),dimsizes(lon)/))
+; x_med = x_med/62.
+x_med = x_med/3600.
+; x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+x = f2fsh_Wrap(x_med, (/dimsizes(lat),dimsizes(lon)/))
 printVarSummary(x)
 
 ssrd = x(0,:,:,:)

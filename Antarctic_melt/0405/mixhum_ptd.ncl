@@ -5,7 +5,7 @@ yrStrt = 200412
 yrLast = 200501
 
 fin = addfile("/home/yangsong3/huxm/antarctic_melt/199012_201001_ta_4time_daily.nc", "r")
-lat = fin->latitude
+lat = fin->latitude(::-1)
 lon = fin->longitude
 printVarSummary(lat)
 
@@ -26,18 +26,19 @@ do i = 0, nvar-1
     fili2 = diri+filiname(i)+"/"+filiname(i)+".2005-01.daily.nc"
     f1 = addfile(fili1, "r")
     f2 = addfile(fili2, "r")
-    x1 = short2flt(f1->$varname(i)$)
-    x2 = short2flt(f2->$varname(i)$)
+    x1 = short2flt(f1->$varname(i)$(:,::-1,:))
+    x2 = short2flt(f2->$varname(i)$(:,::-1,:))
     printVarSummary(x1)
     printVarSummary(x2)
     x_med(i,0:30,:,:) = x1
     x_med(i,31:61,:,:) = x2
     copy_VarCoords(x1(0,:,:), x_med(0,0,:,:))
 
-    ; x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
-    x = f2fsh_Wrap(x_med, (/dimsizes(lat),dimsizes(lon)/))
 end do
 
+x0 = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+; x = f2fsh_Wrap(x_med, (/dimsizes(lat),dimsizes(lon)/))
+x = x0(:,:,::-1,:)
 printVarSummary(x)
 
 d2m = x(0,:,:,:)

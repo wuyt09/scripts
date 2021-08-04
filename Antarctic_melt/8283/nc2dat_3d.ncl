@@ -4,7 +4,7 @@ yrStrt = 198212
 yrLast = 198301
 
 fin = addfile("/home/yangsong3/huxm/antarctic_melt/199012_201001_ta_4time_daily.nc", "r")
-lat = fin->latitude
+lat = fin->latitude(::-1)
 lon = fin->longitude
 printVarSummary(lat)
 
@@ -34,18 +34,63 @@ do i = 0, nvar-1
     YYYY2 := cd_calendar(TIME2, -1)
     iYYYY2 := ind(YYYY2.eq.yrLast)
     printVarSummary(iYYYY2)
-    x1 = short2flt(f1->$varname(i)$(iYYYY1,:,:,:))
-    x2 = short2flt(f2->$varname(i)$(iYYYY2,:,:,:))
+    x1 = short2flt(f1->$varname(i)$(iYYYY1,:,::-1,:))
+    x2 = short2flt(f2->$varname(i)$(iYYYY2,:,::-1,:))
     ; printVarSummary(x1)
     ; printVarSummary(x2)
     x_med(0:30,:,:,:) = x1
     x_med(31:61,:,:,:) = x2
     copy_VarCoords(x1(0,:,:,:), x_med(0,:,:,:))
 
-    x = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+    x0 = linint2_Wrap(x_med&longitude, x_med&latitude, x_med, True, lon, lat, 0)
+    x = x0(:,:,::-1,:)
     printVarSummary(x)
 
     system("rm -f "+outpath+outname(i))
     fbindirwrite(outpath+outname(i),x)
+    
+    ;=======================================================================
+    x_zonal = dim_avg_n_Wrap(x, 3)
+    wks = gsn_open_wks("pdf", varname(i))
+
+    gsn_define_colormap(wks,"BlueDarkRed18")
+    plot = new(20,graphic)
+
+    res                  = True                      ; plot mods desired
+    res@gsnFrame         = False
+    res@gsnDraw          = False
+    res@gsnSpreadColors  = True
+
+    res@cnFillOn         = True                      ; turn on color
+    res@cnLinesOn        = False
+    res@cnLineLabelsOn   = False                     ; no contour line labels
+    res@cnInfoLabelOn    = False                     ; no info label
+    res@lbLabelBarOn     = False
+
+    res@tmYRMode   = "Automatic"
+    res@tmYLMode   = "Explicit"
+    res@tmYLValues = (/"1000","850","750","650","500","300","100","70","50"/)
+    res@tmYLLabels = (/"1000","850","750","650","500","300","100","70","50"/)
+    res@tmYUseLeft = False
+
+    ; res@cnLevelSelectionMode = "ManualLevels"
+    ; res@cnMinLevelValF       = 4e-7
+    ; res@cnMaxLevelValF       = 4e-5
+    ; res@cnLevelSpacingF      = 8e-7
+
+    do j = 0,19
+       res@gsnLeftString     = "day "+(j*3+1)
+       plot(j) = gsn_csm_pres_hgt(wks, x_zonal(j*3,{1000:50},:), res)
+    end do
+  ;************************************************
+  ; create panel
+  ;************************************************
+    resP                     = True
+    resP@gsnFrame            = True
+    resP@gsnMaximize         = True
+    resP@gsnPanelLabelBar    = True                ; add common colorbar
+    resP@txString            = outname(i)
+    gsn_panel(wks,plot,(/4,5/),resP)
+
 end do
 end
