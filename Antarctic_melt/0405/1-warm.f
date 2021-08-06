@@ -42,7 +42,7 @@
       open ( unit = 112, file = './ta_warm.dat',
      & form='unformatted', access='direct',recl = xt*yt )
 
-      do nnn = 1,nn
+      do nnn = 19,nn
       irec = nnn
 
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
