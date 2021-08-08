@@ -1,9 +1,9 @@
 begin
 
 lonstr = 68
-lonend = 105
-latstr = 8
-latend = 42
+lonend = 107
+latstr = 7
+latend = 43
 
 yrStrt = 1851
 yrLast = 2014
@@ -111,17 +111,17 @@ topo = ftopo->topo(::-1,:)
  res_topo@gsnDraw    = False
  res_topo@cnLineLabelsOn         = False
  res_topo@cnLineThicknessF       = 3
- res_topo@cnLineColor            = "grey40"
+ res_topo@cnLineColor            = (/"grey40","black"/)
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
- res_topo@cnLevels               = (/2000/)
+ res_topo@cnLevels               = (/2000,3000/)
  res_topo@gsnLeftString = ""
  res_topo@gsnRightString = ""
 ;===================================================================
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "EOF_JA_precip_multimodel_MME_CMIP6"
+filiname = "EOF_JA_precip_multimodel_MME_CMIP6_"+yrStrt+"_"+yrLast
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(nm+1, graphic)
 plot_topo = plot
@@ -135,7 +135,7 @@ res@gsnAddCyclic = False
 res@mpMinLatF = 10 ;latstr
 res@mpMaxLatF = 40 ;latend
 res@mpMinLonF = 70 ;lonstr
-res@mpMaxLonF = 103 ;lonend
+res@mpMaxLonF = 105 ;lonend
 
 res@mpOutlineOn = True
 res@mpFillOn = True
