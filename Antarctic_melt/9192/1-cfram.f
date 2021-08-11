@@ -40,7 +40,7 @@ c  input data
      & './drdt_ranc_1.dat',
      & form='unformatted', access='direct',recl=100*100)
 
-       do nnn=nn,nn
+       do nnn=1,nn
 
        write(nn_ch,*)nnn
        print*,nn_ch

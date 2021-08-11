@@ -31,9 +31,9 @@ begin
 ;************************************************
 ; read climatological mean air temperature
 ;************************************************
- case    = "1516"
- ; dirin   = "/home/yangsong3/wuyt/sysu/scripts/Antarctic_melt/"+case+"/"
- dirin = "/home/yangsong3/huxm/antarctic_melt/"
+ case    = "0405"
+ dirin   = "/home/yangsong3/wuyt/sysu/scripts/Antarctic_melt/"+case+"/"
+ ; dirin = "/home/yangsong3/huxm/antarctic_melt/"
  fname1  = "ta_warm.dat"
  fname2  = "ta_base.dat"
  twarm   = new ( (/nt,nlev,nlat,nlon/),"float")

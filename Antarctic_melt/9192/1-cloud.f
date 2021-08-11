@@ -42,7 +42,7 @@
       open ( unit = 112, file = './ta_base.dat',
      & form='unformatted', access='direct',recl = xt*yt )
 
-      do nnn = 13,nn
+      do nnn = 54,nn
       irec = nnn
       read(11,rec=irec)((solar(i,j),i=1,xt),j=1,yt)
       read(12,rec=irec)((swdn_surf(i,j),i=1,xt),j=1,yt)
