@@ -5,7 +5,7 @@ lonend = 107
 latstr = 7
 latend = 43
 
-yrStrt = 1851
+yrStrt = 1951
 yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
@@ -21,10 +21,13 @@ nlon = dimsizes(lon)
 ;=======================================================================
 dirigcm = "/home/yangsong3/wuyt/sysu/scripts/model_precip/CMIP6/"
 
-models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
-           "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
-           "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
-; models = (/"CAMS-CSM1-0","CanESM5"/)
+; models := (/"CAMS-CSM1-0","CanESM5","CESM2","CESM2-WACCM","CNRM-CM6-1","CNRM-ESM2-1",\
+;            "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
+;            "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
+models = (/"BCC-CSM2-MR","BCC-ESM1","CAMS-CSM1-0","CanESM5","CESM2-FV2","CESM2","CESM2-WACCM-FV2",\
+          "CESM2-WACCM","CIESM","E3SM-1-0","E3SM-1-1-ECA","E3SM-1-1","EC-Earth3","EC-Earth3-Veg",\
+          "FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G","GISS-E2-1-H","IPSL-CM6A-LR",\
+          "KACE-1-0-G","MCM-UA-1-0","MIROC6","MPI-ESM1-2-HR","MRI-ESM2-0","NESM3","SAM0-UNICON"/)
 
 nm := dimsizes(models)
 pcvar = new(nm, float)
@@ -65,6 +68,8 @@ do i = 0, nm-1
     YYYY := cd_calendar(TIME, -1)/100
     iYYYY := ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
     PR_GCMs = fgcm->pr(iYYYY,{latstr:latend},{lonstr:lonend})
+    PR_GCMs!1 = "lat"
+    PR_GCMs!2 = "lon"
     PR_GCMs = PR_GCMs * 86400
     PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
     pr_jul = PR_GCMx(6::12,:,:)
@@ -181,7 +186,7 @@ pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-gsn_panel(wks, plot, (/4,5/), pres)
+gsn_panel(wks, plot, (/4,7/), pres)
 
 
 ;*******************************************
@@ -224,6 +229,6 @@ gsn_panel(wks, plot, (/4,5/), pres)
   
   rts@gsnLeftString = "MME"
   plot(nm) = gsn_csm_xy(wks, year, eof_ts_mme, rts)
-  gsn_panel(wks, plot, (/4,5/), pres)
+  gsn_panel(wks, plot, (/4,7/), pres)
 
 end

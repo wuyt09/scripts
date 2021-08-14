@@ -31,7 +31,7 @@ begin
 ;************************************************
 ; read climatological mean air temperature
 ;************************************************
- case    = "0405"
+ case    = "9192"
  dirin   = "/home/yangsong3/wuyt/sysu/scripts/Antarctic_melt/"+case+"/"
  ; dirin = "/home/yangsong3/huxm/antarctic_melt/"
  fname1  = "ta_warm.dat"
