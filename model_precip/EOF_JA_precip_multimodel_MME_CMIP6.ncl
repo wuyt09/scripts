@@ -5,7 +5,7 @@ lonend = 107
 latstr = 7
 latend = 43
 
-yrStrt = 1951
+yrStrt = 1851
 yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
@@ -83,6 +83,15 @@ do i = 0, nm-1
 
     eof_med = eofunc(prec_med(lat|:,lon|:,time|:), neof, optEOF)
     pcvar(i) = eof_med@pcvar
+    copy_VarCoords(prec_med(0,:,:), eof_med(0,:,:))
+
+    pr_tp = avg(eof_med(0,{26:30},{90:100}))
+    pr_is = avg(eof_med(0,{20:26},{70:80}))
+    diff = pr_tp - pr_is
+
+    if (diff.le.0) then
+      eof_med = -1.*eof_med
+    end if
     eof_ts_med = eofunc_ts(prec_med(lat|:,lon|:,time|:), eof_med, optETS)
     eof(i,:,:) = (/eof_med(0,:,:)/)
     eof_ts(i,:) = (/eof_ts_med(0,:)/)
@@ -96,12 +105,25 @@ prec_mme = dim_avg_n_Wrap(prec, 0)
 
 eof_mme_med = eofunc(prec_mme(lat|:,lon|:,year|:), neof, optEOF)
 eof_mme = eof_mme_med(0,:,:)
+copy_VarCoords(prec_mme(0,:,:), eof_mme)
+pr_tp = avg(eof_mme({26:30},{90:100}))
+pr_is = avg(eof_mme({20:26},{70:80}))
+diff = pr_tp - pr_is
+if (diff.le.0) then
+  eof_mme = -1.*eof_mme
+end if
+
 eof_ts_mme_med = eofunc_ts(prec_mme(lat|:,lon|:,year|:), eof_mme_med, optETS)
 eof_ts_mme = eof_ts_mme_med(0,:)
 copy_VarCoords(prec_mme(0,:,:), eof_mme)
 copy_VarCoords(prec_mme(:,0,0), eof_ts_mme)
 printVarSummary(eof_mme)
 
+do kk = 0, nm-1
+  ftxt = "./EOF_PC1_"+models(kk)+"_"+yrStrt+"-"+yrLast+".txt"
+  write_table(ftxt, "w", [/models(kk)/], "%10s")
+  write_table(ftxt, "a", [/eof_ts(kk,:)/], "%4.2f")
+end do
 
 ;===================================================================
 ; topo data
