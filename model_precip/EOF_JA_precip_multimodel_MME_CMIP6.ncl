@@ -5,7 +5,7 @@ lonend = 107
 latstr = 7
 latend = 43
 
-yrStrt = 1851
+yrStrt = 1951
 yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
@@ -119,12 +119,13 @@ copy_VarCoords(prec_mme(0,:,:), eof_mme)
 copy_VarCoords(prec_mme(:,0,0), eof_ts_mme)
 printVarSummary(eof_mme)
 
+eof_ts_std = dim_standardize_n_Wrap(eof_ts, 0, 1)
 do kk = 0, nm-1
-  ftxt = "./EOF_PC1_"+models(kk)+"_"+yrStrt+"-"+yrLast+".txt"
-  write_table(ftxt, "w", [/models(kk)/], "%10s")
-  write_table(ftxt, "a", [/eof_ts(kk,:)/], "%4.2f")
+  ftxt = "./EOF_PC1_std_"+models(kk)+"_"+yrStrt+"-"+yrLast+".txt"
+  ; write_table(ftxt, "w", [/models(kk)/], "%10s")
+  write_table(ftxt, "w", [/eof_ts_std(kk,:)/], "%4.2f")
 end do
-
+exit
 ;===================================================================
 ; topo data
 ;===================================================================

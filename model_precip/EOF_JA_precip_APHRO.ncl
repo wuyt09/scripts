@@ -5,13 +5,13 @@ lonend = 107
 latstr = 8
 latend = 42
 
-yrStrt = 1979
-yrLast = 2017
+yrStrt = 1951
+yrLast = 2007
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
-diri = "/home/yangsong3/data-observation/CMAP/"
-fili = "precip.mon.mean.std.nc"
+diri = "/home/yangsong3/wuyt/sysu/scripts/model_precip/APHRO/"
+fili = "APHRO_MA_025deg_V1003R1.monmean.1951-2007.nc"
 f = addfile(diri+fili, "r")
 
 TIME = f->time
@@ -21,23 +21,28 @@ precip = f->precip(iYYYY,{latstr:latend},{lonstr:lonend})
 
 prec_med = (precip(6::12,:,:) + precip(7::12,:,:))/2
 copy_VarCoords(precip(6::12,:,:), prec_med)
-prec = dim_standardize_n_Wrap(prec_med, 1, 0)
+; prec = dim_standardize_n_Wrap(prec_med, 1, 0)
+prec = prec_med
 printVarSummary(prec)
 
 
 
 neof   = 1        ; number of EOFs
 optEOF = True       
-optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
+optEOF@jopt = 1   ; This is the default; most commonly used; no need to specify.
 ;;optEOF@jopt = 1   ; **only** if the correlation EOF is desired
-optETS = False
+optETS = True
+optETS@jopt = 1
 
-eof = eofunc_Wrap(prec(lat|:,lon|:,time|:), neof, optEOF)
+eof = eofunc_Wrap(prec(latitude|:,longitude|:,time|:), neof, optEOF)
 pcvar = eof@pcvar
-eof_ts = eofunc_ts_Wrap(prec(lat|:,lon|:,time|:), eof, optETS)
+eof_ts = eofunc_ts_Wrap(prec(latitude|:,longitude|:,time|:), eof, optETS)
 printVarSummary(eof)
 printVarSummary(eof_ts)
 
+; eof = eof*50
+; eof_ts = eof_ts/50
+eof_ts = dim_standardize_n_Wrap(eof_ts, 0, 0)
 
 ;===================================================================
 ; topo data
@@ -62,7 +67,7 @@ topo = ftopo->topo(::-1,:)
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "EOF_JA_precip_CMAP_"+yrStrt+"_"+yrLast
+filiname = "EOF_JA_precip_APHRO_"+yrStrt+"_"+yrLast
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(2, graphic)
 plot_topo = plot
@@ -96,17 +101,17 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.02
-res@cnMaxLevelValF = 0.2
-res@cnMinLevelValF = -0.2
-; res@cnLevelSpacingF = 1.
-; res@cnMaxLevelValF = 10
-; res@cnMinLevelValF = -10
+; res@cnLevelSpacingF = 0.02
+; res@cnMaxLevelValF = 0.2
+; res@cnMinLevelValF = -0.2
+res@cnLevelSpacingF = 0.5
+res@cnMaxLevelValF = 3
+res@cnMinLevelValF = -3
 res@cnFillPalette = "MPL_BrBG"
 
 res@gsnRightString = "EOF1"
 
-res@gsnLeftString = "CMAP ("+yrStrt+"-"+yrLast+")"
+res@gsnLeftString = "APHRO ("+yrStrt+"-"+yrLast+")"
 plot(0) = gsn_csm_contour_map(wks, eof(0,:,:), res)
 plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
 overlay(plot(0), plot_topo(0))
@@ -145,7 +150,7 @@ overlay(plot(0), plot_topo(0))
 
   rts@gsnRightString = "PC1"
 
-  rts@gsnLeftString = "CMAP ("+yrStrt+"-"+yrLast+")"
+  rts@gsnLeftString = "APHRO ("+yrStrt+"-"+yrLast+")"
   rts@gsnCenterString = sprintf("%4.2f", pcvar)+"%"
   plot(1) = gsn_csm_xy(wks, year, eof_ts(0,:), rts)
 
