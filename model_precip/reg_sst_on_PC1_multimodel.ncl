@@ -1,9 +1,9 @@
 begin
 
-lonstr = 40
-lonend = 150
-latstr = -15
-latend = 55
+; lonstr = 40
+; lonend = 150
+; latstr = -15
+; latend = 55
 
 yrStrt = 1951
 yrLast = 2014
@@ -15,8 +15,8 @@ LEV = 20000
 diriobs = "/home/yangsong3/data-observation/GPCP/"
 filiobs = "precip.mon.mean.nc"
 fobs = addfile(diriobs+filiobs, "r")
-lat = fobs->lat({latstr:latend})
-lon = fobs->lon({lonstr:lonend})
+lat = fobs->lat ;({latstr:latend})
+lon = fobs->lon ;({lonstr:lonend})
 nlat = dimsizes(lat)
 nlon = dimsizes(lon)
 
@@ -35,34 +35,13 @@ multi_u = new((/nm,nyear,nlat,nlon/), float)
 multi_u!0 = "model"
 multi_u&model = models
 multi_v = multi_u
-multi_p = multi_u
-;===================================================================
-; topo data
-;===================================================================
-ftopo = addfile("~/wuyt/data/topo.sfc.1x1.nc", "r")
-topo = ftopo->topo(::-1,:)
-
- res_topo            = True
- res_topo@cnFillOn   = False
- res_topo@cnLinesOn  = True
- res_topo@gsnFrame   = False
- res_topo@gsnDraw    = False
- res_topo@cnLineLabelsOn         = False
- res_topo@cnLineThicknessF       = 3
- res_topo@cnLineColor            = (/"grey40"/)
- res_topo@cnInfoLabelOn          = False
- res_topo@cnLevelSelectionMode   ="ExplicitLevels"
- res_topo@cnLevels               = (/2000/)
- res_topo@gsnLeftString = ""
- res_topo@gsnRightString = ""
 ;===================================================================
 ; Plot
 ;===================================================================
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
-filiname = "reg_uv"+LEV+"_on_PC1_multimodel"
+filiname = "reg_sst_olr_on_PC1_multimodel"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(nm+1, graphic)
-plotv = plot
 plot_topo = plot
 
 res = True
@@ -71,10 +50,10 @@ res@gsnFrame = False
 res@gsnMaximize = True
 res@gsnAddCyclic = False
 
-res@mpMinLatF = latstr
-res@mpMaxLatF = latend
-res@mpMinLonF = lonstr
-res@mpMaxLonF = lonend
+res@mpMinLatF = -30
+res@mpMaxLatF = 30
+; res@mpMinLonF = lonstr
+; res@mpMaxLonF = lonend
 
 res@mpOutlineOn = True
 res@mpFillOn = True
@@ -94,9 +73,9 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.5
-res@cnMaxLevelValF = 2
-res@cnMinLevelValF = -2
+res@cnLevelSpacingF = 0.1
+res@cnMaxLevelValF = 0.3
+res@cnMinLevelValF = -0.3
 ; res@cnLevelSpacingF = 1.
 ; res@cnMaxLevelValF = 10
 ; res@cnMinLevelValF = -10
@@ -135,86 +114,67 @@ res@cnFillPalette = "MPL_BrBG"
 
 
 sig = 0.05
-do i = 0, nm-1
+do i = 5, nm-1
     ftxt = "./EOF_PC1_"+models(i)+"_"+yrStrt+"-"+yrLast+"_std.txt"
     x = asciiread(ftxt, (/nyear/), "float")
 
     ;-----------------------------------------------------------------------------------
     dirigcm = "/home/yangsong3/CMIP6/"+models(i)+"/historical/"
-    filiu := systemfunc("ls "+dirigcm+"ua_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
-    filiv := systemfunc("ls "+dirigcm+"va_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
-    filip := systemfunc("ls "+dirigcm+"pr_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
+    filiu := systemfunc("ls "+dirigcm+"tas_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
+    filiv := systemfunc("ls "+dirigcm+"rlut_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
     numu = dimsizes(filiu)
     print(numu)
 
     if (numu.lt.2) then
         fu := addfile(filiu, "r")
         fv := addfile(filiv, "r")
-        fp := addfile(filip, "r")
 
         TIME := fu->time
         YYYY := cd_calendar(TIME, -1)/100
         iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-        U := fu->ua(iYYYY,{LEV},{latstr:latend},{lonstr:lonend})
-        V := fv->va(iYYYY,{LEV},{latstr:latend},{lonstr:lonend})
-        P := fp->pr(iYYYY,{latstr:latend},{lonstr:lonend})
-        P = P*86400. ; units mm/day
+        U := fu->tas(iYYYY,:,:)
+        V := fv->rlut(iYYYY,:,:)
 
         u := (U(6::12,:,:)+U(7::12,:,:))/2
         v := (V(6::12,:,:)+V(7::12,:,:))/2
-        p := (P(6::12,:,:)+P(7::12,:,:))/2
         copy_VarCoords(U(0,:,:), u(0,:,:))
         copy_VarCoords(V(0,:,:), v(0,:,:))
-        copy_VarCoords(P(0,:,:), p(0,:,:))
         u!1 = "lat"
         u!2 = "lon"
         v!1 = "lat"
         v!2 = "lon"
-        p!1 = "lat"
-        p!2 = "lon"
 
     else
         fu := addfiles(filiu, "r")
         fv := addfiles(filiv, "r")
-        fp := addfiles(filip, "r")
 
         TIME := fu[:]->time
         YYYY := cd_calendar(TIME, -1)/100
         iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-        U := fu[:]->ua(iYYYY,{LEV},{latstr:latend},{lonstr:lonend})
-        V := fv[:]->va(iYYYY,{LEV},{latstr:latend},{lonstr:lonend})
-        P := fp[:]->pr(iYYYY,{latstr:latend},{lonstr:lonend})
-        P = P*86400. ; units mm/day
+        U := fu[:]->tas(iYYYY,:,:)
+        V := fv[:]->rlut(iYYYY,:,:)
 
         u := (U(6::12,:,:)+U(7::12,:,:))/2
         v := (V(6::12,:,:)+V(7::12,:,:))/2
-        p := (P(6::12,:,:)+P(7::12,:,:))/2
         copy_VarCoords(U(0,:,:), u(0,:,:))
         copy_VarCoords(V(0,:,:), v(0,:,:))
-        copy_VarCoords(P(0,:,:), p(0,:,:))
         u!1 = "lat"
         u!2 = "lon"
         v!1 = "lat"
         v!2 = "lon"
-        p!1 = "lat"
-        p!2 = "lon"
     end if
     ; printVarSummary(u)
 
     u_med = linint2_Wrap(u&lon, u&lat, u, False, lon, lat, 0)
     v_med = linint2_Wrap(v&lon, v&lat, v, False, lon, lat, 0)
-    p_med = linint2_Wrap(p&lon, p&lat, p, False, lon, lat, 0)
     multi_u(i,:,:,:) = u_med
     multi_v(i,:,:,:) = v_med
-    multi_p(i,:,:,:) = p_med
 
 
     rc_u = regCoef_n(x, u, 0, 0)
     rc_v = regCoef_n(x, v, 0, 0)
-    rc_p = regCoef_n(x, p, 0, 0)
     copy_VarCoords(u(0,:,:), rc_u)
     copy_VarCoords(v(0,:,:), rc_v)
-    copy_VarCoords(p(0,:,:), rc_p)
     ; printVarSummary(rc_v)
 
     tval_u = onedtond(rc_u@tval, dimsizes(rc_u))
@@ -229,32 +189,18 @@ do i = 0, nm-1
     b_v = 0.5
     prob_v = 1 - betainc(df_v/(df_v+tval_v^2), df_v/2.0, b_v)
 
-    tval_p = onedtond(rc_p@tval, dimsizes(rc_p))
-    df_p = onedtond(rc_p@nptxy, dimsizes(rc_p)) - 2
-    b_p = tval_p
-    b_p = 0.5
-    prob_p = 1 - betainc(df_p/(df_p+tval_p^2), df_p/2.0, b_p)
-
     ; rc_u = mask(rc_u, prob_u.le.sig .and. prob_v.le.sig, True)
     ; rc_v = mask(rc_v, prob_u.le.sig .and. prob_v.le.sig, True)
-    ; rc_p = mask(rc_p, prob_p.le.sig, True)
     ; rc_u = rc_u*10
     ; rc_v = rc_v*10
-    ; rc_p = rc_p*10
 
     ;=================================================================
 
     res@gsnLeftString = models(i)
-    plot(i) = gsn_csm_contour_map(wks, rc_p, res)
-    plotv(i) = gsn_csm_vector(wks, rc_u, rc_v, vecres)
-    overlay(plot(i), plotv(i))
-
-    plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
-    overlay(plot(i), plot_topo(i))
+    plot(i) = gsn_csm_contour_map(wks, rc_u, res)
     print("end of "+models(i))
     delete([/ftxt,x/])
     delete([/fu,fv,TIME,YYYY,iYYYY,U,V,u,v,rc_u,rc_v,tval_u,tval_v,df_u,df_v,b_u,b_v,prob_u,prob_v/])
-    delete([/fp,P,p,rc_p,tval_p,df_p,b_p,prob_p/])
 end do
 
 ftxt = "./EOF_PC1_MME_"+yrStrt+"-"+yrLast+"_std.txt"
@@ -262,21 +208,13 @@ x_mme = asciiread(ftxt, (/nyear/), "float")
 
 mme_u = dim_avg_n_Wrap(multi_u, 0)
 mme_v = dim_avg_n_Wrap(multi_v, 0)
-mme_p = dim_avg_n_Wrap(multi_p, 0)
 rc_u_mme = regCoef_n(x_mme, mme_u, 0, 0)
 rc_v_mme = regCoef_n(x_mme, mme_v, 0, 0)
-rc_p_mme = regCoef_n(x_mme, mme_p, 0, 0)
 copy_VarCoords(mme_u(0,:,:), rc_u_mme)
 copy_VarCoords(mme_v(0,:,:), rc_v_mme)
-copy_VarCoords(mme_p(0,:,:), rc_p_mme)
 printVarSummary(rc_u_mme)
 res@gsnLeftString = "MME"
-plot(nm) = gsn_csm_contour_map(wks, rc_p_mme, res)
-plotv(nm) = gsn_csm_vector(wks, rc_u_mme, rc_v_mme, vecres)
-overlay(plot(nm), plotv(nm))
-
-plot_topo(nm) = gsn_csm_contour(wks, topo, res_topo)
-overlay(plot(nm), plot_topo(nm))
+plot(nm) = gsn_csm_contour_map(wks, rc_u_mme, res)
 
 
 pres = True

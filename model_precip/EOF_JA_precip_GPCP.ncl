@@ -28,9 +28,10 @@ printVarSummary(prec)
 
 neof   = 1        ; number of EOFs
 optEOF = True       
-optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
+optEOF@jopt = 1   ; This is the default; most commonly used; no need to specify.
 ;;optEOF@jopt = 1   ; **only** if the correlation EOF is desired
 optETS = False
+optETS@jopt = 1
 
 eof = eofunc_Wrap(prec(lat|:,lon|:,time|:), neof, optEOF)
 pcvar = eof@pcvar

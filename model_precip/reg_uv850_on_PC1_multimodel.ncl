@@ -10,7 +10,7 @@ yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
 
-LEV = 20000
+LEV = 85000
 ;=======================================================
 diriobs = "/home/yangsong3/data-observation/GPCP/"
 filiobs = "precip.mon.mean.nc"
@@ -129,7 +129,7 @@ res@cnFillPalette = "MPL_BrBG"
  
  ; vecres@vcLineArrowColor = "gray52"
  vecres@vcRefAnnoFontHeightF = 0.02
- vecres@vcRefMagnitudeF  = 3             ; define vector ref mag
+ vecres@vcRefMagnitudeF  = 1             ; define vector ref mag
  ; vecres@vcRefAnnoString1  = "3 Kg/m/s"
 ;=======================================================================
 
@@ -283,8 +283,10 @@ pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-do j = 0, 6
+do j = 0,6 
     gsn_panel(wks, plot(4*j:4*j+3), (/2,2/), pres)
 end do
 
 end
+
+

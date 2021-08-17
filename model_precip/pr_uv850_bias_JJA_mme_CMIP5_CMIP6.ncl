@@ -11,7 +11,7 @@ yrStrt = 1979
 yrLast = 2014
 yearo = ispan(yrStrt, yrLast, 1)
 nyro = dimsizes(yearo)
-LEV = 850
+LEV = 85000
 
 diriobs = "/home/yangsong3/data-observation/GPCP/"
 filiobs = "precip.mon.mean.nc"

@@ -5,7 +5,7 @@ lonend = 107
 latstr = 7
 latend = 43
 
-yrStrt = 1951
+yrStrt = 1851
 yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
@@ -70,7 +70,7 @@ do i = 0, nm-1
     PR_GCMs = fgcm->pr(iYYYY,{latstr:latend},{lonstr:lonend})
     PR_GCMs!1 = "lat"
     PR_GCMs!2 = "lon"
-    PR_GCMs = PR_GCMs * 86400
+    PR_GCMs = PR_GCMs * 86400 ; units mm/day
     PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
     pr_jul = PR_GCMx(6::12,:,:)
     pr_aug = PR_GCMx(7::12,:,:)
@@ -120,11 +120,15 @@ copy_VarCoords(prec_mme(:,0,0), eof_ts_mme)
 printVarSummary(eof_mme)
 
 eof_ts_std = dim_standardize_n_Wrap(eof_ts, 0, 1)
+eof_ts_mme_std = dim_standardize_n_Wrap(eof_ts_mme, 0, 0)
 do kk = 0, nm-1
-  ftxt = "./EOF_PC1_std_"+models(kk)+"_"+yrStrt+"-"+yrLast+".txt"
+  ftxt = "./EOF_PC1_"+models(kk)+"_"+yrStrt+"-"+yrLast+"_std.txt"
   ; write_table(ftxt, "w", [/models(kk)/], "%10s")
   write_table(ftxt, "w", [/eof_ts_std(kk,:)/], "%4.2f")
 end do
+
+ftxt = "./EOF_PC1_MME_"+yrStrt+"-"+yrLast+"_std.txt"
+write_table(ftxt, "w", [/eof_ts_mme_std/], "%4.2f")
 exit
 ;===================================================================
 ; topo data
@@ -139,10 +143,10 @@ topo = ftopo->topo(::-1,:)
  res_topo@gsnDraw    = False
  res_topo@cnLineLabelsOn         = False
  res_topo@cnLineThicknessF       = 3
- res_topo@cnLineColor            = (/"grey40","black"/)
+ res_topo@cnLineColor            = (/"grey40"/)
  res_topo@cnInfoLabelOn          = False
  res_topo@cnLevelSelectionMode   ="ExplicitLevels"
- res_topo@cnLevels               = (/2000,3000/)
+ res_topo@cnLevels               = (/2000/)
  res_topo@gsnLeftString = ""
  res_topo@gsnRightString = ""
 ;===================================================================

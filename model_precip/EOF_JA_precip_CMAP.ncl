@@ -21,16 +21,17 @@ precip = f->precip(iYYYY,{latstr:latend},{lonstr:lonend})
 
 prec_med = (precip(6::12,:,:) + precip(7::12,:,:))/2
 copy_VarCoords(precip(6::12,:,:), prec_med)
-prec = dim_standardize_n_Wrap(prec_med, 1, 0)
+prec = prec_med ;dim_standardize_n_Wrap(prec_med, 1, 0)
 printVarSummary(prec)
 
 
 
 neof   = 1        ; number of EOFs
 optEOF = True       
-optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
+optEOF@jopt = 1   ; This is the default; most commonly used; no need to specify.
 ;;optEOF@jopt = 1   ; **only** if the correlation EOF is desired
-optETS = False
+optETS = True
+optETS@jopt = 1
 
 eof = eofunc_Wrap(prec(lat|:,lon|:,time|:), neof, optEOF)
 pcvar = eof@pcvar

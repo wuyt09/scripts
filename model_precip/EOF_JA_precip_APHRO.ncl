@@ -21,18 +21,18 @@ precip = f->precip(iYYYY,{latstr:latend},{lonstr:lonend})
 
 prec_med = (precip(6::12,:,:) + precip(7::12,:,:))/2
 copy_VarCoords(precip(6::12,:,:), prec_med)
-; prec = dim_standardize_n_Wrap(prec_med, 1, 0)
-prec = prec_med
+prec = dim_standardize_n_Wrap(prec_med, 1, 0)
+; prec = prec_med
 printVarSummary(prec)
 
 
 
 neof   = 1        ; number of EOFs
 optEOF = True       
-optEOF@jopt = 1   ; This is the default; most commonly used; no need to specify.
+optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
 ;;optEOF@jopt = 1   ; **only** if the correlation EOF is desired
-optETS = True
-optETS@jopt = 1
+optETS = False
+; optETS@jopt = 1
 
 eof = eofunc_Wrap(prec(latitude|:,longitude|:,time|:), neof, optEOF)
 pcvar = eof@pcvar
@@ -40,9 +40,9 @@ eof_ts = eofunc_ts_Wrap(prec(latitude|:,longitude|:,time|:), eof, optETS)
 printVarSummary(eof)
 printVarSummary(eof_ts)
 
-; eof = eof*50
-; eof_ts = eof_ts/50
-eof_ts = dim_standardize_n_Wrap(eof_ts, 0, 0)
+eof = eof*50
+eof_ts = eof_ts/50
+; eof_ts = dim_standardize_n_Wrap(eof_ts, 0, 0)
 
 ;===================================================================
 ; topo data
