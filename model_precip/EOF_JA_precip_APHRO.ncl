@@ -104,9 +104,9 @@ res@cnLevelSelectionMode = "ManualLevels"
 ; res@cnLevelSpacingF = 0.02
 ; res@cnMaxLevelValF = 0.2
 ; res@cnMinLevelValF = -0.2
-res@cnLevelSpacingF = 0.5
-res@cnMaxLevelValF = 3
-res@cnMinLevelValF = -3
+res@cnLevelSpacingF = 0.2
+res@cnMaxLevelValF = 1
+res@cnMinLevelValF = -1
 res@cnFillPalette = "MPL_BrBG"
 
 res@gsnRightString = "EOF1"

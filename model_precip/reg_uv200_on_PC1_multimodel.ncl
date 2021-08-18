@@ -95,8 +95,8 @@ res@tmYLLabelFontHeightF = 0.018
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 0.5
-res@cnMaxLevelValF = 2
-res@cnMinLevelValF = -2
+res@cnMaxLevelValF = 2.
+res@cnMinLevelValF = -2.
 ; res@cnLevelSpacingF = 1.
 ; res@cnMaxLevelValF = 10
 ; res@cnMinLevelValF = -10
@@ -271,6 +271,11 @@ copy_VarCoords(mme_v(0,:,:), rc_v_mme)
 copy_VarCoords(mme_p(0,:,:), rc_p_mme)
 printVarSummary(rc_u_mme)
 res@gsnLeftString = "MME"
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnLevelSpacingF = 0.1
+res@cnMaxLevelValF = 0.5
+res@cnMinLevelValF = -0.5
+vecres@vcRefMagnitudeF  = 1
 plot(nm) = gsn_csm_contour_map(wks, rc_p_mme, res)
 plotv(nm) = gsn_csm_vector(wks, rc_u_mme, rc_v_mme, vecres)
 overlay(plot(nm), plotv(nm))

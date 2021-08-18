@@ -5,7 +5,7 @@ lonend = 107
 latstr = 7
 latend = 43
 
-yrStrt = 1851
+yrStrt = 1951
 yrLast = 2014
 year = ispan(yrStrt, yrLast, 1)
 nyear = dimsizes(year)
@@ -57,7 +57,7 @@ eof_ts&year = year
 
 neof   = 1        ; number of EOFs
 optEOF = True       
-optEOF@jopt = 0   ; This is the default; most commonly used; no need to specify.
+optEOF@jopt = 1   ; This is the default; most commonly used; no need to specify.
 ;;optEOF@jopt = 1   ; **only** if the correlation EOF is desired
 optETS = False
 
@@ -74,12 +74,12 @@ do i = 0, nm-1
     PR_GCMx = linint2_Wrap(PR_GCMs&lon, PR_GCMs&lat, PR_GCMs, True, lon, lat, 0)
     pr_jul = PR_GCMx(6::12,:,:)
     pr_aug = PR_GCMx(7::12,:,:)
-    prec_med1 = (pr_aug + pr_jul)/2
-    prec_med = dim_standardize_n_Wrap(prec_med1, 1, 0)
+    prec_med = (pr_aug + pr_jul)/2
+    ; prec_med = dim_standardize_n_Wrap(prec_med1, 1, 0)
     copy_VarCoords(pr_aug, prec_med)
 
     prec(i,:,:,:) = (/prec_med/)
-    delete([/PR_GCMs,PR_GCMx,pr_jul,pr_aug,prec_med1/]) ;
+    delete([/PR_GCMs,PR_GCMx,pr_jul,pr_aug/]) ;
 
     eof_med = eofunc(prec_med(lat|:,lon|:,time|:), neof, optEOF)
     pcvar(i) = eof_med@pcvar
@@ -122,14 +122,19 @@ printVarSummary(eof_mme)
 eof_ts_std = dim_standardize_n_Wrap(eof_ts, 0, 1)
 eof_ts_mme_std = dim_standardize_n_Wrap(eof_ts_mme, 0, 0)
 do kk = 0, nm-1
-  ftxt = "./EOF_PC1_"+models(kk)+"_"+yrStrt+"-"+yrLast+"_std.txt"
+  ftxt = "./EOF_PC1_"+models(kk)+"_"+yrStrt+"-"+yrLast+".txt"
   ; write_table(ftxt, "w", [/models(kk)/], "%10s")
-  write_table(ftxt, "w", [/eof_ts_std(kk,:)/], "%4.2f")
+  write_table(ftxt, "w", [/eof_ts(kk,:)/], "%4.2f")
 end do
 
-ftxt = "./EOF_PC1_MME_"+yrStrt+"-"+yrLast+"_std.txt"
-write_table(ftxt, "w", [/eof_ts_mme_std/], "%4.2f")
-exit
+ftxt = "./EOF_PC1_MME_"+yrStrt+"-"+yrLast+".txt"
+write_table(ftxt, "w", [/eof_ts_mme/], "%4.2f")
+; ftxt = "./EOF_PC1_MME_"+yrStrt+"-"+yrLast+"_std.txt"
+; write_table(ftxt, "w", [/eof_ts_mme_std/], "%4.2f")
+
+
+rc = regCoef_n(eof_ts_mme_std, prec_mme, 0, 0)
+copy_VarCoords(prec_mme(0,:,:), rc)
 ;===================================================================
 ; topo data
 ;===================================================================
@@ -258,4 +263,48 @@ gsn_panel(wks, plot, (/4,7/), pres)
   plot(nm) = gsn_csm_xy(wks, year, eof_ts_mme, rts)
   gsn_panel(wks, plot, (/4,7/), pres)
 
+delete(res)
+res = True
+res@gsnDraw  = False
+res@gsnFrame = False
+res@gsnMaximize = True
+res@gsnAddCyclic = False
+
+res@mpMinLatF = latstr
+res@mpMaxLatF = latend
+res@mpMinLonF = lonstr
+res@mpMaxLonF = lonend
+
+res@mpOutlineOn = True
+res@mpFillOn = True
+res@mpGeophysicalLineThicknessF = 2
+res@mpGeophysicalLineColor = "grey25" ;"red"
+; res@mpFillDrawOrder = "PostDraw"
+res@mpCenterLonF = 180
+
+res@cnFillOn = True
+res@cnLinesOn = False
+res@cnLineLabelsOn = False
+res@cnInfoLabelOn = False
+
+res@gsnStringFontHeightF = 0.03
+res@tmXBLabelFontHeightF = 0.018
+res@tmYLLabelFontHeightF = 0.018
+
+; res@lbLabelBarOn = False
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnLevelSpacingF = 0.1
+res@cnMaxLevelValF = 0.5
+res@cnMinLevelValF = -0.5
+; res@cnLevelSpacingF = 1.
+; res@cnMaxLevelValF = 10
+; res@cnMinLevelValF = -10
+res@cnFillPalette = "MPL_BrBG"
+
+
+plot(0) = gsn_csm_contour_map(wks, rc, res)
+
+plot_topo(0) = gsn_csm_contour(wks, topo, res_topo)
+overlay(plot(0), plot_topo(0))
+draw(plot(0))
 end

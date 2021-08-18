@@ -26,7 +26,7 @@ nlon = dimsizes(lon)
 ;            "E3SM-1-0","EC-Earth3","EC-Earth3-Veg","FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G",\
 ;            "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
 models = (/"BCC-CSM2-MR","BCC-ESM1","CAMS-CSM1-0","CanESM5","CESM2-FV2","CESM2","CESM2-WACCM-FV2",\
-          "CESM2-WACCM","CIESM","E3SM-1-0","E3SM-1-1-ECA","E3SM-1-1","EC-Earth3","EC-Earth3-Veg",\
+          "CESM2-WACCM","CIESM","E3SM-1-0","E3SM-1-1-ECA","EC-Earth3","EC-Earth3-Veg",\ ;"E3SM-1-1",
           "FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G","GISS-E2-1-H","IPSL-CM6A-LR",\
           "KACE-1-0-G","MCM-UA-1-0","MIROC6","MPI-ESM1-2-HR","MRI-ESM2-0","NESM3","SAM0-UNICON"/)
 nm = dimsizes(models)
@@ -61,7 +61,7 @@ topo = ftopo->topo(::-1,:)
 filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
 filiname = "reg_uv"+LEV+"_on_PC1_multimodel"
 wks = gsn_open_wks("pdf", filipath+filiname)
-plot = new(nm+1, graphic)
+plot = new(nm+2, graphic)
 plotv = plot
 plot_topo = plot
 
@@ -95,8 +95,8 @@ res@tmYLLabelFontHeightF = 0.018
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
 res@cnLevelSpacingF = 0.5
-res@cnMaxLevelValF = 2
-res@cnMinLevelValF = -2
+res@cnMaxLevelValF = 2.
+res@cnMinLevelValF = -2.
 ; res@cnLevelSpacingF = 1.
 ; res@cnMaxLevelValF = 10
 ; res@cnMinLevelValF = -10
@@ -129,7 +129,7 @@ res@cnFillPalette = "MPL_BrBG"
  
  ; vecres@vcLineArrowColor = "gray52"
  vecres@vcRefAnnoFontHeightF = 0.02
- vecres@vcRefMagnitudeF  = 1             ; define vector ref mag
+ vecres@vcRefMagnitudeF  = 1.             ; define vector ref mag
  ; vecres@vcRefAnnoString1  = "3 Kg/m/s"
 ;=======================================================================
 
@@ -185,6 +185,7 @@ do i = 0, nm-1
         V := fv[:]->va(iYYYY,{LEV},{latstr:latend},{lonstr:lonend})
         P := fp[:]->pr(iYYYY,{latstr:latend},{lonstr:lonend})
         P = P*86400. ; units mm/day
+        print("end of read")
 
         u := (U(6::12,:,:)+U(7::12,:,:))/2
         v := (V(6::12,:,:)+V(7::12,:,:))/2
@@ -207,6 +208,7 @@ do i = 0, nm-1
     multi_u(i,:,:,:) = u_med
     multi_v(i,:,:,:) = v_med
     multi_p(i,:,:,:) = p_med
+    print("==============2=======================")
 
 
     rc_u = regCoef_n(x, u, 0, 0)
@@ -216,6 +218,8 @@ do i = 0, nm-1
     copy_VarCoords(v(0,:,:), rc_v)
     copy_VarCoords(p(0,:,:), rc_p)
     ; printVarSummary(rc_v)
+
+    print("==============3=======================")
 
     tval_u = onedtond(rc_u@tval, dimsizes(rc_u))
     df_u = onedtond(rc_u@nptxy, dimsizes(rc_u)) - 2
@@ -234,6 +238,7 @@ do i = 0, nm-1
     b_p = tval_p
     b_p = 0.5
     prob_p = 1 - betainc(df_p/(df_p+tval_p^2), df_p/2.0, b_p)
+    print("==============4=======================")
 
     ; rc_u = mask(rc_u, prob_u.le.sig .and. prob_v.le.sig, True)
     ; rc_v = mask(rc_v, prob_u.le.sig .and. prob_v.le.sig, True)
@@ -243,14 +248,19 @@ do i = 0, nm-1
     ; rc_p = rc_p*10
 
     ;=================================================================
+    printVarSummary(rc_p)
+    printVarSummary(rc_u)
+    printVarSummary(rc_v)
 
     res@gsnLeftString = models(i)
     plot(i) = gsn_csm_contour_map(wks, rc_p, res)
     plotv(i) = gsn_csm_vector(wks, rc_u, rc_v, vecres)
     overlay(plot(i), plotv(i))
 
+    print("==============5=======================")
     plot_topo(i) = gsn_csm_contour(wks, topo, res_topo)
     overlay(plot(i), plot_topo(i))
+    print("==============6=======================")
     print("end of "+models(i))
     delete([/ftxt,x/])
     delete([/fu,fv,TIME,YYYY,iYYYY,U,V,u,v,rc_u,rc_v,tval_u,tval_v,df_u,df_v,b_u,b_v,prob_u,prob_v/])
@@ -271,6 +281,11 @@ copy_VarCoords(mme_v(0,:,:), rc_v_mme)
 copy_VarCoords(mme_p(0,:,:), rc_p_mme)
 printVarSummary(rc_u_mme)
 res@gsnLeftString = "MME"
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnLevelSpacingF = 0.1
+res@cnMaxLevelValF = 0.5
+res@cnMinLevelValF = -0.5
+vecres@vcRefMagnitudeF  = 0.5
 plot(nm) = gsn_csm_contour_map(wks, rc_p_mme, res)
 plotv(nm) = gsn_csm_vector(wks, rc_u_mme, rc_v_mme, vecres)
 overlay(plot(nm), plotv(nm))

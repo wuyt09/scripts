@@ -27,7 +27,7 @@ nlon = dimsizes(lon)
 ;            "HadGEM3-GC31-LL","IPSL-CM6A-LR","MPI-ESM1-2-HR","NESM3","SAM0-UNICON","UKESM1-0-LL"/)
 models = (/"BCC-CSM2-MR","BCC-ESM1","CAMS-CSM1-0","CanESM5","CESM2-FV2","CESM2","CESM2-WACCM-FV2",\
           "CESM2-WACCM","CIESM","E3SM-1-0","E3SM-1-1-ECA","E3SM-1-1","EC-Earth3","EC-Earth3-Veg",\
-          "FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G-CC","GISS-E2-1-G","GISS-E2-1-H","IPSL-CM6A-LR",\
+          "FGOALS-f3-L","FGOALS-g3","GISS-E2-1-G","GISS-E2-1-H","IPSL-CM6A-LR",\ ;"GISS-E2-1-G-CC",
           "KACE-1-0-G","MCM-UA-1-0","MIROC6","MPI-ESM1-2-HR","MRI-ESM2-0","NESM3","SAM0-UNICON"/)
 nm = dimsizes(models)
 
@@ -42,6 +42,7 @@ filipath = "/home/yangsong3/wuyt/sysu/figures/model_precip/"
 filiname = "reg_sst_olr_on_PC1_multimodel"
 wks = gsn_open_wks("pdf", filipath+filiname)
 plot = new(nm+1, graphic)
+plotc = plot
 plot_topo = plot
 
 res = True
@@ -52,14 +53,14 @@ res@gsnAddCyclic = False
 
 res@mpMinLatF = -30
 res@mpMaxLatF = 30
-; res@mpMinLonF = lonstr
-; res@mpMaxLonF = lonend
+res@mpMinLonF = 40
+res@mpMaxLonF = 300
 
 res@mpOutlineOn = True
 res@mpFillOn = True
 res@mpGeophysicalLineThicknessF = 2
 res@mpGeophysicalLineColor = "grey25" ;"red"
-; res@mpFillDrawOrder = "PostDraw"
+res@mpFillDrawOrder = "PostDraw"
 res@mpCenterLonF = 180
 
 res@cnFillOn = True
@@ -73,93 +74,105 @@ res@tmYLLabelFontHeightF = 0.018
 
 res@lbLabelBarOn = False
 res@cnLevelSelectionMode = "ManualLevels"
-res@cnLevelSpacingF = 0.1
-res@cnMaxLevelValF = 0.3
-res@cnMinLevelValF = -0.3
 ; res@cnLevelSpacingF = 1.
 ; res@cnMaxLevelValF = 10
 ; res@cnMinLevelValF = -10
-res@cnFillPalette = "MPL_BrBG"
+res@cnFillPalette = "temp_diff_18lev"
 
 ; res@gsnRightString = "Reg on PC1"
 
-;===========================================================
- vecres  = True
- vecres@gsnDraw  = False
- vecres@gsnFrame = False
+; ;===========================================================
+ cnres  = True
+ cnres@gsnDraw  = False
+ cnres@gsnFrame = False
 
- vecres@vcGlyphStyle     = "LineArrow"   ; curly vectors"Fillarrow" 
- vecres@vcRefLengthF     = 0.05            ; define length of vec ref
- vecres@vcMinDistanceF   = 0.02
- vecres@vcLineArrowThicknessF = 3.0
- vecres@tiXAxisString    = " "             ; turn off axis label
- vecres@vcRefAnnoOn      = True            ; draw the reference vector annotation.
- vecres@vcRefAnnoString2On =  False          ;display a string below or to the right
- vecres@vcRefAnnoOrientation = "horizontal"
- vecres@vcRefAnnoString2  = " "
- vecres@vcRefAnnoOrthogonalPosF = -1.0  ; move ref vector into plot
- vecres@vcFillArrowsOn       = True
- vecres@vcLineArrowHeadMinSizeF = 0.008
- vecres@vcLineArrowHeadMaxSizeF = 0.3
- vecres@gsnLeftString  = ""
- ;vecres@gsnRightString  = "g*s/Kg"
- vecres@gsnRightString  = ""
- vecres@gsnRightStringFontHeightF = 0.02
- 
- ; vecres@vcLineArrowColor = "gray52"
- vecres@vcRefAnnoFontHeightF = 0.02
- vecres@vcRefMagnitudeF  = 3             ; define vector ref mag
- ; vecres@vcRefAnnoString1  = "3 Kg/m/s"
-;=======================================================================
+ cnres@cnFillOn = True ;False
+ cnres@cnLinesOn = False ;True
+ cnres@cnLineLabelsOn = False ;True
+ cnres@cnLineLabelFontColor = "red"
+ cnres@cnLineColor = "black"
+ cnres@cnLineThicknessF = 2
+ cnres@cnInfoLabelOn = False
+ ;cnres@cnLineDrawOrder = "PostDraw"
+ cnres@cnLabelDrawOrder = "PostDraw"
+ ;cnres@cnLevelFlag = "LineAndLabel"
+ cnres@cnLineLabelInterval = 1
+
+ cnres@cnLevelSelectionMode = "ManualLevels"
+ cnres@cnLevelSpacingF = 2.
+ cnres@cnMaxLevelValF = 10.
+ cnres@cnMinLevelValF = -10.
+ cnres@gsnLeftString = ""
+ cnres@gsnRightString = ""
+ cnres@gsnContourNegLineDashPattern = 2
+ cnres@gsnContourPosLineDashPattern = 0
+ ; cnres@gsnContourZeroLineThicknessF = 5
+; ;=======================================================================
 
 
 sig = 0.05
-do i = 5, nm-1
+do i = 0, nm-1
     ftxt = "./EOF_PC1_"+models(i)+"_"+yrStrt+"-"+yrLast+"_std.txt"
     x = asciiread(ftxt, (/nyear/), "float")
 
     ;-----------------------------------------------------------------------------------
     dirigcm = "/home/yangsong3/CMIP6/"+models(i)+"/historical/"
-    filiu := systemfunc("ls "+dirigcm+"tas_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
+    filiu := systemfunc("ls "+dirigcm+"ts_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
     filiv := systemfunc("ls "+dirigcm+"rlut_Amon_*"+models(i)+"*_r1i1p1f1_g*.nc")
     numu = dimsizes(filiu)
-    print(numu)
+    numv = dimsizes(filiv)
+    print(numu+"    "+numv)
 
     if (numu.lt.2) then
         fu := addfile(filiu, "r")
-        fv := addfile(filiv, "r")
 
         TIME := fu->time
         YYYY := cd_calendar(TIME, -1)/100
         iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-        U := fu->tas(iYYYY,:,:)
-        V := fv->rlut(iYYYY,:,:)
+        U := fu->ts(iYYYY,:,:)
 
         u := (U(6::12,:,:)+U(7::12,:,:))/2
-        v := (V(6::12,:,:)+V(7::12,:,:))/2
         copy_VarCoords(U(0,:,:), u(0,:,:))
-        copy_VarCoords(V(0,:,:), v(0,:,:))
         u!1 = "lat"
         u!2 = "lon"
-        v!1 = "lat"
-        v!2 = "lon"
 
     else
         fu := addfiles(filiu, "r")
-        fv := addfiles(filiv, "r")
 
         TIME := fu[:]->time
         YYYY := cd_calendar(TIME, -1)/100
         iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
-        U := fu[:]->tas(iYYYY,:,:)
-        V := fv[:]->rlut(iYYYY,:,:)
+        U := fu[:]->ts(iYYYY,:,:)
 
         u := (U(6::12,:,:)+U(7::12,:,:))/2
-        v := (V(6::12,:,:)+V(7::12,:,:))/2
         copy_VarCoords(U(0,:,:), u(0,:,:))
-        copy_VarCoords(V(0,:,:), v(0,:,:))
         u!1 = "lat"
         u!2 = "lon"
+    end if
+
+    if (numv.lt.2) then
+        fv := addfile(filiv, "r")
+
+        TIME := fv->time
+        YYYY := cd_calendar(TIME, -1)/100
+        iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+        V := fv->rlut(iYYYY,:,:)
+
+        v := (V(6::12,:,:)+V(7::12,:,:))/2
+        copy_VarCoords(V(0,:,:), v(0,:,:))
+        v!1 = "lat"
+        v!2 = "lon"
+
+    else
+        fv := addfiles(filiv, "r")
+
+        TIME := fv[:]->time
+        YYYY := cd_calendar(TIME, -1)/100
+        iYYYY = ind(YYYY.ge.yrStrt .and. YYYY.le.yrLast)
+        V := fv[:]->rlut(iYYYY,:,:)
+
+        v := (V(6::12,:,:)+V(7::12,:,:))/2
+        copy_VarCoords(V(0,:,:), v(0,:,:))
         v!1 = "lat"
         v!2 = "lon"
     end if
@@ -197,8 +210,21 @@ do i = 5, nm-1
     ;=================================================================
 
     res@gsnLeftString = models(i)
+
+    ; res@gsnLeftString = "SST"
+    res@cnLevelSpacingF = 0.1
+    res@cnMaxLevelValF = 0.3
+    res@cnMinLevelValF = -0.3
     plot(i) = gsn_csm_contour_map(wks, rc_u, res)
-    print("end of "+models(i))
+    plotc(i) = gsn_csm_contour(wks, rc_v, cnres)
+    overlay(plot(i), plotc(i))
+
+    ; res@gsnRightString = "OLR"
+    ; res@cnLevelSpacingF = 2.
+    ; res@cnMaxLevelValF = 10.
+    ; res@cnMinLevelValF = -10.
+    ; plotc(i) = gsn_csm_contour_map(wks, rc_v, res)
+    print("end of "+models(i)+" "+i)
     delete([/ftxt,x/])
     delete([/fu,fv,TIME,YYYY,iYYYY,U,V,u,v,rc_u,rc_v,tval_u,tval_v,df_u,df_v,b_u,b_v,prob_u,prob_v/])
 end do
@@ -214,15 +240,44 @@ copy_VarCoords(mme_u(0,:,:), rc_u_mme)
 copy_VarCoords(mme_v(0,:,:), rc_v_mme)
 printVarSummary(rc_u_mme)
 res@gsnLeftString = "MME"
-plot(nm) = gsn_csm_contour_map(wks, rc_u_mme, res)
 
+; res@gsnRightString = "SST"
+res@cnLevelSelectionMode = "ManualLevels"
+res@cnLevelSpacingF = 0.05
+res@cnMaxLevelValF = 0.2
+res@cnMinLevelValF = -0.2
+
+cnres@cnLevelSelectionMode = "ManualLevels"
+cnres@cnLevelSpacingF = 0.1
+cnres@cnMaxLevelValF = 0.4
+cnres@cnMinLevelValF = -0.4
+plot(nm) = gsn_csm_contour_map(wks, rc_u_mme, res)
+plotc(nm) = gsn_csm_contour(wks, rc_v_mme, cnres)
+overlay(plot(nm), plotc(nm))
+
+; res@gsnRightString = "OLR"
+; res@cnLevelSelectionMode = "ManualLevels"
+; res@cnLevelSpacingF = 0.5
+; res@cnMaxLevelValF = 2.
+; res@cnMinLevelValF = -2.
+; plotc(nm) = gsn_csm_contour_map(wks, rc_v_mme, res)
 
 pres = True
 pres@gsnMaximize = True
 pres@gsnPanelLabelBar = True
 pres@lbLabelFontHeightF = 0.012
-do j = 0, 6
-    gsn_panel(wks, plot(4*j:4*j+3), (/2,2/), pres)
+do j = 0, 2
+    gsn_panel(wks, plot(8*j:8*j+7), (/4,2/), pres)
 end do
+
+gsn_panel(wks, plot(24:26), (/3,1/), pres)
+
+
+do j = 0, 2
+    gsn_panel(wks, plotc(8*j:8*j+7), (/4,2/), pres)
+end do
+
+gsn_panel(wks, plotc(24:26), (/3,1/), pres)
+
 
 end
