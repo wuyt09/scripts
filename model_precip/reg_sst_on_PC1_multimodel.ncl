@@ -86,9 +86,9 @@ res@cnFillPalette = "temp_diff_18lev"
  cnres@gsnDraw  = False
  cnres@gsnFrame = False
 
- cnres@cnFillOn = True ;False
- cnres@cnLinesOn = False ;True
- cnres@cnLineLabelsOn = False ;True
+ cnres@cnFillOn = False
+ cnres@cnLinesOn = True
+ cnres@cnLineLabelsOn = True
  cnres@cnLineLabelFontColor = "red"
  cnres@cnLineColor = "black"
  cnres@cnLineThicknessF = 2
@@ -273,11 +273,11 @@ end do
 gsn_panel(wks, plot(24:26), (/3,1/), pres)
 
 
-do j = 0, 2
-    gsn_panel(wks, plotc(8*j:8*j+7), (/4,2/), pres)
-end do
+; do j = 0, 2
+;     gsn_panel(wks, plotc(8*j:8*j+7), (/4,2/), pres)
+; end do
 
-gsn_panel(wks, plotc(24:26), (/3,1/), pres)
+; gsn_panel(wks, plotc(24:26), (/3,1/), pres)
 
 
 end
